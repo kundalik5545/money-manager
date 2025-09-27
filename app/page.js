@@ -1020,11 +1020,38 @@ export default function App() {
                       <h4 className="font-medium truncate">{account.name}</h4>
                       <p className="text-sm text-muted-foreground">{account.type.replace('_', ' ')}</p>
                     </div>
-                    <div className="text-left sm:text-right flex-shrink-0">
-                      <p className="font-semibold text-lg">{formatCurrency(account.balance)}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {account._count.transactions} transactions
-                      </p>
+                    <div className="flex items-center space-x-2">
+                      <div className="text-left sm:text-right flex-shrink-0">
+                        <p className="font-semibold text-lg">{formatCurrency(account.balance)}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {account._count.transactions} transactions
+                        </p>
+                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setEditingAccount(account)}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => setDeleteConfirm({
+                              show: true,
+                              type: 'account',
+                              id: account.id,
+                              name: account.name
+                            })}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
                 ))}
