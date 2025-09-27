@@ -391,12 +391,12 @@ export default function App() {
           
           <Dialog>
             <DialogTrigger asChild>
-              <Button variant="outline">
+              <Button variant="outline" className="w-full sm:w-auto">
                 <Upload className="w-4 h-4 mr-2" />
                 Import Data
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl mx-auto max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Import Transactions</DialogTitle>
                 <DialogDescription>Upload an Excel or CSV file to import transactions.</DialogDescription>
