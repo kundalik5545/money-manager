@@ -399,20 +399,188 @@ export async function POST(request, { params }) {
   }
 }
 
+export async function PUT(request, { params }) {
+  const path = params?.path?.join('/') || ''
+  const pathParts = path.split('/')
+  
+  try {
+    // Update transaction
+    if (pathParts[0] === 'transactions' && pathParts[1]) {
+      const transactionId = pathParts[1]
+      const body = await request.json()
+      const { amount, description, date, accountId, categoryId, subcategoryId } = body
+      
+      // Get the old transaction to calculate balance difference
+      const oldTransaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
+        include: { category: true }
+      })
+      
+      if (!oldTransaction) {
+        return NextResponse.json({ success: false, error: 'Transaction not found' }, { status: 404 })
+      }
+      
+      // Update transaction
+      const updatedTransaction = await prisma.transaction.update({
+        where: { id: transactionId },
+        data: {
+          amount: parseFloat(amount),
+          description,
+          date: new Date(date),
+          accountId,
+          categoryId,
+          subcategoryId: subcategoryId || null
+        },
+        include: {
+          account: true,
+          category: true,
+          subcategory: true
+        }
+      })
+      
+      // Recalculate account balances if account or amount changed
+      if (oldTransaction.accountId !== accountId || oldTransaction.amount !== parseFloat(amount) || oldTransaction.categoryId !== categoryId) {
+        // Reverse old transaction effect
+        const oldBalanceChange = oldTransaction.category.type === 'INCOME' ? -oldTransaction.amount : oldTransaction.amount
+        await prisma.account.update({
+          where: { id: oldTransaction.accountId },
+          data: { balance: { increment: oldBalanceChange } }
+        })
+        
+        // Apply new transaction effect
+        const newCategory = await prisma.category.findUnique({ where: { id: categoryId } })
+        const newBalanceChange = newCategory.type === 'INCOME' ? parseFloat(amount) : -parseFloat(amount)
+        await prisma.account.update({
+          where: { id: accountId },
+          data: { balance: { increment: newBalanceChange } }
+        })
+      }
+      
+      return NextResponse.json({ success: true, data: updatedTransaction })
+    }
+    
+    // Update account
+    if (pathParts[0] === 'accounts' && pathParts[1]) {
+      const accountId = pathParts[1]
+      const body = await request.json()
+      const { name, type, balance } = body
+      
+      const updatedAccount = await prisma.account.update({
+        where: { id: accountId },
+        data: { name, type, balance: parseFloat(balance) }
+      })
+      
+      return NextResponse.json({ success: true, data: updatedAccount })
+    }
+    
+    // Update category
+    if (pathParts[0] === 'categories' && pathParts[1]) {
+      const categoryId = pathParts[1]
+      const body = await request.json()
+      const { name, type, color } = body
+      
+      const updatedCategory = await prisma.category.update({
+        where: { id: categoryId },
+        data: { name, type, color }
+      })
+      
+      return NextResponse.json({ success: true, data: updatedCategory })
+    }
+    
+    return NextResponse.json({ error: 'Not found' }, { status: 404 })
+  } catch (error) {
+    console.error('Update Error:', error)
+    return NextResponse.json({ error: 'Internal server error' }, { status: 500 })
+  }
+}
+
 export async function DELETE(request, { params }) {
   const path = params?.path?.join('/') || ''
   const pathParts = path.split('/')
   
   try {
+    // Delete transaction
     if (pathParts[0] === 'transactions' && pathParts[1]) {
       const transactionId = pathParts[1]
-      await prisma.transaction.delete({ where: { id: transactionId } })
+      
+      // Get transaction details before deleting to reverse account balance
+      const transaction = await prisma.transaction.findUnique({
+        where: { id: transactionId },
+        include: { category: true }
+      })
+      
+      if (transaction) {
+        // Reverse the transaction's effect on account balance
+        const balanceChange = transaction.category.type === 'INCOME' ? -transaction.amount : transaction.amount
+        await prisma.account.update({
+          where: { id: transaction.accountId },
+          data: { balance: { increment: balanceChange } }
+        })
+        
+        // Delete the transaction
+        await prisma.transaction.delete({ where: { id: transactionId } })
+      }
+      
       return NextResponse.json({ success: true })
     }
     
+    // Delete account
+    if (pathParts[0] === 'accounts' && pathParts[1]) {
+      const accountId = pathParts[1]
+      
+      // Check if account has transactions
+      const transactionCount = await prisma.transaction.count({
+        where: { accountId }
+      })
+      
+      if (transactionCount > 0) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Cannot delete account with existing transactions' 
+        }, { status: 400 })
+      }
+      
+      await prisma.account.delete({ where: { id: accountId } })
+      return NextResponse.json({ success: true })
+    }
+    
+    // Delete category
     if (pathParts[0] === 'categories' && pathParts[1]) {
       const categoryId = pathParts[1]
+      
+      // Check if category has transactions
+      const transactionCount = await prisma.transaction.count({
+        where: { categoryId }
+      })
+      
+      if (transactionCount > 0) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Cannot delete category with existing transactions' 
+        }, { status: 400 })
+      }
+      
       await prisma.category.delete({ where: { id: categoryId } })
+      return NextResponse.json({ success: true })
+    }
+    
+    // Delete subcategory
+    if (pathParts[0] === 'subcategories' && pathParts[1]) {
+      const subcategoryId = pathParts[1]
+      
+      // Check if subcategory has transactions
+      const transactionCount = await prisma.transaction.count({
+        where: { subcategoryId }
+      })
+      
+      if (transactionCount > 0) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Cannot delete subcategory with existing transactions' 
+        }, { status: 400 })
+      }
+      
+      await prisma.subcategory.delete({ where: { id: subcategoryId } })
       return NextResponse.json({ success: true })
     }
     
