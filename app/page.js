@@ -41,6 +41,12 @@ export default function App() {
     subcategoryId: ''
   })
   
+  // Edit states
+  const [editingTransaction, setEditingTransaction] = useState(null)
+  const [editingAccount, setEditingAccount] = useState(null)
+  const [editingCategory, setEditingCategory] = useState(null)
+  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, type: '', id: '', name: '' })
+  
   // Filter states
   const [filters, setFilters] = useState({
     search: '',
