@@ -252,6 +252,24 @@ export default function App() {
     }).format(amount)
   }
   
+  // Reset filters
+  const handleResetFilters = () => {
+    setFilters({
+      search: '',
+      categoryId: '',
+      accountId: '',
+      startDate: '',
+      endDate: ''
+    })
+    setCurrentPage(1)
+  }
+  
+  // Get subcategories for selected category
+  const getSubcategoriesForCategory = (categoryId) => {
+    const category = categories.find(c => c.id === categoryId)
+    return category ? category.subcategories : []
+  }
+  
   if (loading) {
     return (
       <div className="container mx-auto p-6">
