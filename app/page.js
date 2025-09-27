@@ -521,7 +521,7 @@ export default function App() {
               <DollarSign className="h-4 w-4 text-blue-600" />
             </CardHeader>
             <CardContent>
-              <div className={`text-2xl font-bold ${
+              <div className={`text-xl lg:text-2xl font-bold ${
                 analytics.netSavings >= 0 ? 'text-green-600' : 'text-red-600'
               }`}>
                 {formatCurrency(analytics.netSavings)}
