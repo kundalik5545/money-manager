@@ -1242,9 +1242,36 @@ export default function App() {
                           {category.type}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">
-                        {category._count.transactions} transactions
-                      </p>
+                      <div className="flex items-center space-x-2">
+                        <p className="text-sm text-muted-foreground">
+                          {category._count.transactions} transactions
+                        </p>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditingCategory(category)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={() => setDeleteConfirm({
+                                show: true,
+                                type: 'category',
+                                id: category.id,
+                                name: category.name
+                              })}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </div>
                     
                     {category.subcategories.length > 0 && (
@@ -1252,9 +1279,24 @@ export default function App() {
                         <Separator className="my-2" />
                         <div className="flex flex-wrap gap-1">
                           {category.subcategories.map((sub) => (
-                            <Badge key={sub.id} variant="outline" className="text-xs">
-                              {sub.name}
-                            </Badge>
+                            <div key={sub.id} className="flex items-center">
+                              <Badge variant="outline" className="text-xs mr-1">
+                                {sub.name}
+                              </Badge>
+                              <Button 
+                                variant="ghost" 
+                                size="sm" 
+                                className="h-4 w-4 p-0 text-red-500 hover:text-red-700"
+                                onClick={() => setDeleteConfirm({
+                                  show: true,
+                                  type: 'subcategory',
+                                  id: sub.id,
+                                  name: sub.name
+                                })}
+                              >
+                                <Trash2 className="h-3 w-3" />
+                              </Button>
+                            </div>
                           ))}
                         </div>
                       </div>
