@@ -509,7 +509,7 @@ export default function App() {
               <TrendingDown className="h-4 w-4 text-red-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-red-600">
+              <div className="text-xl lg:text-2xl font-bold text-red-600">
                 {formatCurrency(analytics.totalExpense)}
               </div>
             </CardContent>
