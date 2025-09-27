@@ -607,16 +607,21 @@ export default function App() {
         <TabsContent value="transactions" className="space-y-4">
           {/* Filters */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle>Filters</CardTitle>
+              <Button variant="outline" size="sm" onClick={handleResetFilters}>
+                Reset
+              </Button>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                <Input
-                  placeholder="Search transactions..."
-                  value={filters.search}
-                  onChange={(e) => setFilters({...filters, search: e.target.value})}
-                />
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                <div className="sm:col-span-2 lg:col-span-1">
+                  <Input
+                    placeholder="Search transactions..."
+                    value={filters.search}
+                    onChange={(e) => setFilters({...filters, search: e.target.value})}
+                  />
+                </div>
                 <Select onValueChange={(value) => setFilters({...filters, categoryId: value === 'all' ? '' : value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="All categories" />
