@@ -681,21 +681,28 @@ export default function App() {
                   <>
                     <div className="space-y-2">
                       {transactions.map((transaction) => (
-                        <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                          <div className="flex items-center space-x-4">
-                            <div className={`w-2 h-2 rounded-full ${
+                        <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg space-y-2 sm:space-y-0">
+                          <div className="flex items-center space-x-4 min-w-0 flex-1">
+                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
                               transaction.category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
                             }`} />
-                            <div>
-                              <p className="font-medium">{transaction.description}</p>
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium truncate">{transaction.description}</p>
                               <p className="text-sm text-muted-foreground">
-                                {transaction.account.name} • {transaction.category.name}
-                                {transaction.subcategory && ` • ${transaction.subcategory.name}`}
+                                <span className="block sm:inline">{transaction.account.name}</span>
+                                <span className="hidden sm:inline"> • </span>
+                                <span className="block sm:inline">{transaction.category.name}</span>
+                                {transaction.subcategory && (
+                                  <>
+                                    <span className="hidden sm:inline"> • </span>
+                                    <span className="block sm:inline">{transaction.subcategory.name}</span>
+                                  </>
+                                )}
                               </p>
                             </div>
                           </div>
-                          <div className="text-right">
-                            <p className={`font-semibold ${
+                          <div className="text-right flex-shrink-0">
+                            <p className={`font-semibold text-lg ${
                               transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
                             }`}>
                               {transaction.category.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
