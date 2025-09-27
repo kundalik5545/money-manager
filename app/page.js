@@ -535,7 +535,7 @@ export default function App() {
               <Wallet className="h-4 w-4 text-purple-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
+              <div className="text-xl lg:text-2xl font-bold">
                 {analytics.transactionCount}
               </div>
             </CardContent>
