@@ -130,6 +130,33 @@ export default function App() {
       toast.error('Failed to create category')
     }
   }
+
+  // Create subcategory
+  const handleCreateSubcategory = async () => {
+    if (!newSubcategory.categoryId || !newSubcategory.name) {
+      toast.error('Please select a category and enter subcategory name')
+      return
+    }
+    
+    try {
+      const res = await fetch(`/api/categories/${newSubcategory.categoryId}/subcategories`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newSubcategory.name })
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Subcategory created successfully')
+        setNewSubcategory({ name: '', categoryId: '' })
+        fetchData()
+      } else {
+        toast.error(data.error || 'Failed to create subcategory')
+      }
+    } catch (error) {
+      toast.error('Failed to create subcategory')
+    }
+  }
   
   // Create transaction
   const handleCreateTransaction = async () => {
