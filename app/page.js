@@ -685,6 +685,119 @@ export default function App() {
         </Dialog>
       )}
       
+      {/* Edit Account Dialog */}
+      {editingAccount && (
+        <Dialog open={true} onOpenChange={() => setEditingAccount(null)}>
+          <DialogContent className="max-w-md mx-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Account</DialogTitle>
+              <DialogDescription>Update the account details below.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-account-name">Account Name</Label>
+                <Input
+                  id="edit-account-name"
+                  value={editingAccount.name}
+                  onChange={(e) => setEditingAccount({...editingAccount, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-account-type">Account Type</Label>
+                <Select onValueChange={(value) => setEditingAccount({...editingAccount, type: value})} value={editingAccount.type}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="BANK">Bank Account</SelectItem>
+                    <SelectItem value="WALLET">Wallet</SelectItem>
+                    <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-account-balance">Balance</Label>
+                <Input
+                  id="edit-account-balance"
+                  type="number"
+                  step="0.01"
+                  value={editingAccount.balance}
+                  onChange={(e) => setEditingAccount({...editingAccount, balance: e.target.value})}
+                />
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleEditAccount} className="flex-1">
+                  Update Account
+                </Button>
+                <Button variant="outline" onClick={() => setEditingAccount(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {/* Edit Category Dialog */}
+      {editingCategory && (
+        <Dialog open={true} onOpenChange={() => setEditingCategory(null)}>
+          <DialogContent className="max-w-md mx-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Category</DialogTitle>
+              <DialogDescription>Update the category details below.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-category-name">Category Name</Label>
+                <Input
+                  id="edit-category-name"
+                  value={editingCategory.name}
+                  onChange={(e) => setEditingCategory({...editingCategory, name: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-category-type">Category Type</Label>
+                <Select onValueChange={(value) => setEditingCategory({...editingCategory, type: value})} value={editingCategory.type}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="INCOME">Income</SelectItem>
+                    <SelectItem value="EXPENSE">Expense</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex gap-2">
+                <Button onClick={handleEditCategory} className="flex-1">
+                  Update Category
+                </Button>
+                <Button variant="outline" onClick={() => setEditingCategory(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteConfirm.show} onOpenChange={(open) => setDeleteConfirm({...deleteConfirm, show: open})}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete the {deleteConfirm.type} "{deleteConfirm.name}". This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-red-600 hover:bg-red-700">
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
       {/* Analytics Cards */}
       {analytics && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
