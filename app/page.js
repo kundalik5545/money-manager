@@ -292,12 +292,12 @@ export default function App() {
         <div className="flex flex-col sm:flex-row gap-2">
           <Dialog>
             <DialogTrigger asChild>
-              <Button>
+              <Button className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Transaction
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-md mx-auto">
               <DialogHeader>
                 <DialogTitle>Add New Transaction</DialogTitle>
                 <DialogDescription>Enter the transaction details below.</DialogDescription>
@@ -341,7 +341,7 @@ export default function App() {
                     <SelectContent>
                       {accounts.map((account) => (
                         <SelectItem key={account.id} value={account.id}>
-                          {account.name} ({account.type})
+                          {account.name} ({account.type.replace('_', ' ')})
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -349,7 +349,9 @@ export default function App() {
                 </div>
                 <div>
                   <Label htmlFor="category">Category</Label>
-                  <Select onValueChange={(value) => setNewTransaction({...newTransaction, categoryId: value})}>
+                  <Select onValueChange={(value) => {
+                    setNewTransaction({...newTransaction, categoryId: value, subcategoryId: ''})
+                  }}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select category" />
                     </SelectTrigger>
@@ -362,6 +364,24 @@ export default function App() {
                     </SelectContent>
                   </Select>
                 </div>
+                {newTransaction.categoryId && getSubcategoriesForCategory(newTransaction.categoryId).length > 0 && (
+                  <div>
+                    <Label htmlFor="subcategory">Subcategory (Optional)</Label>
+                    <Select onValueChange={(value) => setNewTransaction({...newTransaction, subcategoryId: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select subcategory" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">No subcategory</SelectItem>
+                        {getSubcategoriesForCategory(newTransaction.categoryId).map((subcategory) => (
+                          <SelectItem key={subcategory.id} value={subcategory.id}>
+                            {subcategory.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                )}
                 <Button onClick={handleCreateTransaction} className="w-full">
                   Create Transaction
                 </Button>
