@@ -1241,22 +1241,32 @@ export default function App() {
               <CardTitle>Add New Category</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Input
-                  placeholder="Category name"
-                  value={newCategory.name}
-                  onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
-                />
-                <Select onValueChange={(value) => setNewCategory({...newCategory, type: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Category type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="INCOME">Income</SelectItem>
-                    <SelectItem value="EXPENSE">Expense</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleCreateCategory} className="w-full">Add Category</Button>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Category Name</label>
+                    <Input
+                      placeholder="Enter category name"
+                      value={newCategory.name}
+                      onChange={(e) => setNewCategory({...newCategory, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Category Type</label>
+                    <Select onValueChange={(value) => setNewCategory({...newCategory, type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="INCOME">💰 Income</SelectItem>
+                        <SelectItem value="EXPENSE">💸 Expense</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <Button onClick={handleCreateCategory} className="w-full sm:w-auto">
+                  ➕ Add Category
+                </Button>
               </div>
             </CardContent>
           </Card>
