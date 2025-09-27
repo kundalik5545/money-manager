@@ -1276,25 +1276,35 @@ export default function App() {
               <CardTitle>Add New Subcategory</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                <Select onValueChange={(value) => setNewSubcategory({...newSubcategory, categoryId: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select parent category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name} ({category.type})
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Input
-                  placeholder="Subcategory name"
-                  value={newSubcategory.name}
-                  onChange={(e) => setNewSubcategory({...newSubcategory, name: e.target.value})}
-                />
-                <Button onClick={handleCreateSubcategory} className="w-full">Add Subcategory</Button>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Parent Category</label>
+                    <Select onValueChange={(value) => setNewSubcategory({...newSubcategory, categoryId: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select category" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {categories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.type === 'INCOME' ? '💰' : '💸'} {category.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Subcategory Name</label>
+                    <Input
+                      placeholder="Enter subcategory name"
+                      value={newSubcategory.name}
+                      onChange={(e) => setNewSubcategory({...newSubcategory, name: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleCreateSubcategory} className="w-full sm:w-auto">
+                  ➕ Add Subcategory
+                </Button>
               </div>
             </CardContent>
           </Card>
