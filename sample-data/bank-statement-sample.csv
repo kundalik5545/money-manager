@@ -1,0 +1,15 @@
+Date,Description,Amount,Account,Type
+2024-06-01,Monthly Salary,4500,Chase Checking,Income
+2024-06-02,Whole Foods Market,-125.50,Chase Checking,Expense
+2024-06-03,Starbucks Coffee,-8.75,Chase Checking,Expense
+2024-06-05,Gas Station Exxon,-65.25,Chase Checking,Expense
+2024-06-08,Amazon Purchase,-199.99,Visa Credit Card,Expense
+2024-06-10,Electric Company Bill,-87.45,Chase Checking,Expense
+2024-06-12,ATM Withdrawal,-100.00,Chase Checking,Expense
+2024-06-15,Freelance Payment,750.00,Chase Checking,Income
+2024-06-18,Grocery Store,-89.32,Chase Checking,Expense
+2024-06-20,Restaurant Dinner,-55.80,Visa Credit Card,Expense
+2024-06-22,Metro Card,-25.00,Chase Checking,Expense
+2024-06-25,Online Shopping,-145.75,Visa Credit Card,Expense
+2024-06-28,Utility Payment,-120.00,Chase Checking,Expense
+2024-06-30,Coffee Shop,-12.50,Cash Wallet,Expense
