@@ -1258,59 +1258,68 @@ export default function App() {
             <CardContent>
               <div className="space-y-4">
                 {categories.map((category) => (
-                  <div key={category.id} className="border rounded-lg p-4">
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center space-x-2">
-                        <h4 className="font-medium">{category.name}</h4>
-                        <Badge variant={category.type === 'INCOME' ? 'default' : 'secondary'}>
-                          {category.type}
-                        </Badge>
+                  <div key={category.id} className="border rounded-lg p-4 space-y-3">
+                    {/* Header with category name and actions */}
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-center space-x-3 flex-1 min-w-0">
+                        <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
+                          category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                        }`} />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-base break-words">{category.name}</h4>
+                          <div className="flex items-center space-x-2 mt-1">
+                            <Badge variant={category.type === 'INCOME' ? 'default' : 'secondary'} className="text-xs">
+                              {category.type}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {category._count.transactions} transactions
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                      <div className="flex items-center space-x-2">
-                        <p className="text-sm text-muted-foreground">
-                          {category._count.transactions} transactions
-                        </p>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" size="sm">
-                              <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={() => setEditingCategory(category)}>
-                              <Edit2 className="h-4 w-4 mr-2" />
-                              Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              className="text-red-600"
-                              onClick={() => setDeleteConfirm({
-                                show: true,
-                                type: 'category',
-                                id: category.id,
-                                name: category.name
-                              })}
-                            >
-                              <Trash2 className="h-4 w-4 mr-2" />
-                              Delete
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="sm" className="flex-shrink-0">
+                            <MoreHorizontal className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => setEditingCategory(category)}>
+                            <Edit2 className="h-4 w-4 mr-2" />
+                            Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            className="text-red-600"
+                            onClick={() => setDeleteConfirm({
+                              show: true,
+                              type: 'category',
+                              id: category.id,
+                              name: category.name
+                            })}
+                          >
+                            <Trash2 className="h-4 w-4 mr-2" />
+                            Delete
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                     
+                    {/* Subcategories */}
                     {category.subcategories.length > 0 && (
-                      <div>
-                        <Separator className="my-2" />
-                        <div className="flex flex-wrap gap-1">
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Separator className="flex-1" />
+                          <span className="text-xs text-muted-foreground px-2">Subcategories</span>
+                          <Separator className="flex-1" />
+                        </div>
+                        <div className="grid grid-cols-1 gap-2">
                           {category.subcategories.map((sub) => (
-                            <div key={sub.id} className="flex items-center">
-                              <Badge variant="outline" className="text-xs mr-1">
-                                {sub.name}
-                              </Badge>
+                            <div key={sub.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                              <span className="text-sm font-medium break-words flex-1">{sub.name}</span>
                               <Button 
                                 variant="ghost" 
                                 size="sm" 
-                                className="h-4 w-4 p-0 text-red-500 hover:text-red-700"
+                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 flex-shrink-0 ml-2"
                                 onClick={() => setDeleteConfirm({
                                   show: true,
                                   type: 'subcategory',
