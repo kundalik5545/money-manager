@@ -809,7 +809,7 @@ export default function App() {
               <CardTitle>Add New Category</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <Input
                   placeholder="Category name"
                   value={newCategory.name}
@@ -824,7 +824,35 @@ export default function App() {
                     <SelectItem value="EXPENSE">Expense</SelectItem>
                   </SelectContent>
                 </Select>
-                <Button onClick={handleCreateCategory}>Add Category</Button>
+                <Button onClick={handleCreateCategory} className="w-full">Add Category</Button>
+              </div>
+            </CardContent>
+          </Card>
+          
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Subcategory</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                <Select onValueChange={(value) => setNewSubcategory({...newSubcategory, categoryId: value})}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select parent category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name} ({category.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="Subcategory name"
+                  value={newSubcategory.name}
+                  onChange={(e) => setNewSubcategory({...newSubcategory, name: e.target.value})}
+                />
+                <Button onClick={handleCreateSubcategory} className="w-full">Add Subcategory</Button>
               </div>
             </CardContent>
           </Card>
