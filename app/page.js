@@ -991,40 +991,32 @@ export default function App() {
                   <>
                     <div className="space-y-2">
                       {transactions.map((transaction) => (
-                        <div key={transaction.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg space-y-2 sm:space-y-0">
-                          <div className="flex items-center space-x-4 min-w-0 flex-1">
-                            <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
-                              transaction.category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
-                            }`} />
-                            <div className="min-w-0 flex-1">
-                              <p className="font-medium truncate">{transaction.description}</p>
-                              <p className="text-sm text-muted-foreground">
-                                <span className="block sm:inline">{transaction.account.name}</span>
-                                <span className="hidden sm:inline"> • </span>
-                                <span className="block sm:inline">{transaction.category.name}</span>
-                                {transaction.subcategory && (
-                                  <>
-                                    <span className="hidden sm:inline"> • </span>
-                                    <span className="block sm:inline">{transaction.subcategory.name}</span>
-                                  </>
-                                )}
-                              </p>
-                            </div>
-                          </div>
-                          <div className="flex items-center space-x-2">
-                            <div className="text-right flex-shrink-0">
-                              <p className={`font-semibold text-lg ${
-                                transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
-                              }`}>
-                                {transaction.category.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {new Date(transaction.date).toLocaleDateString()}
-                              </p>
+                        <div key={transaction.id} className="border rounded-lg p-4 space-y-3">
+                          {/* Mobile-first layout */}
+                          <div className="flex items-start justify-between">
+                            <div className="flex items-start space-x-3 flex-1 min-w-0">
+                              <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
+                                transaction.category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <div className="flex-1 min-w-0">
+                                <p className="font-semibold text-base break-words">{transaction.description}</p>
+                                <div className="mt-1 space-y-1">
+                                  <p className="text-sm text-muted-foreground">
+                                    📱 {transaction.account.name}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    🏷️ {transaction.category.name}
+                                    {transaction.subcategory && ` → ${transaction.subcategory.name}`}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    📅 {new Date(transaction.date).toLocaleDateString()}
+                                  </p>
+                                </div>
+                              </div>
                             </div>
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
-                                <Button variant="ghost" size="sm">
+                                <Button variant="ghost" size="sm" className="flex-shrink-0">
                                   <MoreHorizontal className="h-4 w-4" />
                                 </Button>
                               </DropdownMenuTrigger>
@@ -1053,6 +1045,16 @@ export default function App() {
                                 </DropdownMenuItem>
                               </DropdownMenuContent>
                             </DropdownMenu>
+                          </div>
+                          
+                          {/* Amount - prominent display */}
+                          <div className="flex justify-between items-center pt-2 border-t">
+                            <span className="text-sm font-medium text-muted-foreground">Amount</span>
+                            <span className={`font-bold text-xl ${
+                              transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {transaction.category.type === 'INCOME' ? '+' : ''}{formatCurrency(transaction.amount)}
+                            </span>
                           </div>
                         </div>
                       ))}
