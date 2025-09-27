@@ -278,6 +278,96 @@ export default function App() {
     return category ? category.subcategories : []
   }
   
+  // Edit transaction
+  const handleEditTransaction = async () => {
+    try {
+      const res = await fetch(`/api/transactions/${editingTransaction.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingTransaction)
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Transaction updated successfully')
+        setEditingTransaction(null)
+        fetchData()
+      } else {
+        toast.error(data.error || 'Failed to update transaction')
+      }
+    } catch (error) {
+      toast.error('Failed to update transaction')
+    }
+  }
+  
+  // Edit account
+  const handleEditAccount = async () => {
+    try {
+      const res = await fetch(`/api/accounts/${editingAccount.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingAccount)
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Account updated successfully')
+        setEditingAccount(null)
+        fetchData()
+      } else {
+        toast.error(data.error || 'Failed to update account')
+      }
+    } catch (error) {
+      toast.error('Failed to update account')
+    }
+  }
+  
+  // Edit category
+  const handleEditCategory = async () => {
+    try {
+      const res = await fetch(`/api/categories/${editingCategory.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingCategory)
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Category updated successfully')
+        setEditingCategory(null)
+        fetchData()
+      } else {
+        toast.error(data.error || 'Failed to update category')
+      }
+    } catch (error) {
+      toast.error('Failed to update category')
+    }
+  }
+  
+  // Delete function
+  const handleDelete = async () => {
+    try {
+      const endpoint = deleteConfirm.type === 'transaction' ? 'transactions' : 
+                     deleteConfirm.type === 'account' ? 'accounts' : 
+                     deleteConfirm.type === 'category' ? 'categories' : 'subcategories'
+      
+      const res = await fetch(`/api/${endpoint}/${deleteConfirm.id}`, {
+        method: 'DELETE'
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success(`${deleteConfirm.type} deleted successfully`)
+        setDeleteConfirm({ show: false, type: '', id: '', name: '' })
+        fetchData()
+      } else {
+        toast.error(data.error || `Failed to delete ${deleteConfirm.type}`)
+      }
+    } catch (error) {
+      toast.error(`Failed to delete ${deleteConfirm.type}`)
+    }
+  }
+  
   if (loading) {
     return (
       <div className="container mx-auto p-6">
