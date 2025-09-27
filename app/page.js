@@ -564,12 +564,12 @@ export default function App() {
                     ))}
                   </SelectContent>
                 </Select>
-                <Select onValueChange={(value) => setFilters({...filters, accountId: value})}>
+                <Select onValueChange={(value) => setFilters({...filters, accountId: value === 'all' ? '' : value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="All accounts" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All accounts</SelectItem>
+                    <SelectItem value="all">All accounts</SelectItem>
                     {accounts.map((account) => (
                       <SelectItem key={account.id} value={account.id}>
                         {account.name}
