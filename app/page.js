@@ -29,6 +29,7 @@ export default function App() {
   // Form states
   const [newAccount, setNewAccount] = useState({ name: '', type: 'BANK', balance: '' })
   const [newCategory, setNewCategory] = useState({ name: '', type: 'EXPENSE' })
+  const [newSubcategory, setNewSubcategory] = useState({ name: '', categoryId: '' })
   const [newTransaction, setNewTransaction] = useState({
     amount: '',
     description: '',
