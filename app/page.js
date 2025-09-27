@@ -551,12 +551,12 @@ export default function App() {
                   value={filters.search}
                   onChange={(e) => setFilters({...filters, search: e.target.value})}
                 />
-                <Select onValueChange={(value) => setFilters({...filters, categoryId: value})}>
+                <Select onValueChange={(value) => setFilters({...filters, categoryId: value === 'all' ? '' : value})}>
                   <SelectTrigger>
                     <SelectValue placeholder="All categories" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">All categories</SelectItem>
+                    <SelectItem value="all">All categories</SelectItem>
                     {categories.map((category) => (
                       <SelectItem key={category.id} value={category.id}>
                         {category.name}
