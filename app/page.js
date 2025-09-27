@@ -586,6 +586,105 @@ export default function App() {
         </div>
       </div>
       
+      {/* Edit Transaction Dialog */}
+      {editingTransaction && (
+        <Dialog open={true} onOpenChange={() => setEditingTransaction(null)}>
+          <DialogContent className="max-w-md mx-auto">
+            <DialogHeader>
+              <DialogTitle>Edit Transaction</DialogTitle>
+              <DialogDescription>Update the transaction details below.</DialogDescription>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="edit-amount">Amount</Label>
+                <Input
+                  id="edit-amount"
+                  type="number"
+                  step="0.01"
+                  value={editingTransaction.amount}
+                  onChange={(e) => setEditingTransaction({...editingTransaction, amount: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-description">Description</Label>
+                <Input
+                  id="edit-description"
+                  value={editingTransaction.description}
+                  onChange={(e) => setEditingTransaction({...editingTransaction, description: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-date">Date</Label>
+                <Input
+                  id="edit-date"
+                  type="date"
+                  value={editingTransaction.date}
+                  onChange={(e) => setEditingTransaction({...editingTransaction, date: e.target.value})}
+                />
+              </div>
+              <div>
+                <Label htmlFor="edit-account">Account</Label>
+                <Select onValueChange={(value) => setEditingTransaction({...editingTransaction, accountId: value})} value={editingTransaction.accountId}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {accounts.map((account) => (
+                      <SelectItem key={account.id} value={account.id}>
+                        {account.name} ({account.type.replace('_', ' ')})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label htmlFor="edit-category">Category</Label>
+                <Select onValueChange={(value) => {
+                  setEditingTransaction({...editingTransaction, categoryId: value, subcategoryId: ''})
+                }} value={editingTransaction.categoryId}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categories.map((category) => (
+                      <SelectItem key={category.id} value={category.id}>
+                        {category.name} ({category.type})
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              {editingTransaction.categoryId && getSubcategoriesForCategory(editingTransaction.categoryId).length > 0 && (
+                <div>
+                  <Label htmlFor="edit-subcategory">Subcategory (Optional)</Label>
+                  <Select onValueChange={(value) => setEditingTransaction({...editingTransaction, subcategoryId: value === 'none' ? '' : value})} value={editingTransaction.subcategoryId || 'none'}>
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="none">No subcategory</SelectItem>
+                      {getSubcategoriesForCategory(editingTransaction.categoryId).map((subcategory) => (
+                        <SelectItem key={subcategory.id} value={subcategory.id}>
+                          {subcategory.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+              <div className="flex gap-2">
+                <Button onClick={handleEditTransaction} className="flex-1">
+                  Update Transaction
+                </Button>
+                <Button variant="outline" onClick={() => setEditingTransaction(null)}>
+                  Cancel
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      )}
+      
       {/* Analytics Cards */}
       {analytics && (
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 lg:gap-6">
