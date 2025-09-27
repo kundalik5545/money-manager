@@ -1120,30 +1120,43 @@ export default function App() {
               <CardTitle>Add New Account</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <Input
-                  placeholder="Account name"
-                  value={newAccount.name}
-                  onChange={(e) => setNewAccount({...newAccount, name: e.target.value})}
-                />
-                <Select onValueChange={(value) => setNewAccount({...newAccount, type: value})}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Account type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="BANK">Bank Account</SelectItem>
-                    <SelectItem value="WALLET">Wallet</SelectItem>
-                    <SelectItem value="CREDIT_CARD">Credit Card</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Input
-                  type="number"
-                  step="0.01"
-                  placeholder="Initial balance"
-                  value={newAccount.balance}
-                  onChange={(e) => setNewAccount({...newAccount, balance: e.target.value})}
-                />
-                <Button onClick={handleCreateAccount} className="w-full">Add Account</Button>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Account Name</label>
+                    <Input
+                      placeholder="Enter account name"
+                      value={newAccount.name}
+                      onChange={(e) => setNewAccount({...newAccount, name: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Account Type</label>
+                    <Select onValueChange={(value) => setNewAccount({...newAccount, type: value})}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select type" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="BANK">🏦 Bank Account</SelectItem>
+                        <SelectItem value="WALLET">👛 Wallet</SelectItem>
+                        <SelectItem value="CREDIT_CARD">💳 Credit Card</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Initial Balance</label>
+                    <Input
+                      type="number"
+                      step="0.01"
+                      placeholder="0.00"
+                      value={newAccount.balance}
+                      onChange={(e) => setNewAccount({...newAccount, balance: e.target.value})}
+                    />
+                  </div>
+                </div>
+                <Button onClick={handleCreateAccount} className="w-full sm:w-auto">
+                  ➕ Add Account
+                </Button>
               </div>
             </CardContent>
           </Card>
