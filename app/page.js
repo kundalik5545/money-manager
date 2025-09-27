@@ -497,7 +497,7 @@ export default function App() {
               <TrendingUp className="h-4 w-4 text-green-600" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-green-600">
+              <div className="text-xl lg:text-2xl font-bold text-green-600">
                 {formatCurrency(analytics.totalIncome)}
               </div>
             </CardContent>
