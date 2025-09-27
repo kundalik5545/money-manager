@@ -1166,7 +1166,8 @@ export default function App() {
               <CardTitle>Your Accounts</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-2">
+              {/* Mobile View - Cards */}
+              <div className="block md:hidden space-y-2">
                 {accounts.map((account) => (
                   <div key={account.id} className="border rounded-lg p-4 space-y-3">
                     {/* Header with name and actions */}
@@ -1230,6 +1231,163 @@ export default function App() {
                     </div>
                   </div>
                 ))}
+              </div>
+
+              {/* Desktop/Tablet View - Table */}
+              <div className="hidden md:block">
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-semibold">Account Name</th>
+                        <th className="text-left py-3 px-4 font-semibold">Type</th>
+                        <th className="text-right py-3 px-4 font-semibold">Balance</th>
+                        <th className="text-center py-3 px-4 font-semibold">Transactions</th>
+                        <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {accounts.map((account) => (
+                        <tr key={account.id} className="border-b hover:bg-muted/50">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-3 h-3 rounded-full ${
+                                account.type === 'BANK' ? 'bg-blue-500' : 
+                                account.type === 'WALLET' ? 'bg-green-500' : 'bg-orange-500'
+                              }`} />
+                              <span className="font-medium">{account.name}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge variant="outline" className="text-xs">
+                              {account.type === 'BANK' ? '🏦 Bank Account' : 
+                               account.type === 'WALLET' ? '👛 Wallet' : '💳 Credit Card'}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-right">
+                            <span className={`font-bold text-lg ${
+                              account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                            }`}>
+                              {formatCurrency(account.balance)}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="text-sm text-muted-foreground">
+                              {account._count.transactions}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setEditingAccount(account)}>
+                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => setDeleteConfirm({
+                                    show: true,
+                                    type: 'account',
+                                    id: account.id,
+                                    name: account.name
+                                  })}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Account Totals by Type */}
+                {accounts.length > 0 && (
+                  <div className="mt-6 pt-4 border-t">
+                    <h4 className="font-semibold mb-4 text-sm text-muted-foreground uppercase tracking-wide">Account Totals</h4>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                      {/* Bank Accounts Total */}
+                      {accounts.some(acc => acc.type === 'BANK') && (
+                        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-3 h-3 rounded-full bg-blue-500" />
+                            <span className="font-medium text-blue-900">Bank Accounts</span>
+                          </div>
+                          <div className="text-2xl font-bold text-blue-600">
+                            {formatCurrency(
+                              accounts
+                                .filter(acc => acc.type === 'BANK')
+                                .reduce((sum, acc) => sum + acc.balance, 0)
+                            )}
+                          </div>
+                          <div className="text-xs text-blue-600 mt-1">
+                            {accounts.filter(acc => acc.type === 'BANK').length} account(s)
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Wallet Total */}
+                      {accounts.some(acc => acc.type === 'WALLET') && (
+                        <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-3 h-3 rounded-full bg-green-500" />
+                            <span className="font-medium text-green-900">Wallets</span>
+                          </div>
+                          <div className="text-2xl font-bold text-green-600">
+                            {formatCurrency(
+                              accounts
+                                .filter(acc => acc.type === 'WALLET')
+                                .reduce((sum, acc) => sum + acc.balance, 0)
+                            )}
+                          </div>
+                          <div className="text-xs text-green-600 mt-1">
+                            {accounts.filter(acc => acc.type === 'WALLET').length} account(s)
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Credit Cards Total */}
+                      {accounts.some(acc => acc.type === 'CREDIT_CARD') && (
+                        <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
+                          <div className="flex items-center space-x-2 mb-2">
+                            <div className="w-3 h-3 rounded-full bg-orange-500" />
+                            <span className="font-medium text-orange-900">Credit Cards</span>
+                          </div>
+                          <div className="text-2xl font-bold text-orange-600">
+                            {formatCurrency(
+                              accounts
+                                .filter(acc => acc.type === 'CREDIT_CARD')
+                                .reduce((sum, acc) => sum + acc.balance, 0)
+                            )}
+                          </div>
+                          <div className="text-xs text-orange-600 mt-1">
+                            {accounts.filter(acc => acc.type === 'CREDIT_CARD').length} account(s)
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Grand Total */}
+                    <div className="mt-4 pt-4 border-t border-dashed">
+                      <div className="flex justify-between items-center">
+                        <span className="font-semibold text-lg">Total Net Worth</span>
+                        <span className={`font-bold text-2xl ${
+                          accounts.reduce((sum, acc) => sum + acc.balance, 0) >= 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {formatCurrency(accounts.reduce((sum, acc) => sum + acc.balance, 0))}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
