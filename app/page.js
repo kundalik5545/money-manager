@@ -281,15 +281,15 @@ export default function App() {
   }
   
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto p-4 lg:p-6 space-y-6 lg:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Personal Finance Dashboard</h1>
-          <p className="text-muted-foreground">Track your income, expenses, and manage your finances</p>
+          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Personal Finance Dashboard</h1>
+          <p className="text-muted-foreground text-sm lg:text-base">Track your income, expenses, and manage your finances</p>
         </div>
         
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-2">
           <Dialog>
             <DialogTrigger asChild>
               <Button>
