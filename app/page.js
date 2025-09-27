@@ -1130,21 +1130,19 @@ export default function App() {
             <CardContent>
               <div className="space-y-2">
                 {accounts.map((account) => (
-                  <div key={account.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg space-y-2 sm:space-y-0">
-                    <div className="min-w-0 flex-1">
-                      <h4 className="font-medium truncate">{account.name}</h4>
-                      <p className="text-sm text-muted-foreground">{account.type.replace('_', ' ')}</p>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <div className="text-left sm:text-right flex-shrink-0">
-                        <p className="font-semibold text-lg">{formatCurrency(account.balance)}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {account._count.transactions} transactions
-                        </p>
+                  <div key={account.id} className="border rounded-lg p-4 space-y-3">
+                    {/* Header with name and actions */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center space-x-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          account.type === 'BANK' ? 'bg-blue-500' : 
+                          account.type === 'WALLET' ? 'bg-green-500' : 'bg-orange-500'
+                        }`} />
+                        <h4 className="font-semibold text-base break-words flex-1">{account.name}</h4>
                       </div>
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm">
+                          <Button variant="ghost" size="sm" className="flex-shrink-0">
                             <MoreHorizontal className="h-4 w-4" />
                           </Button>
                         </DropdownMenuTrigger>
@@ -1167,6 +1165,30 @@ export default function App() {
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
+                    </div>
+                    
+                    {/* Account details */}
+                    <div className="space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Type</span>
+                        <Badge variant="outline" className="text-xs">
+                          {account.type.replace('_', ' ')}
+                        </Badge>
+                      </div>
+                      <div className="flex justify-between items-center">
+                        <span className="text-sm text-muted-foreground">Transactions</span>
+                        <span className="text-sm font-medium">{account._count.transactions}</span>
+                      </div>
+                    </div>
+                    
+                    {/* Balance - prominent display */}
+                    <div className="flex justify-between items-center pt-2 border-t">
+                      <span className="text-sm font-medium text-muted-foreground">Balance</span>
+                      <span className={`font-bold text-xl ${
+                        account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {formatCurrency(account.balance)}
+                      </span>
                     </div>
                   </div>
                 ))}
