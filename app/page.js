@@ -1083,23 +1083,27 @@ export default function App() {
                     
                     {/* Pagination */}
                     {totalPages > 1 && (
-                      <div className="flex items-center justify-between">
+                      <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
                         <Button
                           variant="outline"
                           onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
                           disabled={currentPage === 1}
+                          className="w-full sm:w-auto"
                         >
-                          Previous
+                          ← Previous
                         </Button>
-                        <span className="text-sm text-muted-foreground">
-                          Page {currentPage} of {totalPages}
-                        </span>
+                        <div className="flex items-center space-x-2">
+                          <span className="text-sm text-muted-foreground whitespace-nowrap">
+                            Page {currentPage} of {totalPages}
+                          </span>
+                        </div>
                         <Button
                           variant="outline"
                           onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
                           disabled={currentPage === totalPages}
+                          className="w-full sm:w-auto"
                         >
-                          Next
+                          Next →
                         </Button>
                       </div>
                     )}
