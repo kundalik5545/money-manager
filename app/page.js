@@ -300,6 +300,28 @@ export default function App() {
     }
   }
   
+  // Edit transaction
+  const handleEditTransaction = async () => {
+    try {
+      const res = await fetch(`/api/transactions/${editingTransaction.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(editingTransaction)
+      })
+      
+      const data = await res.json()
+      if (data.success) {
+        toast.success('Transaction updated successfully')
+        setEditingTransaction(null)
+        fetchData()
+      } else {
+        toast.error(data.error || 'Failed to update transaction')
+      }
+    } catch (error) {
+      toast.error('Failed to update transaction')
+    }
+  }
+  
   // Edit account
   const handleEditAccount = async () => {
     try {
