@@ -367,12 +367,12 @@ export default function App() {
                 {newTransaction.categoryId && getSubcategoriesForCategory(newTransaction.categoryId).length > 0 && (
                   <div>
                     <Label htmlFor="subcategory">Subcategory (Optional)</Label>
-                    <Select onValueChange={(value) => setNewTransaction({...newTransaction, subcategoryId: value})}>
+                    <Select onValueChange={(value) => setNewTransaction({...newTransaction, subcategoryId: value === 'none' ? '' : value})}>
                       <SelectTrigger>
                         <SelectValue placeholder="Select subcategory" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">No subcategory</SelectItem>
+                        <SelectItem value="none">No subcategory</SelectItem>
                         {getSubcategoriesForCategory(newTransaction.categoryId).map((subcategory) => (
                           <SelectItem key={subcategory.id} value={subcategory.id}>
                             {subcategory.name}
