@@ -785,13 +785,13 @@ export default function App() {
             <CardContent>
               <div className="space-y-2">
                 {accounts.map((account) => (
-                  <div key={account.id} className="flex items-center justify-between p-4 border rounded-lg">
-                    <div>
-                      <h4 className="font-medium">{account.name}</h4>
+                  <div key={account.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 border rounded-lg space-y-2 sm:space-y-0">
+                    <div className="min-w-0 flex-1">
+                      <h4 className="font-medium truncate">{account.name}</h4>
                       <p className="text-sm text-muted-foreground">{account.type.replace('_', ' ')}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="font-semibold">{formatCurrency(account.balance)}</p>
+                    <div className="text-left sm:text-right flex-shrink-0">
+                      <p className="font-semibold text-lg">{formatCurrency(account.balance)}</p>
                       <p className="text-sm text-muted-foreground">
                         {account._count.transactions} transactions
                       </p>
