@@ -750,7 +750,7 @@ export default function App() {
               <CardTitle>Add New Account</CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <Input
                   placeholder="Account name"
                   value={newAccount.name}
@@ -773,7 +773,7 @@ export default function App() {
                   value={newAccount.balance}
                   onChange={(e) => setNewAccount({...newAccount, balance: e.target.value})}
                 />
-                <Button onClick={handleCreateAccount}>Add Account</Button>
+                <Button onClick={handleCreateAccount} className="w-full">Add Account</Button>
               </div>
             </CardContent>
           </Card>
