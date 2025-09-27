@@ -799,15 +799,48 @@ export default function App() {
                               </p>
                             </div>
                           </div>
-                          <div className="text-right flex-shrink-0">
-                            <p className={`font-semibold text-lg ${
-                              transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
-                            }`}>
-                              {transaction.category.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
-                            </p>
-                            <p className="text-sm text-muted-foreground">
-                              {new Date(transaction.date).toLocaleDateString()}
-                            </p>
+                          <div className="flex items-center space-x-2">
+                            <div className="text-right flex-shrink-0">
+                              <p className={`font-semibold text-lg ${
+                                transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                              }`}>
+                                {transaction.category.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                              </p>
+                              <p className="text-sm text-muted-foreground">
+                                {new Date(transaction.date).toLocaleDateString()}
+                              </p>
+                            </div>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => {
+                                  setEditingTransaction({
+                                    ...transaction,
+                                    date: transaction.date.split('T')[0],
+                                    subcategoryId: transaction.subcategory?.id || ''
+                                  })
+                                }}>
+                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => setDeleteConfirm({
+                                    show: true,
+                                    type: 'transaction',
+                                    id: transaction.id,
+                                    name: transaction.description
+                                  })}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                           </div>
                         </div>
                       ))}
