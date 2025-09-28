@@ -37,6 +37,7 @@ export default function DashboardLayout({ children }) {
       <NavigationController onCollapseChange={handleCollapseChange} />
       
       {/* Main Content - responsive to screen size and sidebar state */}
+      
       <div className={`transition-all duration-300 ${
         isMobile 
           ? "pt-16" // Space for mobile top nav
