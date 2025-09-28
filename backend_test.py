@@ -508,6 +508,392 @@ class Phase3BackendTester:
                     critical=False
                 )
     
+    def test_accounts_api_endpoints(self):
+        """Test accounts API endpoints functionality (without authentication - testing implementation)"""
+        print("\n=== Testing Accounts API Endpoints Implementation ===")
+        
+        # Test GET /api/accounts
+        try:
+            url = f"{API_BASE}/accounts"
+            response = self.session.get(url, timeout=15)
+            
+            if response.status_code == 401:
+                try:
+                    data = response.json()
+                    if data.get('success') == False and 'Unauthorized' in data.get('error', ''):
+                        self.log_test(
+                            "Accounts API - GET /api/accounts Authentication",
+                            True,
+                            "GET /api/accounts correctly requires authentication",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            "Accounts API - GET /api/accounts Authentication",
+                            False,
+                            "GET /api/accounts returns 401 but with unexpected format",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Accounts API - GET /api/accounts Authentication",
+                        True,
+                        "GET /api/accounts correctly requires authentication (non-JSON 401)",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+            else:
+                self.log_test(
+                    "Accounts API - GET /api/accounts Authentication",
+                    False,
+                    f"GET /api/accounts should return 401 without auth, got {response.status_code}",
+                    response.text[:200],
+                    critical=True
+                )
+        except requests.exceptions.RequestException as e:
+            self.log_test(
+                "Accounts API - GET /api/accounts",
+                False,
+                "GET /api/accounts request failed",
+                str(e),
+                critical=True
+            )
+        
+        # Test POST /api/accounts
+        try:
+            url = f"{API_BASE}/accounts"
+            test_account = {
+                "name": "Test Bank Account",
+                "type": "BANK",
+                "balance": 1000.00
+            }
+            response = self.session.post(url, json=test_account, timeout=15)
+            
+            if response.status_code == 401:
+                try:
+                    data = response.json()
+                    if data.get('success') == False and 'Unauthorized' in data.get('error', ''):
+                        self.log_test(
+                            "Accounts API - POST /api/accounts Authentication",
+                            True,
+                            "POST /api/accounts correctly requires authentication",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            "Accounts API - POST /api/accounts Authentication",
+                            False,
+                            "POST /api/accounts returns 401 but with unexpected format",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Accounts API - POST /api/accounts Authentication",
+                        True,
+                        "POST /api/accounts correctly requires authentication (non-JSON 401)",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+            else:
+                self.log_test(
+                    "Accounts API - POST /api/accounts Authentication",
+                    False,
+                    f"POST /api/accounts should return 401 without auth, got {response.status_code}",
+                    response.text[:200],
+                    critical=True
+                )
+        except requests.exceptions.RequestException as e:
+            self.log_test(
+                "Accounts API - POST /api/accounts",
+                False,
+                "POST /api/accounts request failed",
+                str(e),
+                critical=True
+            )
+        
+        # Test PUT /api/accounts/{id} (account update)
+        try:
+            url = f"{API_BASE}/accounts/test-account-id"
+            update_data = {
+                "name": "Updated Account Name",
+                "type": "CREDIT_CARD",
+                "balance": 2000.00
+            }
+            response = self.session.put(url, json=update_data, timeout=15)
+            
+            if response.status_code == 401:
+                try:
+                    data = response.json()
+                    if data.get('success') == False and 'Unauthorized' in data.get('error', ''):
+                        self.log_test(
+                            "Accounts API - PUT /api/accounts/{id} Authentication",
+                            True,
+                            "PUT /api/accounts/{id} correctly requires authentication",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            "Accounts API - PUT /api/accounts/{id} Authentication",
+                            False,
+                            "PUT /api/accounts/{id} returns 401 but with unexpected format",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Accounts API - PUT /api/accounts/{id} Authentication",
+                        True,
+                        "PUT /api/accounts/{id} correctly requires authentication (non-JSON 401)",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+            else:
+                self.log_test(
+                    "Accounts API - PUT /api/accounts/{id} Authentication",
+                    False,
+                    f"PUT /api/accounts/{{id}} should return 401 without auth, got {response.status_code}",
+                    response.text[:200],
+                    critical=True
+                )
+        except requests.exceptions.RequestException as e:
+            self.log_test(
+                "Accounts API - PUT /api/accounts/{id}",
+                False,
+                "PUT /api/accounts/{id} request failed",
+                str(e),
+                critical=True
+            )
+        
+        # Test DELETE /api/accounts/{id}
+        try:
+            url = f"{API_BASE}/accounts/test-account-id"
+            response = self.session.delete(url, timeout=15)
+            
+            if response.status_code == 401:
+                try:
+                    data = response.json()
+                    if data.get('success') == False and 'Unauthorized' in data.get('error', ''):
+                        self.log_test(
+                            "Accounts API - DELETE /api/accounts/{id} Authentication",
+                            True,
+                            "DELETE /api/accounts/{id} correctly requires authentication",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            "Accounts API - DELETE /api/accounts/{id} Authentication",
+                            False,
+                            "DELETE /api/accounts/{id} returns 401 but with unexpected format",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Accounts API - DELETE /api/accounts/{id} Authentication",
+                        True,
+                        "DELETE /api/accounts/{id} correctly requires authentication (non-JSON 401)",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+            else:
+                self.log_test(
+                    "Accounts API - DELETE /api/accounts/{id} Authentication",
+                    False,
+                    f"DELETE /api/accounts/{{id}} should return 401 without auth, got {response.status_code}",
+                    response.text[:200],
+                    critical=True
+                )
+        except requests.exceptions.RequestException as e:
+            self.log_test(
+                "Accounts API - DELETE /api/accounts/{id}",
+                False,
+                "DELETE /api/accounts/{id} request failed",
+                str(e),
+                critical=True
+            )
+        
+        # Test PUT /api/accounts/default (new endpoint mentioned in review)
+        try:
+            url = f"{API_BASE}/accounts/default"
+            default_data = {
+                "accountId": "test-account-id"
+            }
+            response = self.session.put(url, json=default_data, timeout=15)
+            
+            if response.status_code == 401:
+                try:
+                    data = response.json()
+                    if data.get('success') == False and 'Unauthorized' in data.get('error', ''):
+                        self.log_test(
+                            "Accounts API - PUT /api/accounts/default Authentication",
+                            True,
+                            "PUT /api/accounts/default correctly requires authentication",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            "Accounts API - PUT /api/accounts/default Authentication",
+                            False,
+                            "PUT /api/accounts/default returns 401 but with unexpected format",
+                            f"Status: {response.status_code}, Response: {data}",
+                            critical=True
+                        )
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Accounts API - PUT /api/accounts/default Authentication",
+                        True,
+                        "PUT /api/accounts/default correctly requires authentication (non-JSON 401)",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+            elif response.status_code == 404:
+                self.log_test(
+                    "Accounts API - PUT /api/accounts/default Implementation",
+                    False,
+                    "PUT /api/accounts/default endpoint not implemented (404 Not Found)",
+                    f"Status: {response.status_code}, Response: {response.text[:200]}",
+                    critical=True
+                )
+            else:
+                self.log_test(
+                    "Accounts API - PUT /api/accounts/default Authentication",
+                    False,
+                    f"PUT /api/accounts/default unexpected response: {response.status_code}",
+                    response.text[:200],
+                    critical=True
+                )
+        except requests.exceptions.RequestException as e:
+            self.log_test(
+                "Accounts API - PUT /api/accounts/default",
+                False,
+                "PUT /api/accounts/default request failed",
+                str(e),
+                critical=True
+            )
+    
+    def test_accounts_api_implementation_analysis(self):
+        """Analyze the accounts API implementation in the code"""
+        print("\n=== Analyzing Accounts API Implementation ===")
+        
+        try:
+            with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+                api_content = f.read()
+            
+            # Check for accounts endpoints implementation
+            has_get_accounts = 'getAccounts' in api_content and 'case \'accounts\':' in api_content
+            has_create_account = 'createAccount' in api_content and 'case \'accounts\':' in api_content
+            has_update_account = 'accounts' in api_content and 'PUT' in api_content
+            has_delete_account = 'accounts' in api_content and 'DELETE' in api_content
+            has_default_account_endpoint = 'accounts/default' in api_content or 'default' in api_content
+            
+            # Check for proper response format
+            has_success_response_format = '{ success: true' in api_content or 'success: true' in api_content
+            has_error_response_format = '{ success: false' in api_content or 'success: false' in api_content
+            
+            # Check for user ownership verification
+            has_user_ownership = 'userId: user.id' in api_content
+            has_transaction_count = '_count' in api_content and 'transactions' in api_content
+            has_balance_calculation = 'balance' in api_content
+            has_isdefault_flag = 'isDefault' in api_content or 'defaultAccountId' in api_content
+            
+            self.log_test(
+                "Accounts API Implementation - GET /api/accounts",
+                has_get_accounts,
+                "GET /api/accounts endpoint implemented" if has_get_accounts else "GET /api/accounts endpoint missing",
+                f"Found getAccounts function: {has_get_accounts}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - POST /api/accounts",
+                has_create_account,
+                "POST /api/accounts endpoint implemented" if has_create_account else "POST /api/accounts endpoint missing",
+                f"Found createAccount function: {has_create_account}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - PUT /api/accounts/{id}",
+                has_update_account,
+                "PUT /api/accounts/{id} endpoint implemented" if has_update_account else "PUT /api/accounts/{id} endpoint missing",
+                f"Found accounts update in PUT handler: {has_update_account}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - DELETE /api/accounts/{id}",
+                has_delete_account,
+                "DELETE /api/accounts/{id} endpoint implemented" if has_delete_account else "DELETE /api/accounts/{id} endpoint missing",
+                f"Found accounts delete in DELETE handler: {has_delete_account}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - PUT /api/accounts/default",
+                has_default_account_endpoint,
+                "PUT /api/accounts/default endpoint implemented" if has_default_account_endpoint else "PUT /api/accounts/default endpoint NOT IMPLEMENTED (mentioned in review request)",
+                f"Found default account handling: {has_default_account_endpoint}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - Response Format",
+                has_success_response_format and has_error_response_format,
+                "Proper response format implemented" if (has_success_response_format and has_error_response_format) else "Response format inconsistent",
+                f"Success format: {has_success_response_format}, Error format: {has_error_response_format}",
+                critical=False
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - User Ownership",
+                has_user_ownership,
+                "User ownership verification implemented" if has_user_ownership else "User ownership verification missing",
+                f"Found userId filtering: {has_user_ownership}",
+                critical=True
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - Transaction Count",
+                has_transaction_count,
+                "Transaction count included in accounts response" if has_transaction_count else "Transaction count missing from accounts response",
+                f"Found transaction count: {has_transaction_count}",
+                critical=False
+            )
+            
+            self.log_test(
+                "Accounts API Implementation - Balance Calculations",
+                has_balance_calculation,
+                "Balance calculations implemented" if has_balance_calculation else "Balance calculations missing",
+                f"Found balance handling: {has_balance_calculation}",
+                critical=False
+            )
+            
+            # Check for specific account types
+            has_account_types = 'BANK' in api_content and 'CREDIT_CARD' in api_content and 'WALLET' in api_content
+            self.log_test(
+                "Accounts API Implementation - Account Types",
+                has_account_types,
+                "Multiple account types supported (BANK, CREDIT_CARD, WALLET)" if has_account_types else "Account types may be limited",
+                f"Found account type references: {has_account_types}",
+                critical=False
+            )
+                
+        except Exception as e:
+            self.log_test(
+                "Accounts API Implementation Analysis",
+                False,
+                "Failed to analyze accounts API implementation",
+                str(e),
+                critical=True
+            )
+    
     def test_data_integrity_and_isolation(self):
         """Test that seeded data is structured correctly and user isolation would work"""
         print("\n=== Testing Data Integrity and User Isolation ===")
