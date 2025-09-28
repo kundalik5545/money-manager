@@ -176,6 +176,11 @@ function TransactionsContent() {
     }
   };
 
+  const handleEditTransaction = (transaction) => {
+    // For now, just show an alert. We'll implement edit modal later
+    alert(`Edit functionality for "${transaction.description}" will be implemented soon!`);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
