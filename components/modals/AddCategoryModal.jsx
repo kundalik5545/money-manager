@@ -36,8 +36,7 @@ export default function AddCategoryModal({ isOpen, onClose, onSuccess }) {
           // Reset form
           setFormData({
             name: "",
-            type: "EXPENSE",
-            color: "#FF8042"
+            type: "EXPENSE"
           });
         }
       }
