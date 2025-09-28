@@ -588,6 +588,27 @@ export default function App() {
               )}
             </DialogContent>
           </Dialog>
+          
+          <Button variant="outline" className="w-full sm:w-auto" onClick={() => {
+            // Export transactions to CSV
+            const csvContent = "data:text/csv;charset=utf-8," + 
+              "Date,Description,Amount,Category,Account\n" +
+              transactions.map(t => 
+                `${t.date},${t.description},${t.amount},${t.category.name},${t.account.name}`
+              ).join("\n");
+            
+            const encodedUri = encodeURI(csvContent);
+            const link = document.createElement("a");
+            link.setAttribute("href", encodedUri);
+            link.setAttribute("download", `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            toast.success('Transactions exported successfully');
+          }}>
+            <Upload className="w-4 h-4 mr-2 rotate-180" />
+            Export Data
+          </Button>
         </div>
       </div>
       
