@@ -8,639 +8,162 @@ import { Button } from "@/components/ui/button";
 import { BarChart3, ArrowRight, Shield, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 
-const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D']
+export default function HomePage() {
+  const { isSignedIn, isLoaded } = useUser();
+  const router = useRouter();
 
-export default function App() {
-  const [accounts, setAccounts] = useState([])
-  const [categories, setCategories] = useState([])
-  const [transactions, setTransactions] = useState([])
-  const [analytics, setAnalytics] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [selectedFile, setSelectedFile] = useState(null)
-  const [uploadData, setUploadData] = useState(null)
-  const [columnMapping, setColumnMapping] = useState({})
-  
-  // Form states
-  const [newAccount, setNewAccount] = useState({ name: '', type: 'BANK', balance: '' })
-  const [newCategory, setNewCategory] = useState({ name: '', type: 'EXPENSE' })
-  const [newSubcategory, setNewSubcategory] = useState({ name: '', categoryId: '' })
-  const [newTransaction, setNewTransaction] = useState({
-    amount: '',
-    description: '',
-    date: new Date().toISOString().split('T')[0],
-    accountId: '',
-    categoryId: '',
-    subcategoryId: ''
-  })
-  
-  // Edit states
-  const [editingTransaction, setEditingTransaction] = useState(null)
-  const [editingAccount, setEditingAccount] = useState(null)
-  const [editingCategory, setEditingCategory] = useState(null)
-  const [deleteConfirm, setDeleteConfirm] = useState({ show: false, type: '', id: '', name: '' })
-  
-  // View toggle states
-  const [transactionView, setTransactionView] = useState('card') // 'card' or 'table'
-  const [accountView, setAccountView] = useState('card') // 'card' or 'table'  
-  const [categoryView, setCategoryView] = useState('card') // 'card' or 'table'
-  
-  // Filter states
-  const [filters, setFilters] = useState({
-    search: '',
-    categoryId: '',
-    accountId: '',
-    startDate: '',
-    endDate: ''
-  })
-  
-  const [currentPage, setCurrentPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  
-  // Fetch data
-  const fetchData = async () => {
-    try {
-      const [accountsRes, categoriesRes, transactionsRes, analyticsRes] = await Promise.all([
-        fetch('/api/accounts'),
-        fetch('/api/categories'),
-        fetch(`/api/transactions?page=${currentPage}&limit=10&${new URLSearchParams(filters)}`),
-        fetch('/api/analytics')
-      ])
-      
-      const [accountsData, categoriesData, transactionsData, analyticsData] = await Promise.all([
-        accountsRes.json(),
-        categoriesRes.json(),
-        transactionsRes.json(),
-        analyticsRes.json()
-      ])
-      
-      if (accountsData.success) setAccounts(accountsData.data)
-      if (categoriesData.success) setCategories(categoriesData.data)
-      if (transactionsData.success) {
-        setTransactions(transactionsData.data.transactions)
-        setTotalPages(transactionsData.data.pages)
-      }
-      if (analyticsData.success) setAnalytics(analyticsData.data)
-    } catch (error) {
-      toast.error('Failed to fetch data')
-      console.error('Fetch error:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-  
   useEffect(() => {
-    fetchData()
-  }, [currentPage, filters])
-  
-  // Create account
-  const handleCreateAccount = async () => {
-    try {
-      const res = await fetch('/api/accounts', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newAccount)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Account created successfully')
-        setNewAccount({ name: '', type: 'BANK', balance: '' })
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to create account')
-      }
-    } catch (error) {
-      toast.error('Failed to create account')
+    if (isLoaded && isSignedIn) {
+      router.push("/dashboard");
     }
-  }
-  
-  // Create category
-  const handleCreateCategory = async () => {
-    try {
-      const res = await fetch('/api/categories', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newCategory)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Category created successfully')
-        setNewCategory({ name: '', type: 'EXPENSE' })
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to create category')
-      }
-    } catch (error) {
-      toast.error('Failed to create category')
-    }
+  }, [isSignedIn, isLoaded, router]);
+
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
   }
 
-  // Create subcategory
-  const handleCreateSubcategory = async () => {
-    if (!newSubcategory.categoryId || !newSubcategory.name) {
-      toast.error('Please select a category and enter subcategory name')
-      return
-    }
-    
-    try {
-      const res = await fetch(`/api/categories/${newSubcategory.categoryId}/subcategories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: newSubcategory.name })
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Subcategory created successfully')
-        setNewSubcategory({ name: '', categoryId: '' })
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to create subcategory')
-      }
-    } catch (error) {
-      toast.error('Failed to create subcategory')
-    }
-  }
-  
-  // Create transaction
-  const handleCreateTransaction = async () => {
-    try {
-      const res = await fetch('/api/transactions', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(newTransaction)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Transaction created successfully')
-        setNewTransaction({
-          amount: '',
-          description: '',
-          date: new Date().toISOString().split('T')[0],
-          accountId: '',
-          categoryId: '',
-          subcategoryId: ''
-        })
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to create transaction')
-      }
-    } catch (error) {
-      toast.error('Failed to create transaction')
-    }
-  }
-  
-  // Handle file upload
-  const handleFileUpload = async () => {
-    if (!selectedFile) return
-    
-    const formData = new FormData()
-    formData.append('file', selectedFile)
-    
-    try {
-      const res = await fetch('/api/upload', {
-        method: 'POST',
-        body: formData
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        setUploadData(data.data)
-        toast.success('File uploaded successfully')
-      } else {
-        toast.error(data.error || 'Failed to upload file')
-      }
-    } catch (error) {
-      toast.error('Failed to upload file')
-    }
-  }
-  
-  // Handle import
-  const handleImport = async () => {
-    if (!uploadData || !columnMapping.amount || !columnMapping.description || !columnMapping.date) {
-      toast.error('Please map all required columns')
-      return
-    }
-    
-    try {
-      const res = await fetch('/api/import', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          data: uploadData.rawData,
-          mapping: columnMapping,
-          defaultAccountId: accounts[0]?.id,
-          defaultCategoryId: categories.find(c => c.type === 'EXPENSE')?.id
-        })
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success(`Imported ${data.data.imported} transactions`)
-        setUploadData(null)
-        setColumnMapping({})
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to import transactions')
-      }
-    } catch (error) {
-      toast.error('Failed to import transactions')
-    }
-  }
-  
-  const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: 'USD'
-    }).format(amount)
-  }
-  
-  // Reset filters
-  const handleResetFilters = () => {
-    setFilters({
-      search: '',
-      categoryId: '',
-      accountId: '',
-      startDate: '',
-      endDate: ''
-    })
-    setCurrentPage(1)
-  }
-  
-  // Get subcategories for selected category
-  const getSubcategoriesForCategory = (categoryId) => {
-    const category = categories.find(c => c.id === categoryId)
-    return category ? category.subcategories : []
-  }
-  
-  // Edit transaction
-  const handleEditTransaction = async () => {
-    try {
-      const res = await fetch(`/api/transactions/${editingTransaction.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingTransaction)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Transaction updated successfully')
-        setEditingTransaction(null)
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to update transaction')
-      }
-    } catch (error) {
-      toast.error('Failed to update transaction')
-    }
-  }
-  
-  // Edit account
-  const handleEditAccount = async () => {
-    try {
-      const res = await fetch(`/api/accounts/${editingAccount.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingAccount)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Account updated successfully')
-        setEditingAccount(null)
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to update account')
-      }
-    } catch (error) {
-      toast.error('Failed to update account')
-    }
-  }
-  
-  // Edit category
-  const handleEditCategory = async () => {
-    try {
-      const res = await fetch(`/api/categories/${editingCategory.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(editingCategory)
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success('Category updated successfully')
-        setEditingCategory(null)
-        fetchData()
-      } else {
-        toast.error(data.error || 'Failed to update category')
-      }
-    } catch (error) {
-      toast.error('Failed to update category')
-    }
-  }
-  
-  // Delete function
-  const handleDelete = async () => {
-    try {
-      const endpoint = deleteConfirm.type === 'transaction' ? 'transactions' : 
-                     deleteConfirm.type === 'account' ? 'accounts' : 
-                     deleteConfirm.type === 'category' ? 'categories' : 'subcategories'
-      
-      const res = await fetch(`/api/${endpoint}/${deleteConfirm.id}`, {
-        method: 'DELETE'
-      })
-      
-      const data = await res.json()
-      if (data.success) {
-        toast.success(`${deleteConfirm.type} deleted successfully`)
-        setDeleteConfirm({ show: false, type: '', id: '', name: '' })
-        fetchData()
-      } else {
-        toast.error(data.error || `Failed to delete ${deleteConfirm.type}`)
-      }
-    } catch (error) {
-      toast.error(`Failed to delete ${deleteConfirm.type}`)
-    }
-  }
-  
-  if (loading) {
-    return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-        </div>
-      </div>
-    )
-  }
-  
   return (
-    <div className="container mx-auto p-4 lg:p-6 space-y-6 lg:space-y-8">
-      {/* Header */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl lg:text-3xl font-bold tracking-tight">Personal Finance Dashboard</h1>
-          <p className="text-muted-foreground text-sm lg:text-base">Track your income, expenses, and manage your finances</p>
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
+      {/* Navigation */}
+      <nav className="border-b bg-white/80 backdrop-blur-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center py-4">
+            <div className="flex items-center">
+              <BarChart3 className="h-8 w-8 text-blue-600 mr-3" />
+              <span className="text-xl font-bold text-gray-900">FinanceHub</span>
+            </div>
+            <div className="flex items-center gap-4">
+              <Link href="/sign-in">
+                <Button variant="ghost">Sign In</Button>
+              </Link>
+              <Link href="/sign-up">
+                <Button>Get Started</Button>
+              </Link>
+            </div>
+          </div>
         </div>
-        
-        <div className="flex flex-col sm:flex-row gap-2">
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button className="w-full sm:w-auto">
-                <Plus className="w-4 h-4 mr-2" />
-                Add Transaction
+      </nav>
+
+      {/* Hero Section */}
+      <section className="py-20 px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto text-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+            Master Your <span className="text-blue-600">Financial Future</span>
+          </h1>
+          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
+            Take control of your finances with our comprehensive personal finance dashboard. 
+            Track expenses, set budgets, and achieve your financial goals with powerful insights and automation.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link href="/sign-up">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Start Free Today
+                <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-md mx-auto">
-              <DialogHeader>
-                <DialogTitle>Add New Transaction</DialogTitle>
-                <DialogDescription>Enter the transaction details below.</DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="amount">Amount</Label>
-                  <Input
-                    id="amount"
-                    type="number"
-                    step="0.01"
-                    value={newTransaction.amount}
-                    onChange={(e) => setNewTransaction({...newTransaction, amount: e.target.value})}
-                    placeholder="Enter amount"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="description">Description</Label>
-                  <Input
-                    id="description"
-                    value={newTransaction.description}
-                    onChange={(e) => setNewTransaction({...newTransaction, description: e.target.value})}
-                    placeholder="Enter description"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="date">Date</Label>
-                  <Input
-                    id="date"
-                    type="date"
-                    value={newTransaction.date}
-                    onChange={(e) => setNewTransaction({...newTransaction, date: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="account">Account</Label>
-                  <Select onValueChange={(value) => setNewTransaction({...newTransaction, accountId: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select account" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {accounts.map((account) => (
-                        <SelectItem key={account.id} value={account.id}>
-                          {account.name} ({account.type.replace('_', ' ')})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label htmlFor="category">Category</Label>
-                  <Select onValueChange={(value) => {
-                    setNewTransaction({...newTransaction, categoryId: value, subcategoryId: ''})
-                  }}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select category" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {categories.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.name} ({category.type})
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                {newTransaction.categoryId && getSubcategoriesForCategory(newTransaction.categoryId).length > 0 && (
-                  <div>
-                    <Label htmlFor="subcategory">Subcategory (Optional)</Label>
-                    <Select onValueChange={(value) => setNewTransaction({...newTransaction, subcategoryId: value === 'none' ? '' : value})}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select subcategory" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="none">No subcategory</SelectItem>
-                        {getSubcategoriesForCategory(newTransaction.categoryId).map((subcategory) => (
-                          <SelectItem key={subcategory.id} value={subcategory.id}>
-                            {subcategory.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-                <Button onClick={handleCreateTransaction} className="w-full">
-                  Create Transaction
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-          
-          <Dialog>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <Upload className="w-4 h-4 mr-2" />
-                Import Data
+            </Link>
+            <Link href="/sign-in">
+              <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+                Sign In
               </Button>
-            </DialogTrigger>
-            <DialogContent className="max-w-2xl mx-auto max-h-[80vh] overflow-y-auto">
-              <DialogHeader>
-                <DialogTitle>Import Transactions</DialogTitle>
-                <DialogDescription>Upload an Excel or CSV file to import transactions.</DialogDescription>
-              </DialogHeader>
-              
-              {!uploadData ? (
-                <div className="space-y-4">
-                  <div>
-                    <Label htmlFor="file">Select File</Label>
-                    <Input
-                      id="file"
-                      type="file"
-                      accept=".xlsx,.xls,.csv"
-                      onChange={(e) => setSelectedFile(e.target.files[0])}
-                    />
-                  </div>
-                  <Button onClick={handleFileUpload} disabled={!selectedFile}>
-                    Upload & Preview
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium">Column Mapping</h4>
-                    <p className="text-sm text-muted-foreground">Map your file columns to transaction fields</p>
-                  </div>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label>Amount Column</Label>
-                      <Select onValueChange={(value) => setColumnMapping({...columnMapping, amount: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {uploadData.columns.map((col) => (
-                            <SelectItem key={col} value={col}>{col}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label>Description Column</Label>
-                      <Select onValueChange={(value) => setColumnMapping({...columnMapping, description: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {uploadData.columns.map((col) => (
-                            <SelectItem key={col} value={col}>{col}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    
-                    <div>
-                      <Label>Date Column</Label>
-                      <Select onValueChange={(value) => setColumnMapping({...columnMapping, date: value})}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select column" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {uploadData.columns.map((col) => (
-                            <SelectItem key={col} value={col}>{col}</SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                  
-                  <div>
-                    <h5 className="font-medium mb-2">Preview ({uploadData.totalRows} rows)</h5>
-                    <div className="border rounded-md p-4 max-h-48 overflow-auto">
-                      <pre className="text-xs">
-                        {JSON.stringify(uploadData.preview, null, 2)}
-                      </pre>
-                    </div>
-                  </div>
-                  
-                  <div className="flex gap-2">
-                    <Button onClick={handleImport}>Import Transactions</Button>
-                    <Button variant="outline" onClick={() => setUploadData(null)}>Cancel</Button>
-                  </div>
-                </div>
-              )}
-            </DialogContent>
-          </Dialog>
-          
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                <Upload className="w-4 h-4 mr-2 rotate-180" />
-                Export Data
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={async () => {
-                try {
-                  const response = await fetch('/api/export?format=csv')
-                  if (response.ok) {
-                    const blob = await response.blob()
-                    const url = window.URL.createObjectURL(blob)
-                    const link = document.createElement('a')
-                    link.href = url
-                    link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-                    window.URL.revokeObjectURL(url)
-                    toast.success('CSV file downloaded successfully')
-                  } else {
-                    toast.error('Failed to export CSV')
-                  }
-                } catch (error) {
-                  toast.error('Failed to export CSV')
-                  console.error('Export error:', error)
-                }
-              }}>
-                📄 Export as CSV
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={async () => {
-                try {
-                  const response = await fetch('/api/export?format=xlsx')
-                  if (response.ok) {
-                    const blob = await response.blob()
-                    const url = window.URL.createObjectURL(blob)
-                    const link = document.createElement('a')
-                    link.href = url
-                    link.download = `transactions_${new Date().toISOString().split('T')[0]}.xlsx`
-                    document.body.appendChild(link)
-                    link.click()
-                    document.body.removeChild(link)
-                    window.URL.revokeObjectURL(url)
-                    toast.success('Excel file downloaded successfully')
-                  } else {
-                    toast.error('Failed to export Excel')
-                  }
-                } catch (error) {
-                  toast.error('Failed to export Excel')
-                  console.error('Export error:', error)
-                }
-              }}>
-                📊 Export as Excel
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+            </Link>
+          </div>
         </div>
-      </div>
+      </section>
+
+      {/* Features Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              Everything you need to manage your money
+            </h2>
+            <p className="text-xl text-gray-600">
+              Powerful features designed to simplify your financial life
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <Card className="text-center">
+              <CardHeader>
+                <TrendingUp className="h-12 w-12 text-blue-600 mx-auto mb-4" />
+                <CardTitle>Smart Analytics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Get detailed insights into your spending patterns with interactive charts and reports. 
+                  Track your progress towards financial goals.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Shield className="h-12 w-12 text-green-600 mx-auto mb-4" />
+                <CardTitle>Secure & Private</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Your financial data is protected with bank-level encryption. 
+                  We never share your personal information with third parties.
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card className="text-center">
+              <CardHeader>
+                <Users className="h-12 w-12 text-purple-600 mx-auto mb-4" />
+                <CardTitle>Multi-User Support</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-600">
+                  Perfect for individuals, couples, and families. 
+                  Each user has their own secure dashboard and data.
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-blue-600">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-white mb-6">
+            Ready to take control of your finances?
+          </h2>
+          <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
+            Join thousands of users who are already managing their money smarter with FinanceHub.
+          </p>
+          <Link href="/sign-up">
+            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
+              Get Started Free
+              <ArrowRight className="ml-2 h-5 w-5" />
+            </Button>
+          </Link>
+        </div>
+      </section>
+
+      {/* Footer */}
+      <footer className="py-12 bg-gray-900 text-white">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center mb-4 md:mb-0">
+              <BarChart3 className="h-6 w-6 text-blue-400 mr-2" />
+              <span className="text-lg font-semibold">FinanceHub</span>
+            </div>
+            <p className="text-gray-400 text-center md:text-right">
+              © 2024 FinanceHub. All rights reserved.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
+  );
+}
       
       {/* Edit Transaction Dialog */}
       {editingTransaction && (
