@@ -4,8 +4,27 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, CreditCard, Wallet, Building } from "lucide-react";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Plus, 
+  CreditCard, 
+  Wallet, 
+  Building, 
+  Edit, 
+  Trash2, 
+  List, 
+  Grid3X3,
+  Filter,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Eye,
+  EyeOff
+} from "lucide-react";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
