@@ -348,6 +348,13 @@ function TransactionsContent() {
           )}
         </CardContent>
       </Card>
+
+      {/* Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleTransactionSuccess}
+      />
     </div>
   );
 }
