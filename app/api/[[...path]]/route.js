@@ -624,6 +624,45 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ success: true, data: updatedTransaction })
     }
     
+    // Set default account
+    if (pathParts[0] === 'accounts' && pathParts[1] === 'default') {
+      const body = await request.json()
+      const { accountId } = body
+      
+      if (!accountId) {
+        return NextResponse.json({ success: false, error: 'Account ID required' }, { status: 400 })
+      }
+      
+      // Verify account belongs to user
+      const account = await prisma.account.findFirst({
+        where: { id: accountId, userId: user.id }
+      })
+      
+      if (!account) {
+        return NextResponse.json({ success: false, error: 'Account not found' }, { status: 404 })
+      }
+      
+      // Update all user accounts to isDefault: false
+      await prisma.account.updateMany({
+        where: { userId: user.id },
+        data: { isDefault: false }
+      })
+      
+      // Set specified account to isDefault: true
+      const updatedAccount = await prisma.account.update({
+        where: { id: accountId },
+        data: { isDefault: true }
+      })
+      
+      // Update user's defaultAccountId
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { defaultAccountId: accountId }
+      })
+      
+      return NextResponse.json({ success: true, data: updatedAccount })
+    }
+    
     // Update account
     if (pathParts[0] === 'accounts' && pathParts[1]) {
       const accountId = pathParts[1]
