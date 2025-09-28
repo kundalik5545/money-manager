@@ -29,6 +29,47 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, editData }
     linkedPhone: ""
   });
 
+  // Initialize form with edit data when modal opens
+  useState(() => {
+    if (editData && isOpen) {
+      setFormData({
+        name: editData.name || "",
+        type: editData.type || "BANK",
+        balance: editData.balance?.toString() || "",
+        // Enhanced bank details (not stored in DB yet)
+        accountNumber: "",
+        ifscCode: "",
+        bankName: "",
+        branchName: "",
+        upiId: "",
+        cardNumber: "",
+        cardHolderName: "",
+        expiryDate: "",
+        creditLimit: "",
+        walletProvider: "",
+        linkedPhone: ""
+      });
+    } else if (!isOpen) {
+      // Reset form when modal closes
+      setFormData({
+        name: "",
+        type: "BANK",
+        balance: "",
+        accountNumber: "",
+        ifscCode: "",
+        bankName: "",
+        branchName: "",
+        upiId: "",
+        cardNumber: "",
+        cardHolderName: "",
+        expiryDate: "",
+        creditLimit: "",
+        walletProvider: "",
+        linkedPhone: ""
+      });
+    }
+  }, [editData, isOpen]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
