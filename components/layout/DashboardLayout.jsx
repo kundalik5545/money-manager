@@ -34,7 +34,7 @@ export default function DashboardLayout({ children }) {
       
       {/* Main Content */}
       <div className="lg:pl-64 transition-all duration-300">
-        <main className="p-4 lg:p-8">
+        <main className="p-4 lg:p-8 max-w-7xl mx-auto">
           {children}
         </main>
       </div>
