@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { 
@@ -14,7 +14,10 @@ import {
   Menu,
   X,
   Sun,
-  Moon
+  Moon,
+  LogIn,
+  LogOut,
+  User
 } from "lucide-react";
 import Link from "next/link";
 
@@ -30,7 +33,24 @@ const navigation = [
 export default function MobileNavigation() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(true); // Will be made active later
   const pathname = usePathname();
+
+  // Initialize dark mode from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedTheme = localStorage.getItem("theme");
+      const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+      const shouldBeDark = savedTheme === "dark" || (!savedTheme && prefersDark);
+      
+      setDarkMode(shouldBeDark);
+      if (shouldBeDark) {
+        document.documentElement.classList.add("dark");
+      } else {
+        document.documentElement.classList.remove("dark");
+      }
+    }
+  }, []);
 
   const toggleDarkMode = () => {
     const newDarkMode = !darkMode;
@@ -43,6 +63,22 @@ export default function MobileNavigation() {
       document.documentElement.classList.remove("dark");
       localStorage.setItem("theme", "light");
     }
+  };
+
+  const handleMenuItemClick = () => {
+    setMobileOpen(false); // Close menu when item is clicked
+  };
+
+  const handleLogin = () => {
+    // Will be implemented later
+    console.log("Login functionality will be implemented");
+    setMobileOpen(false);
+  };
+
+  const handleLogout = () => {
+    // Will be implemented later  
+    console.log("Logout functionality will be implemented");
+    setMobileOpen(false);
   };
 
   return (
