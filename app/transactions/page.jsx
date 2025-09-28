@@ -257,22 +257,62 @@ function TransactionsContent() {
           <CardTitle>Search & Filters</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col lg:flex-row gap-4">
-            <div className="flex-1">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
+            {/* Search */}
+            <div className="lg:col-span-2">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search transactions by description or category..."
+                  placeholder="Search transactions..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10"
                 />
               </div>
             </div>
-            <Button variant="outline" className="flex items-center gap-2">
-              <Filter className="h-4 w-4" />
-              Filters
-            </Button>
+
+            {/* Type Filter */}
+            <div>
+              <select
+                value={filterType}
+                onChange={(e) => setFilterType(e.target.value)}
+                className="w-full px-3 py-2 border border-input bg-background rounded-md text-sm"
+              >
+                <option value="ALL">All Types</option>
+                <option value="INCOME">Income</option>
+                <option value="EXPENSE">Expense</option>
+              </select>
+            </div>
+
+            {/* Date Range */}
+            <div>
+              <Input
+                type="date"
+                placeholder="Start Date"
+                value={dateRange.start}
+                onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
+              />
+            </div>
+            <div>
+              <Input
+                type="date"
+                placeholder="End Date"
+                value={dateRange.end}
+                onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
+              />
+            </div>
+
+            {/* Reset Button */}
+            <div>
+              <Button 
+                variant="outline" 
+                onClick={handleResetFilters}
+                className="w-full"
+              >
+                <X className="h-4 w-4 mr-2" />
+                Reset
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
