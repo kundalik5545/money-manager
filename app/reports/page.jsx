@@ -39,57 +39,141 @@ import {
   AreaChart
 } from "recharts";
 
-const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
+const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D', '#FFC658', '#FF7C7C'];
 
 export default function ReportsPage() {
   const [timeFilter, setTimeFilter] = useState("monthly");
   const [reportType, setReportType] = useState("overview");
   const [loading, setLoading] = useState(true);
   const [reportData, setReportData] = useState({});
+  const [dateRange, setDateRange] = useState({
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth() - 2, 1).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+  const [transactions, setTransactions] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [categoryTableVisible, setCategoryTableVisible] = useState(true);
 
   useEffect(() => {
     fetchReportData();
-  }, [timeFilter, reportType]);
+  }, [timeFilter, reportType, dateRange]);
 
   const fetchReportData = async () => {
+    setLoading(true);
     try {
-      // Mock data - replace with actual API calls based on filters
-      const mockData = {
-        overview: {
-          totalIncome: 9300.00,
-          totalExpense: 2901.70,
-          netSavings: 6398.30,
-          transactionCount: 89,
-          avgTransactionSize: 104.51,
-          monthlyTrend: [
-            { period: 'Oct 2023', income: 4500, expense: 2200, net: 2300 },
-            { period: 'Nov 2023', income: 4800, expense: 1950, net: 2850 },
-            { period: 'Dec 2023', income: 5100, expense: 2100, net: 3000 },
-            { period: 'Jan 2024', income: 5300, expense: 1477, net: 3823 },
-          ],
-          categoryBreakdown: [
-            { name: 'Food & Dining', value: 850.75, color: '#0088FE' },
-            { name: 'Transportation', value: 320.40, color: '#00C49F' },
-            { name: 'Utilities', value: 485.25, color: '#FFBB28' },
-            { name: 'Entertainment', value: 245.80, color: '#FF8042' },
-          ],
-          dailySpending: [
-            { date: 'Jan 10', amount: 45.30 },
-            { date: 'Jan 11', amount: 89.50 },
-            { date: 'Jan 12', amount: 23.75 },
-            { date: 'Jan 13', amount: 156.80 },
-            { date: 'Jan 14', amount: 67.25 },
-            { date: 'Jan 15', amount: 234.60 },
-          ]
-        }
-      };
+      // Fetch transactions based on date range
+      const transactionsUrl = `/api/transactions?startDate=${dateRange.startDate}&endDate=${dateRange.endDate}`;
+      const transactionsResponse = await fetch(transactionsUrl);
+      const transactionsData = await transactionsResponse.json();
       
-      setReportData(mockData);
+      // Fetch categories
+      const categoriesResponse = await fetch('/api/categories');
+      const categoriesData = await categoriesResponse.json();
+      
+      if (transactionsData.success && categoriesData.success) {
+        setTransactions(transactionsData.data);
+        setCategories(categoriesData.data);
+        
+        // Process data based on current filters
+        const processedData = processTransactionData(transactionsData.data, categoriesData.data);
+        setReportData(processedData);
+      }
     } catch (error) {
       console.error("Failed to fetch report data:", error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const processTransactionData = (transactions, categories) => {
+    const income = transactions.filter(t => t.category.type === 'INCOME');
+    const expenses = transactions.filter(t => t.category.type === 'EXPENSE');
+    
+    const totalIncome = income.reduce((sum, t) => sum + t.amount, 0);
+    const totalExpense = expenses.reduce((sum, t) => sum + t.amount, 0);
+    const netSavings = totalIncome - totalExpense;
+    
+    // Category breakdown
+    const categoryBreakdown = {};
+    expenses.forEach(t => {
+      if (!categoryBreakdown[t.category.name]) {
+        categoryBreakdown[t.category.name] = 0;
+      }
+      categoryBreakdown[t.category.name] += t.amount;
+    });
+    
+    const categoryChartData = Object.entries(categoryBreakdown)
+      .map(([name, value], index) => ({
+        name,
+        value,
+        color: CHART_COLORS[index % CHART_COLORS.length]
+      }))
+      .sort((a, b) => b.value - a.value);
+    
+    // Time-based data
+    const timeBasedData = generateTimeBasedData(transactions);
+    
+    return {
+      overview: {
+        totalIncome,
+        totalExpense,
+        netSavings,
+        transactionCount: transactions.length,
+        avgTransactionSize: transactions.length > 0 ? (totalIncome + totalExpense) / transactions.length : 0,
+        categoryBreakdown: categoryChartData,
+        timeBasedData,
+        categoryWiseTable: generateCategoryTable(categories, transactions)
+      }
+    };
+  };
+
+  const generateTimeBasedData = (transactions) => {
+    const data = {};
+    
+    transactions.forEach(t => {
+      const date = new Date(t.date);
+      let key;
+      
+      if (timeFilter === 'daily') {
+        key = date.toLocaleDateString();
+      } else if (timeFilter === 'monthly') {
+        key = date.toLocaleString('default', { month: 'short', year: 'numeric' });
+      } else if (timeFilter === 'yearly') {
+        key = date.getFullYear().toString();
+      }
+      
+      if (!data[key]) {
+        data[key] = { period: key, income: 0, expense: 0, net: 0 };
+      }
+      
+      if (t.category.type === 'INCOME') {
+        data[key].income += t.amount;
+      } else {
+        data[key].expense += t.amount;
+      }
+      data[key].net = data[key].income - data[key].expense;
+    });
+    
+    return Object.values(data).sort((a, b) => new Date(a.period) - new Date(b.period));
+  };
+
+  const generateCategoryTable = (categories, transactions) => {
+    return categories.map(category => {
+      const categoryTransactions = transactions.filter(t => t.categoryId === category.id);
+      const totalAmount = categoryTransactions.reduce((sum, t) => sum + t.amount, 0);
+      const transactionCount = categoryTransactions.length;
+      const avgAmount = transactionCount > 0 ? totalAmount / transactionCount : 0;
+      
+      return {
+        id: category.id,
+        name: category.name,
+        type: category.type,
+        totalAmount,
+        transactionCount,
+        avgAmount,
+        percentage: transactions.length > 0 ? (transactionCount / transactions.length) * 100 : 0
+      };
+    }).filter(cat => cat.totalAmount > 0).sort((a, b) => b.totalAmount - a.totalAmount);
   };
 
   const formatCurrency = (amount) => {
