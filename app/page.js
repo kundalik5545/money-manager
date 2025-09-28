@@ -1298,8 +1298,9 @@ export default function App() {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Mobile View - Cards */}
-              <div className="block md:hidden space-y-2">
+              {/* Card View */}
+              {accountView === 'card' && (
+                <div className="space-y-2">
                 {accounts.map((account) => (
                   <div key={account.id} className="border rounded-lg p-4 space-y-3">
                     {/* Header with name and actions */}
