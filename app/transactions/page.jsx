@@ -24,6 +24,9 @@ function TransactionsContent() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewType, setViewType] = useState("table"); // "table" or "card"
+  const [showAddModal, setShowAddModal] = useState(false);
+  const transactionsPerPage = 10;
 
   useEffect(() => {
     fetchTransactions();
