@@ -184,17 +184,77 @@
         - comment: "Excel export fully functional - verified Content-Type (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet), Content-Disposition header with .xlsx filename, valid Excel file format with 'Transactions' worksheet, all required headers present, auto-sized columns working, exported 21 transactions successfully"
 
 ## frontend:
-  - task: "Export button UI with dropdown"
+  - task: "Landing Page with Authentication"
     implemented: true
-    working: false  # needs testing
+    working: "NA"
     file: "/app/app/page.js"
     stuck_count: 0
-    priority: "medium"
+    priority: "high"
     needs_retesting: true
     status_history:
-        - working: false
+        - working: "NA"
         - agent: "main"
-        - comment: "Added Export Data dropdown button with CSV and Excel options in header section"
+        - comment: "Landing page created with Clerk authentication integration, redirects authenticated users to /dashboard"
+
+  - task: "Dashboard Layout with Sidebar"
+    implemented: true
+    working: "NA"
+    file: "/app/components/layout/DashboardLayout.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Dashboard layout with responsive sidebar created, includes dark mode support and navigation"
+
+  - task: "Transactions Page with Full Functionality"
+    implemented: false
+    working: "NA"
+    file: "/app/app/transactions/page.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Need to migrate transaction CRUD, filtering, export functionality from original page.js to new transactions route"
+
+  - task: "Accounts Page with Balance Display"
+    implemented: false
+    working: "NA"
+    file: "/app/app/accounts/page.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Need to migrate account management and balance display functionality to new accounts route"
+
+  - task: "Categories Page with CRUD Operations"
+    implemented: false
+    working: "NA"
+    file: "/app/app/categories/page.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Need to migrate category and subcategory management to new categories route"
+
+  - task: "Dashboard Overview Page"
+    implemented: false
+    working: "NA"
+    file: "/app/app/dashboard/page.jsx"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: "NA"
+        - agent: "main"
+        - comment: "Need to create dashboard overview with key metrics, charts, and account totals"
 
 ## metadata:
   created_by: "main_agent"
