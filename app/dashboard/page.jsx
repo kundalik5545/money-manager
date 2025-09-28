@@ -17,10 +17,11 @@ import {
   Target
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { user } = useUser();
   const [analytics, setAnalytics] = useState(null);
   const [recentTransactions, setRecentTransactions] = useState([]);
