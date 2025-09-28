@@ -103,7 +103,7 @@ export async function PUT(request) {
     }
 
     const body = await request.json()
-    const { id, name, type, color } = body
+    const { id, name, type } = body
     
     // Verify category belongs to user
     const existingCategory = await prisma.category.findFirst({
@@ -118,8 +118,7 @@ export async function PUT(request) {
       where: { id },
       data: { 
         name, 
-        type,
-        color: color || '#3B82F6'
+        type
       }
     })
     
