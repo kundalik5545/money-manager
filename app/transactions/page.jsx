@@ -18,6 +18,7 @@ import {
   Trash2
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AddTransactionModal from "@/components/modals/AddTransactionModal";
 
 function TransactionsContent() {
   const [transactions, setTransactions] = useState([]);
