@@ -1276,8 +1276,26 @@ export default function App() {
           </Card>
           
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Your Accounts</CardTitle>
+              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+                <Button
+                  variant={accountView === 'card' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setAccountView('card')}
+                  className="h-8 px-2"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={accountView === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setAccountView('table')}
+                  className="h-8 px-2"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {/* Mobile View - Cards */}
