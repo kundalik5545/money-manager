@@ -444,6 +444,8 @@ export async function GET(request, { params }) {
         return await getTransactions(request)
       case 'analytics':
         return await getAnalytics(request)
+      case 'export':
+        return await exportTransactions(request)
       default:
         return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
