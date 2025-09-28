@@ -1,11 +1,43 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import * as XLSX from 'xlsx'
+
+// Helper function to get authenticated user
+async function getAuthenticatedUser() {
+  const { userId } = auth()
+  if (!userId) {
+    return null
+  }
+  
+  // Find or create user in our database
+  let user = await prisma.user.findUnique({
+    where: { clerkId: userId }
+  })
+  
+  if (!user) {
+    // Create user if doesn't exist
+    user = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email: '', // Will be updated when user provides it
+      }
+    })
+  }
+  
+  return user
+}
 
 // GET /api/accounts
 async function getAccounts() {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const accounts = await prisma.account.findMany({
+      where: { userId: user.id },
       include: {
         _count: {
           select: { transactions: true }
@@ -23,11 +55,21 @@ async function getAccounts() {
 // POST /api/accounts
 async function createAccount(request) {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { name, type, balance = 0 } = body
     
     const account = await prisma.account.create({
-      data: { name, type, balance: parseFloat(balance) }
+      data: { 
+        name, 
+        type, 
+        balance: parseFloat(balance),
+        userId: user.id
+      }
     })
     
     return NextResponse.json({ success: true, data: account })
@@ -40,7 +82,13 @@ async function createAccount(request) {
 // GET /api/categories
 async function getCategories() {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const categories = await prisma.category.findMany({
+      where: { userId: user.id },
       include: {
         subcategories: true,
         _count: {
@@ -49,6 +97,7 @@ async function getCategories() {
       },
       orderBy: { createdAt: 'desc' }
     })
+    
     return NextResponse.json({ success: true, data: categories })
   } catch (error) {
     console.error('Error fetching categories:', error)
@@ -59,11 +108,20 @@ async function getCategories() {
 // POST /api/categories
 async function createCategory(request) {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
-    const { name, type, color = '#3b82f6' } = body
+    const { name, type } = body
     
     const category = await prisma.category.create({
-      data: { name, type, color }
+      data: { 
+        name, 
+        type,
+        userId: user.id
+      }
     })
     
     return NextResponse.json({ success: true, data: category })
@@ -73,9 +131,23 @@ async function createCategory(request) {
   }
 }
 
-// POST /api/categories/:id/subcategories
+// POST /api/categories/{id}/subcategories
 async function createSubcategory(request, categoryId) {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    // Verify category belongs to user
+    const category = await prisma.category.findFirst({
+      where: { id: categoryId, userId: user.id }
+    })
+    
+    if (!category) {
+      return NextResponse.json({ success: false, error: 'Category not found' }, { status: 404 })
+    }
+
     const body = await request.json()
     const { name } = body
     
@@ -93,64 +165,58 @@ async function createSubcategory(request, categoryId) {
 // GET /api/transactions
 async function getTransactions(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const page = parseInt(searchParams.get('page') || '1')
-    const limit = parseInt(searchParams.get('limit') || '10')
-    const search = searchParams.get('search')
-    const categoryId = searchParams.get('categoryId')
-    const accountId = searchParams.get('accountId')
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const search = url.searchParams.get('search') || ''
+    const categoryId = url.searchParams.get('categoryId')
+    const subcategoryId = url.searchParams.get('subcategoryId')
+    const accountId = url.searchParams.get('accountId')
+    const startDate = url.searchParams.get('startDate')
+    const endDate = url.searchParams.get('endDate')
     
-    const skip = (page - 1) * limit
-    
-    const where = {}
+    const whereClause = { userId: user.id }
     
     if (search) {
-      where.description = {
+      whereClause.description = {
         contains: search,
         mode: 'insensitive'
       }
     }
     
     if (categoryId) {
-      where.categoryId = categoryId
+      whereClause.categoryId = categoryId
+    }
+    
+    if (subcategoryId) {
+      whereClause.subcategoryId = subcategoryId
     }
     
     if (accountId) {
-      where.accountId = accountId
+      whereClause.accountId = accountId
     }
     
-    if (startDate || endDate) {
-      where.date = {}
-      if (startDate) where.date.gte = new Date(startDate)
-      if (endDate) where.date.lte = new Date(endDate)
-    }
-    
-    const [transactions, total] = await Promise.all([
-      prisma.transaction.findMany({
-        where,
-        include: {
-          account: true,
-          category: true,
-          subcategory: true
-        },
-        orderBy: { date: 'desc' },
-        skip,
-        take: limit
-      }),
-      prisma.transaction.count({ where })
-    ])
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        transactions,
-        total,
-        pages: Math.ceil(total / limit),
-        currentPage: page
+    if (startDate && endDate) {
+      whereClause.date = {
+        gte: new Date(startDate),
+        lte: new Date(endDate)
       }
+    }
+    
+    const transactions = await prisma.transaction.findMany({
+      where: whereClause,
+      include: {
+        account: true,
+        category: true,
+        subcategory: true
+      },
+      orderBy: { date: 'desc' }
     })
+    
+    return NextResponse.json({ success: true, data: transactions })
   } catch (error) {
     console.error('Error fetching transactions:', error)
     return NextResponse.json({ success: false, error: error.message }, { status: 500 })
@@ -160,8 +226,26 @@ async function getTransactions(request) {
 // POST /api/transactions
 async function createTransaction(request) {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { amount, description, date, accountId, categoryId, subcategoryId } = body
+    
+    // Verify account and category belong to user
+    const account = await prisma.account.findFirst({
+      where: { id: accountId, userId: user.id }
+    })
+    
+    const category = await prisma.category.findFirst({
+      where: { id: categoryId, userId: user.id }
+    })
+    
+    if (!account || !category) {
+      return NextResponse.json({ success: false, error: 'Invalid account or category' }, { status: 400 })
+    }
     
     // Create transaction
     const transaction = await prisma.transaction.create({
@@ -171,7 +255,8 @@ async function createTransaction(request) {
         date: new Date(date),
         accountId,
         categoryId,
-        subcategoryId: subcategoryId || null
+        subcategoryId: subcategoryId || null,
+        userId: user.id
       },
       include: {
         account: true,
@@ -181,16 +266,10 @@ async function createTransaction(request) {
     })
     
     // Update account balance
-    const category = await prisma.category.findUnique({ where: { id: categoryId } })
     const balanceChange = category.type === 'INCOME' ? parseFloat(amount) : -parseFloat(amount)
-    
     await prisma.account.update({
       where: { id: accountId },
-      data: {
-        balance: {
-          increment: balanceChange
-        }
-      }
+      data: { balance: { increment: balanceChange } }
     })
     
     return NextResponse.json({ success: true, data: transaction })
@@ -200,94 +279,40 @@ async function createTransaction(request) {
   }
 }
 
-// POST /api/upload
-async function uploadFile(request) {
-  try {
-    const formData = await request.formData()
-    const file = formData.get('file')
-    
-    if (!file) {
-      return NextResponse.json({ success: false, error: 'No file uploaded' }, { status: 400 })
-    }
-    
-    const buffer = Buffer.from(await file.arrayBuffer())
-    const workbook = XLSX.read(buffer)
-    const sheetName = workbook.SheetNames[0]
-    const worksheet = workbook.Sheets[sheetName]
-    const data = XLSX.utils.sheet_to_json(worksheet)
-    
-    // Return parsed data for column mapping
-    const preview = data.slice(0, 5) // First 5 rows for preview
-    const columns = data.length > 0 ? Object.keys(data[0]) : []
-    
-    return NextResponse.json({
-      success: true,
-      data: {
-        preview,
-        columns,
-        totalRows: data.length,
-        rawData: data
-      }
-    })
-  } catch (error) {
-    console.error('Error uploading file:', error)
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
-  }
-}
-
-// POST /api/import
-async function importTransactions(request) {
-  try {
-    const body = await request.json()
-    const { data, mapping, defaultAccountId, defaultCategoryId } = body
-    
-    const transactions = []
-    
-    for (const row of data) {
-      const amount = parseFloat(row[mapping.amount] || 0)
-      const description = row[mapping.description] || 'Imported transaction'
-      const date = new Date(row[mapping.date] || new Date())
-      
-      if (amount !== 0) {
-        transactions.push({
-          amount: Math.abs(amount),
-          description,
-          date,
-          accountId: defaultAccountId,
-          categoryId: defaultCategoryId
-        })
-      }
-    }
-    
-    // Bulk create transactions
-    const created = await prisma.transaction.createMany({
-      data: transactions
-    })
-    
-    return NextResponse.json({
-      success: true,
-      data: { imported: created.count }
-    })
-  } catch (error) {
-    console.error('Error importing transactions:', error)
-    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
-  }
-}
-
 // GET /api/analytics
 async function getAnalytics(request) {
   try {
-    const { searchParams } = new URL(request.url)
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const period = url.searchParams.get('period') || 'all'
     
-    const dateFilter = {}
-    if (startDate) dateFilter.gte = new Date(startDate)
-    if (endDate) dateFilter.lte = new Date(endDate)
+    let dateFilter = {}
+    const now = new Date()
     
-    const whereClause = startDate || endDate ? { date: dateFilter } : {}
+    switch (period) {
+      case 'week':
+        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
+        dateFilter = { gte: weekAgo }
+        break
+      case 'month':
+        const monthAgo = new Date(now.getFullYear(), now.getMonth(), 1)
+        dateFilter = { gte: monthAgo }
+        break
+      case 'year':
+        const yearAgo = new Date(now.getFullYear(), 0, 1)
+        dateFilter = { gte: yearAgo }
+        break
+    }
     
-    // Get transactions with categories
+    const whereClause = { userId: user.id }
+    if (Object.keys(dateFilter).length > 0) {
+      whereClause.date = dateFilter
+    }
+    
     const transactions = await prisma.transaction.findMany({
       where: whereClause,
       include: {
@@ -347,7 +372,128 @@ async function getAnalytics(request) {
   }
 }
 
-// Main handler
+// GET /api/export?format=csv|xlsx
+async function exportTransactions(request) {
+  try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
+    const url = new URL(request.url)
+    const format = url.searchParams.get('format') || 'csv'
+    
+    // Fetch user's transactions with related data
+    const transactions = await prisma.transaction.findMany({
+      where: { userId: user.id },
+      include: {
+        account: true,
+        category: true,
+        subcategory: true
+      },
+      orderBy: { date: 'desc' }
+    })
+    
+    // Prepare data for export
+    const exportData = transactions.map(t => ({
+      Date: new Date(t.date).toLocaleDateString(),
+      Description: t.description,
+      Amount: t.amount,
+      Category: t.category.name,
+      Subcategory: t.subcategory?.name || '',
+      Account: t.account.name,
+      Type: t.category.type
+    }))
+    
+    if (format === 'xlsx') {
+      // Create Excel file
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      
+      // Auto-size columns
+      const colWidths = []
+      const headers = Object.keys(exportData[0] || {})
+      headers.forEach((header, i) => {
+        const maxLength = Math.max(
+          header.length,
+          ...exportData.map(row => String(row[header]).length)
+        )
+        colWidths[i] = { wch: Math.min(maxLength + 2, 50) }
+      })
+      ws['!cols'] = colWidths
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Transactions')
+      
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+      
+      return new NextResponse(buffer, {
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Content-Disposition': `attachment; filename="transactions-${new Date().toISOString().split('T')[0]}.xlsx"`
+        }
+      })
+    } else {
+      // Create CSV
+      const headers = ['Date', 'Description', 'Amount', 'Category', 'Subcategory', 'Account', 'Type']
+      const csvRows = [headers.join(',')]
+      
+      exportData.forEach(row => {
+        const values = headers.map(header => {
+          const value = row[header] || ''
+          // Escape quotes and wrap in quotes if contains comma or quote
+          if (typeof value === 'string' && (value.includes(',') || value.includes('"'))) {
+            return `"${value.replace(/"/g, '""')}"`
+          }
+          return value
+        })
+        csvRows.push(values.join(','))
+      })
+      
+      const csvContent = csvRows.join('\n')
+      
+      return new NextResponse(csvContent, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="transactions-${new Date().toISOString().split('T')[0]}.csv"`
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error exporting transactions:', error)
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
+}
+
+// File upload handler (placeholder - needs implementation)
+async function uploadFile(request) {
+  try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    // TODO: Implement file upload logic
+    return NextResponse.json({ success: false, error: 'File upload not implemented' }, { status: 501 })
+  } catch (error) {
+    console.error('Error uploading file:', error)
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
+}
+
+// Import transactions handler (placeholder - needs implementation)
+async function importTransactions(request) {
+  try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+    // TODO: Implement import logic
+    return NextResponse.json({ success: false, error: 'Import not implemented' }, { status: 501 })
+  } catch (error) {
+    console.error('Error importing transactions:', error)
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
+}
+
 export async function GET(request, { params }) {
   const path = params?.path?.join('/') || ''
   
@@ -361,6 +507,8 @@ export async function GET(request, { params }) {
         return await getTransactions(request)
       case 'analytics':
         return await getAnalytics(request)
+      case 'export':
+        return await exportTransactions(request)
       default:
         return NextResponse.json({ error: 'Not found' }, { status: 404 })
     }
@@ -404,6 +552,11 @@ export async function PUT(request, { params }) {
   const pathParts = path.split('/')
   
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Update transaction
     if (pathParts[0] === 'transactions' && pathParts[1]) {
       const transactionId = pathParts[1]
@@ -411,13 +564,26 @@ export async function PUT(request, { params }) {
       const { amount, description, date, accountId, categoryId, subcategoryId } = body
       
       // Get the old transaction to calculate balance difference
-      const oldTransaction = await prisma.transaction.findUnique({
-        where: { id: transactionId },
+      const oldTransaction = await prisma.transaction.findFirst({
+        where: { id: transactionId, userId: user.id },
         include: { category: true }
       })
       
       if (!oldTransaction) {
         return NextResponse.json({ success: false, error: 'Transaction not found' }, { status: 404 })
+      }
+      
+      // Verify new account and category belong to user
+      const account = await prisma.account.findFirst({
+        where: { id: accountId, userId: user.id }
+      })
+      
+      const category = await prisma.category.findFirst({
+        where: { id: categoryId, userId: user.id }
+      })
+      
+      if (!account || !category) {
+        return NextResponse.json({ success: false, error: 'Invalid account or category' }, { status: 400 })
       }
       
       // Update transaction
@@ -448,8 +614,7 @@ export async function PUT(request, { params }) {
         })
         
         // Apply new transaction effect
-        const newCategory = await prisma.category.findUnique({ where: { id: categoryId } })
-        const newBalanceChange = newCategory.type === 'INCOME' ? parseFloat(amount) : -parseFloat(amount)
+        const newBalanceChange = category.type === 'INCOME' ? parseFloat(amount) : -parseFloat(amount)
         await prisma.account.update({
           where: { id: accountId },
           data: { balance: { increment: newBalanceChange } }
@@ -466,7 +631,7 @@ export async function PUT(request, { params }) {
       const { name, type, balance } = body
       
       const updatedAccount = await prisma.account.update({
-        where: { id: accountId },
+        where: { id: accountId, userId: user.id },
         data: { name, type, balance: parseFloat(balance) }
       })
       
@@ -477,11 +642,11 @@ export async function PUT(request, { params }) {
     if (pathParts[0] === 'categories' && pathParts[1]) {
       const categoryId = pathParts[1]
       const body = await request.json()
-      const { name, type, color } = body
+      const { name, type } = body
       
       const updatedCategory = await prisma.category.update({
-        where: { id: categoryId },
-        data: { name, type, color }
+        where: { id: categoryId, userId: user.id },
+        data: { name, type }
       })
       
       return NextResponse.json({ success: true, data: updatedCategory })
@@ -499,13 +664,18 @@ export async function DELETE(request, { params }) {
   const pathParts = path.split('/')
   
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     // Delete transaction
     if (pathParts[0] === 'transactions' && pathParts[1]) {
       const transactionId = pathParts[1]
       
       // Get transaction details before deleting to reverse account balance
-      const transaction = await prisma.transaction.findUnique({
-        where: { id: transactionId },
+      const transaction = await prisma.transaction.findFirst({
+        where: { id: transactionId, userId: user.id },
         include: { category: true }
       })
       
@@ -530,7 +700,7 @@ export async function DELETE(request, { params }) {
       
       // Check if account has transactions
       const transactionCount = await prisma.transaction.count({
-        where: { accountId }
+        where: { accountId, userId: user.id }
       })
       
       if (transactionCount > 0) {
@@ -540,7 +710,9 @@ export async function DELETE(request, { params }) {
         }, { status: 400 })
       }
       
-      await prisma.account.delete({ where: { id: accountId } })
+      await prisma.account.delete({ 
+        where: { id: accountId, userId: user.id } 
+      })
       return NextResponse.json({ success: true })
     }
     
@@ -550,7 +722,7 @@ export async function DELETE(request, { params }) {
       
       // Check if category has transactions
       const transactionCount = await prisma.transaction.count({
-        where: { categoryId }
+        where: { categoryId, userId: user.id }
       })
       
       if (transactionCount > 0) {
@@ -560,7 +732,9 @@ export async function DELETE(request, { params }) {
         }, { status: 400 })
       }
       
-      await prisma.category.delete({ where: { id: categoryId } })
+      await prisma.category.delete({ 
+        where: { id: categoryId, userId: user.id } 
+      })
       return NextResponse.json({ success: true })
     }
     
@@ -578,6 +752,19 @@ export async function DELETE(request, { params }) {
           success: false, 
           error: 'Cannot delete subcategory with existing transactions' 
         }, { status: 400 })
+      }
+      
+      // Verify subcategory belongs to user's category
+      const subcategory = await prisma.subcategory.findFirst({
+        where: { id: subcategoryId },
+        include: { category: true }
+      })
+      
+      if (!subcategory || subcategory.category.userId !== user.id) {
+        return NextResponse.json({ 
+          success: false, 
+          error: 'Subcategory not found' 
+        }, { status: 404 })
       }
       
       await prisma.subcategory.delete({ where: { id: subcategoryId } })
