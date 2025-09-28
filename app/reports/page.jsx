@@ -177,14 +177,44 @@ export default function ReportsPage() {
   };
 
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
     }).format(Math.abs(amount));
   };
 
   const formatPercentage = (value, total) => {
-    return ((value / total) * 100).toFixed(1);
+    return total > 0 ? ((value / total) * 100).toFixed(1) : '0.0';
+  };
+
+  const handleExportReport = () => {
+    const csvContent = [
+      ['Category', 'Type', 'Total Amount', 'Transaction Count', 'Average Amount', 'Percentage'].join(','),
+      ...reportData.overview?.categoryWiseTable?.map(cat => [
+        cat.name,
+        cat.type,
+        cat.totalAmount,
+        cat.transactionCount,
+        cat.avgAmount.toFixed(2),
+        cat.percentage.toFixed(1) + '%'
+      ].join(',')) || []
+    ].join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `financial_report_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleRefreshData = () => {
+    fetchReportData();
   };
 
   if (loading) {
