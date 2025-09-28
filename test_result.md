@@ -276,11 +276,9 @@
 
 ## test_plan:
   current_focus:
-    - "Clerk Authentication Integration"
-    - "Neon PostgreSQL Database Connection"
-    - "Database Migration and Seeding"
     - "Transaction CRUD API with User Context"
-  stuck_tasks: []
+  stuck_tasks:
+    - "Transaction CRUD API with User Context"
   test_all: false
   test_priority: "high_first"
 
