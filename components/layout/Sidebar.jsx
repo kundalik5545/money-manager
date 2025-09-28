@@ -186,8 +186,8 @@ export default function Sidebar() {
         <SidebarContent />
       </div>
 
-      {/* Mobile Sidebar - Temporarily disabled for debugging */}
-      <div className="hidden">
+      {/* Mobile Sidebar */}
+      <div className="lg:hidden">
         {/* Mobile Header - only show on mobile */}
         <div className="flex items-center justify-between p-4 border-b bg-background">
           <div className="flex items-center gap-3">
