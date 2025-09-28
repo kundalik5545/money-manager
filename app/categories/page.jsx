@@ -17,74 +17,53 @@ export default function CategoriesPage() {
 
   const fetchCategories = async () => {
     try {
-      // Mock data - replace with actual API call
-      setCategories([
-        {
-          id: 1,
-          name: "Food & Dining",
-          type: "EXPENSE",
-          transactionCount: 25,
-          totalAmount: 850.75,
-          subcategories: [
-            { id: 1, name: "Groceries", transactionCount: 15 },
-            { id: 2, name: "Restaurants", transactionCount: 8 },
-            { id: 3, name: "Coffee", transactionCount: 2 }
-          ]
-        },
-        {
-          id: 2,
-          name: "Salary",
-          type: "INCOME",
-          transactionCount: 2,
-          totalAmount: 7000.00,
-          subcategories: []
-        },
-        {
-          id: 3,
-          name: "Transportation",
-          type: "EXPENSE",
-          transactionCount: 18,
-          totalAmount: 320.40,
-          subcategories: [
-            { id: 4, name: "Gas", transactionCount: 12 },
-            { id: 5, name: "Public Transport", transactionCount: 6 }
-          ]
-        },
-        {
-          id: 4,
-          name: "Utilities",
-          type: "EXPENSE",
-          transactionCount: 8,
-          totalAmount: 485.25,
-          subcategories: [
-            { id: 6, name: "Electricity", transactionCount: 3 },
-            { id: 7, name: "Internet", transactionCount: 2 },
-            { id: 8, name: "Water", transactionCount: 3 }
-          ]
-        },
-        {
-          id: 5,
-          name: "Freelance",
-          type: "INCOME",
-          transactionCount: 5,
-          totalAmount: 2300.00,
-          subcategories: []
-        },
-        {
-          id: 6,
-          name: "Entertainment",
-          type: "EXPENSE",
-          transactionCount: 12,
-          totalAmount: 245.80,
-          subcategories: [
-            { id: 9, name: "Movies", transactionCount: 4 },
-            { id: 10, name: "Games", transactionCount: 3 },
-            { id: 11, name: "Books", transactionCount: 5 }
-          ]
+      const response = await fetch('/api/categories');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          // Calculate total amount for each category by fetching transactions
+          const transactionsResponse = await fetch('/api/transactions');
+          let transactionsByCategory = {};
+          
+          if (transactionsResponse.ok) {
+            const transactionsData = await transactionsResponse.json();
+            if (transactionsData.success) {
+              transactionsByCategory = transactionsData.data.reduce((acc, t) => {
+                const categoryId = t.categoryId;
+                if (!acc[categoryId]) {
+                  acc[categoryId] = { total: 0, count: 0 };
+                }
+                acc[categoryId].total += t.amount;
+                acc[categoryId].count += 1;
+                return acc;
+              }, {});
+            }
+          }
+
+          const formattedCategories = data.data.map(cat => ({
+            id: cat.id,
+            name: cat.name,
+            type: cat.type,
+            transactionCount: transactionsByCategory[cat.id]?.count || 0,
+            totalAmount: transactionsByCategory[cat.id]?.total || 0,
+            subcategories: cat.subcategories.map(sub => ({
+              id: sub.id,
+              name: sub.name,
+              transactionCount: 0 // Would need to calculate this properly
+            }))
+          }));
+          setCategories(formattedCategories);
+        } else {
+          console.error('API error:', data.error);
+          setCategories([]);
         }
-      ]);
+      } else {
+        console.error('Failed to fetch categories');
+        setCategories([]);
+      }
     } catch (error) {
       console.error("Failed to fetch categories:", error);
+      setCategories([]);
     } finally {
       setLoading(false);
     }
