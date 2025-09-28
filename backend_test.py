@@ -768,8 +768,19 @@ class Phase3BackendTester:
         return passed_tests, failed_tests, critical_failed
 
 if __name__ == "__main__":
-    tester = FinanceAPITester()
-    passed, failed = tester.run_all_tests()
+    tester = Phase3BackendTester()
+    passed, failed, critical = tester.run_all_tests()
     
     # Exit with appropriate code
-    exit(0 if failed == 0 else 1)
+    if critical > 0:
+        print(f"\n🚨 CRITICAL ISSUES FOUND: {critical}")
+        print("Fix critical issues before proceeding to frontend testing.")
+        exit(2)  # Critical issues
+    elif failed > 0:
+        print(f"\n⚠️  MINOR ISSUES FOUND: {failed}")
+        print("Consider fixing minor issues but can proceed with caution.")
+        exit(1)  # Minor issues
+    else:
+        print(f"\n🎉 ALL TESTS PASSED!")
+        print("Backend is ready for frontend integration testing.")
+        exit(0)  # Success
