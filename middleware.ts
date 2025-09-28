@@ -26,12 +26,14 @@ export default clerkMiddleware((auth, req) => {
 
   // Redirect authenticated users away from auth pages
   if (userId && isAuth) {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.nextUrl.origin;
+    return NextResponse.redirect(new URL("/dashboard", baseUrl));
   }
 
   // Redirect authenticated users from root to dashboard
   if (userId && req.nextUrl.pathname === "/") {
-    return NextResponse.redirect(new URL("/dashboard", req.url));
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || req.nextUrl.origin;
+    return NextResponse.redirect(new URL("/dashboard", baseUrl));
   }
 
   return NextResponse.next();
