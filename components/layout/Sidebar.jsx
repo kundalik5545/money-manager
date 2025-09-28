@@ -152,24 +152,6 @@ export default function Sidebar() {
             </div>
           )}
         </div>
-        
-        {/* Original UserButton (commented out) */}
-        {/* <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
-          <UserButton 
-            appearance={{
-              elements: {
-                avatarBox: "h-8 w-8",
-              }
-            }}
-          />
-          {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-foreground truncate">
-                Your Account
-              </p>
-            </div>
-          )}
-        </div> */
 
         {/* Collapse Toggle */}
         <div className="mt-4 hidden lg:block">
