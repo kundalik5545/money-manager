@@ -32,6 +32,23 @@ const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 function AccountsContent() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewType, setViewType] = useState("cards"); // "cards", "table", "creditCard"
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(null);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [accountTransactions, setAccountTransactions] = useState([]);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const [balanceChartData, setBalanceChartData] = useState([]);
+  const [chartDateRange, setChartDateRange] = useState({
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+  const [chartFilter, setChartFilter] = useState("monthly");
+  const [showDetails, setShowDetails] = useState({});
+  const transactionsPerPage = 5;
 
   useEffect(() => {
     fetchAccounts();
