@@ -24,18 +24,12 @@ export default function DashboardLayout({ children }) {
   };
 
   const handleScreenSizeChange = (mobile, loaded) => {
+    console.log('Screen size changed:', { mobile, loaded }); // Debug log
     setIsMobile(mobile);
     setIsLoaded(loaded);
   };
 
-  // Show loading state until screen size is determined
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  console.log('DashboardLayout render:', { isMobile, isLoaded }); // Debug log
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,7 +49,14 @@ export default function DashboardLayout({ children }) {
         <main className={`p-4 lg:p-8 ${
           isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
         }`}>
-          {children}
+          {/* Show loading state until NavigationController is ready */}
+          {!isLoaded ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            children
+          )}
         </main>
       </div>
     </div>
