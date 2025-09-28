@@ -8,16 +8,7 @@ import { useScreenSize } from "@/hooks/useScreenSize";
 
 export default function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  
-  // Listen for sidebar collapse state changes
-  useEffect(() => {
-    const handleSidebarToggle = (e) => {
-      setSidebarCollapsed(e.detail.collapsed);
-    };
-    
-    window.addEventListener('sidebarToggle', handleSidebarToggle);
-    return () => window.removeEventListener('sidebarToggle', handleSidebarToggle);
-  }, []);
+  const { isMobile, isLoaded } = useScreenSize();
 
   // Original auth logic (commented out)
   // const { isSignedIn, isLoaded } = useUser(); // Temporarily disabled
@@ -28,16 +19,33 @@ export default function DashboardLayout({ children }) {
   //   }
   // }, [isSignedIn, isLoaded, router]);
 
+  const handleCollapseChange = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+  };
+
+  // Show loading state until screen size is determined
+  if (!isLoaded) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar />
+      <NavigationController onCollapseChange={handleCollapseChange} />
       
-      {/* Main Content - responsive to sidebar state */}
+      {/* Main Content - responsive to screen size and sidebar state */}
       <div className={`transition-all duration-300 ${
-        sidebarCollapsed ? "lg:pl-20" : "lg:pl-64"
+        isMobile 
+          ? "pt-16" // Space for mobile top nav
+          : sidebarCollapsed 
+            ? "md:pl-20" 
+            : "md:pl-64"
       }`}>
         <main className={`p-4 lg:p-8 ${
-          sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
+          isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
         }`}>
           {children}
         </main>
