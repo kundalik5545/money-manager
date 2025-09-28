@@ -31,7 +31,13 @@ async function getAuthenticatedUser() {
 // GET /api/accounts
 async function getAccounts() {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const accounts = await prisma.account.findMany({
+      where: { userId: user.id },
       include: {
         _count: {
           select: { transactions: true }
