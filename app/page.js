@@ -1521,8 +1521,6 @@ export default function App() {
                       ))}
                     </tbody>
                   </table>
-                </div>
-
                   {/* Account Totals by Type */}
                 {accounts.length > 0 && (
                   <div className="mt-6 pt-4 border-t">
