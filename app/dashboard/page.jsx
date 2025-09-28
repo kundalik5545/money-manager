@@ -133,7 +133,89 @@ function DashboardContent() {
     }).format(Math.abs(amount));
   };
 
-  // Monthly data will be set from state
+  // Helper function to generate monthly data from transactions
+  const generateMonthlyData = (transactions) => {
+    const monthlyMap = {};
+    const now = new Date();
+    
+    // Initialize last 4 months
+    for (let i = 3; i >= 0; i--) {
+      const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthKey = date.toLocaleString('default', { month: 'short' });
+      monthlyMap[monthKey] = { month: monthKey, income: 0, expense: 0 };
+    }
+    
+    // Process transactions
+    transactions.forEach(transaction => {
+      const transactionDate = new Date(transaction.date);
+      const monthKey = transactionDate.toLocaleString('default', { month: 'short' });
+      
+      if (monthlyMap[monthKey]) {
+        if (transaction.category.type === 'INCOME') {
+          monthlyMap[monthKey].income += transaction.amount;
+        } else {
+          monthlyMap[monthKey].expense += transaction.amount;
+        }
+      }
+    });
+    
+    setMonthlyData(Object.values(monthlyMap));
+  };
+
+  // Handler functions for dashboard buttons
+  const handleAddTransaction = () => {
+    setShowAddTransactionModal(true);
+  };
+
+  const handleImportData = () => {
+    // Create file input element
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.csv,.xlsx,.xls';
+    input.onchange = (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        alert(`Import functionality for "${file.name}" will be implemented soon!`);
+      }
+    };
+    input.click();
+  };
+
+  const handleExportData = () => {
+    // Export all transactions to CSV
+    fetch('/api/transactions')
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          const csvContent = [
+            ['Date', 'Description', 'Category', 'Account', 'Type', 'Amount'].join(','),
+            ...data.data.map(t => [
+              new Date(t.date).toLocaleDateString(),
+              `"${t.description}"`,
+              t.category.name,
+              t.account.name,
+              t.category.type,
+              t.amount
+            ].join(','))
+          ].join('\n');
+
+          const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+          const link = document.createElement('a');
+          const url = URL.createObjectURL(blob);
+          link.setAttribute('href', url);
+          link.setAttribute('download', `financial_data_${new Date().toISOString().split('T')[0]}.csv`);
+          link.style.visibility = 'hidden';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      })
+      .catch(error => console.error('Export failed:', error));
+  };
+
+  const handleTransactionSuccess = () => {
+    fetchDashboardData(); // Refresh dashboard data
+  };
 
   if (loading) {
     return (
