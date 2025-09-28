@@ -23,6 +23,8 @@ import {
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import AddTransactionModal from "@/components/modals/AddTransactionModal";
+import AddIncomeModal from "@/components/modals/AddIncomeModal";
+import AddExpenseModal from "@/components/modals/AddExpenseModal";
 
 function TransactionsContent() {
   const [transactions, setTransactions] = useState([]);
