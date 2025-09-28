@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """
-Personal Finance Dashboard Backend API Tests
-Tests all backend endpoints for the finance dashboard application.
+Finance Wizard Backend Testing Suite - Phase 3
+Tests Clerk Authentication, Neon PostgreSQL Database, and API endpoints
+Focus: Authentication integration, database connectivity, and user context
 """
 
 import requests
 import json
 import os
+import subprocess
+import sys
 from datetime import datetime, timedelta
 import uuid
 
