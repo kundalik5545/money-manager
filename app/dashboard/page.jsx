@@ -58,8 +58,16 @@ function DashboardContent() {
           });
           
           // Generate monthly data from transactions
-          if (data.monthlyTransactions) {
+          if (data.monthlyTransactions && data.monthlyTransactions.length > 0) {
             generateMonthlyData(data.monthlyTransactions);
+          } else {
+            // Set default monthly data if no transactions
+            setMonthlyData([
+              { month: 'Oct', income: 0, expense: 0 },
+              { month: 'Nov', income: 0, expense: 0 },
+              { month: 'Dec', income: 0, expense: 0 },
+              { month: 'Jan', income: data.totalIncome || 0, expense: data.totalExpense || 0 },
+            ]);
           }
         } else {
           console.error('Analytics API error:', analyticsData.error);
