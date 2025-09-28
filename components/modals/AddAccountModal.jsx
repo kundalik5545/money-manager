@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { X, Building, CreditCard, Wallet } from "lucide-react";
 
-export default function AddAccountModal({ isOpen, onClose, onSuccess }) {
+export default function AddAccountModal({ isOpen, onClose, onSuccess, editData }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
