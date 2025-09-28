@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, FolderOpen, TrendingUp, TrendingDown } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
-export default function CategoriesPage() {
+function CategoriesContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
 
