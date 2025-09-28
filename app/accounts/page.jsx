@@ -52,7 +52,18 @@ function AccountsContent() {
 
   useEffect(() => {
     fetchAccounts();
+    fetchBalanceChartData();
   }, []);
+
+  useEffect(() => {
+    fetchBalanceChartData();
+  }, [chartDateRange, chartFilter]);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      fetchAccountTransactions(selectedAccount.id);
+    }
+  }, [selectedAccount, transactionsPage]);
 
   const fetchAccounts = async () => {
     try {
