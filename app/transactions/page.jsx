@@ -89,6 +89,10 @@ function TransactionsContent() {
     setCurrentPage(page);
   };
 
+  const handleTransactionSuccess = () => {
+    fetchTransactions(); // Refresh the transactions list
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
