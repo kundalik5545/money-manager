@@ -5,28 +5,16 @@ const isPublicRoute = createRouteMatcher([
   "/",
   "/sign-in(.*)",
   "/sign-up(.*)",
-  "/debug",
-  "/api/webhook/clerk"
+  "/debug"
 ]);
-
-const isAuthRoute = createRouteMatcher(["/sign-in(.*)", "/sign-up(.*)"]);
 
 export default clerkMiddleware((auth, req) => {
   const { userId } = auth();
   const isPublic = isPublicRoute(req);
-  const isAuth = isAuthRoute(req);
 
-  // Redirect unauthenticated users to sign-in for protected routes
+  // Protect private routes - let Clerk handle the redirect
   if (!userId && !isPublic) {
-    const signInUrl = new URL("/sign-in", req.nextUrl.origin);
-    const redirectUrl = new URL(req.nextUrl.pathname + req.nextUrl.search, req.nextUrl.origin);
-    signInUrl.searchParams.set("redirect_url", redirectUrl.toString());
-    return NextResponse.redirect(signInUrl);
-  }
-
-  // Redirect authenticated users away from auth pages
-  if (userId && isAuth) {
-    return NextResponse.redirect(new URL("/dashboard", req.nextUrl.origin));
+    return auth().redirectToSignIn();
   }
 
   // Redirect authenticated users from root to dashboard
