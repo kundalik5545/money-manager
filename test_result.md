@@ -107,27 +107,33 @@
 ## backend:
   - task: "Export API endpoint - CSV format"
     implemented: true
-    working: false  # needs testing
+    working: true
     file: "/app/app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
         - agent: "main"
         - comment: "Added /api/export endpoint with CSV format support - includes all transaction fields with proper CSV escaping"
+        - working: true
+        - agent: "testing"
+        - comment: "CSV export fully functional - verified Content-Type (text/csv), Content-Disposition header with filename, proper CSV structure with all required headers (Date, Description, Amount, Category, Subcategory, Account, Type), CSV parsing works correctly, exported 21 transactions successfully"
 
   - task: "Export API endpoint - Excel format"
     implemented: true
-    working: false  # needs testing
+    working: true
     file: "/app/app/api/[[...path]]/route.js"
     stuck_count: 0
     priority: "high"
-    needs_retesting: true
+    needs_retesting: false
     status_history:
         - working: false
         - agent: "main"
         - comment: "Added /api/export endpoint with XLSX format support using xlsx library - includes auto-sized columns"
+        - working: true
+        - agent: "testing"
+        - comment: "Excel export fully functional - verified Content-Type (application/vnd.openxmlformats-officedocument.spreadsheetml.sheet), Content-Disposition header with .xlsx filename, valid Excel file format with 'Transactions' worksheet, all required headers present, auto-sized columns working, exported 21 transactions successfully"
 
 ## frontend:
   - task: "Export button UI with dropdown"
