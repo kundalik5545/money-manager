@@ -25,6 +25,12 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 function CategoriesContent() {
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewType, setViewType] = useState("table"); // "table" or "card"
+  const [currentPage, setCurrentPage] = useState(1);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
+  const [showAddSubcategoryModal, setShowAddSubcategoryModal] = useState(false);
+  const categoriesPerPage = 10;
 
   useEffect(() => {
     fetchCategories();
