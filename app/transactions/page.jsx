@@ -180,3 +180,11 @@ function TransactionsContent() {
     </div>
   );
 }
+
+export default function TransactionsPage() {
+  return (
+    <DashboardLayout>
+      <TransactionsContent />
+    </DashboardLayout>
+  );
+}
