@@ -1,14 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 // import { useUser } from "@clerk/nextjs"; // Temporarily disabled
 // import { useRouter } from "next/navigation"; // Temporarily disabled
 import NavigationController from "./NavigationController";
-import { useScreenSize } from "@/hooks/useScreenSize";
 
 export default function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { isMobile, isLoaded } = useScreenSize();
+  const [isMobile, setIsMobile] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
   // Original auth logic (commented out)
   // const { isSignedIn, isLoaded } = useUser(); // Temporarily disabled
@@ -23,6 +23,11 @@ export default function DashboardLayout({ children }) {
     setSidebarCollapsed(collapsed);
   };
 
+  const handleScreenSizeChange = (mobile, loaded) => {
+    setIsMobile(mobile);
+    setIsLoaded(loaded);
+  };
+
   // Show loading state until screen size is determined
   if (!isLoaded) {
     return (
@@ -34,10 +39,12 @@ export default function DashboardLayout({ children }) {
 
   return (
     <div className="min-h-screen bg-background">
-      <NavigationController onCollapseChange={handleCollapseChange} />
+      <NavigationController 
+        onCollapseChange={handleCollapseChange}
+        onScreenSizeChange={handleScreenSizeChange}
+      />
       
       {/* Main Content - responsive to screen size and sidebar state */}
-      
       <div className={`transition-all duration-300 ${
         isMobile 
           ? "pt-16" // Space for mobile top nav
