@@ -237,15 +237,26 @@ function DashboardContent() {
         </div>
         
         <div className="flex flex-wrap gap-3">
-          <Button className="flex items-center gap-2">
+          <Button 
+            className="flex items-center gap-2"
+            onClick={handleAddTransaction}
+          >
             <Plus className="h-4 w-4" />
             Add Transaction
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleImportData}
+          >
             <Upload className="h-4 w-4" />
             Import Data
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleExportData}
+          >
             <Download className="h-4 w-4" />
             Export Data
           </Button>
