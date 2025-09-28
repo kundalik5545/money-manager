@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 // import { useUser } from "@clerk/nextjs"; // Temporarily disabled
 // import { useRouter } from "next/navigation"; // Temporarily disabled
-import Sidebar from "./Sidebar";
+import NavigationController from "./NavigationController";
+import { useScreenSize } from "@/hooks/useScreenSize";
 
 export default function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
