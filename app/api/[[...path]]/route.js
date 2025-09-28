@@ -55,11 +55,21 @@ async function getAccounts() {
 // POST /api/accounts
 async function createAccount(request) {
   try {
+    const user = await getAuthenticatedUser()
+    if (!user) {
+      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+    }
+
     const body = await request.json()
     const { name, type, balance = 0 } = body
     
     const account = await prisma.account.create({
-      data: { name, type, balance: parseFloat(balance) }
+      data: { 
+        name, 
+        type, 
+        balance: parseFloat(balance),
+        userId: user.id
+      }
     })
     
     return NextResponse.json({ success: true, data: account })
