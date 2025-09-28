@@ -1681,91 +1681,198 @@ export default function App() {
           </Card>
           
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Your Categories</CardTitle>
+              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+                <Button
+                  variant={categoryView === 'card' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setCategoryView('card')}
+                  className="h-8 px-2"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={categoryView === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setCategoryView('table')}
+                  className="h-8 px-2"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                {categories.map((category) => (
-                  <div key={category.id} className="border rounded-lg p-4 space-y-3">
-                    {/* Header with category name and actions */}
-                    <div className="flex items-start justify-between">
-                      <div className="flex items-center space-x-3 flex-1 min-w-0">
-                        <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
-                          category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
-                        }`} />
-                        <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-base break-words">{category.name}</h4>
-                          <div className="flex items-center space-x-2 mt-1">
-                            <Badge variant={category.type === 'INCOME' ? 'default' : 'secondary'} className="text-xs">
-                              {category.type}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">
-                              {category._count.transactions} transactions
-                            </span>
+              {/* Card View */}
+              {categoryView === 'card' && (
+                <div className="space-y-4">
+                  {categories.map((category) => (
+                    <div key={category.id} className="border rounded-lg p-4 space-y-3">
+                      {/* Header with category name and actions */}
+                      <div className="flex items-start justify-between">
+                        <div className="flex items-center space-x-3 flex-1 min-w-0">
+                          <div className={`w-3 h-3 rounded-full flex-shrink-0 mt-1 ${
+                            category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                          }`} />
+                          <div className="flex-1 min-w-0">
+                            <h4 className="font-semibold text-base break-words">{category.name}</h4>
+                            <div className="flex items-center space-x-2 mt-1">
+                              <Badge variant={category.type === 'INCOME' ? 'default' : 'secondary'} className="text-xs">
+                                {category.type}
+                              </Badge>
+                              <span className="text-xs text-muted-foreground">
+                                {category._count.transactions} transactions
+                              </span>
+                            </div>
                           </div>
                         </div>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" size="sm" className="flex-shrink-0">
+                              <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={() => setEditingCategory(category)}>
+                              <Edit2 className="h-4 w-4 mr-2" />
+                              Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              className="text-red-600"
+                              onClick={() => setDeleteConfirm({
+                                show: true,
+                                type: 'category',
+                                id: category.id,
+                                name: category.name
+                              })}
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Delete
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                       </div>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" size="sm" className="flex-shrink-0">
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => setEditingCategory(category)}>
-                            <Edit2 className="h-4 w-4 mr-2" />
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            className="text-red-600"
-                            onClick={() => setDeleteConfirm({
-                              show: true,
-                              type: 'category',
-                              id: category.id,
-                              name: category.name
-                            })}
-                          >
-                            <Trash2 className="h-4 w-4 mr-2" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      
+                      {/* Subcategories */}
+                      {category.subcategories.length > 0 && (
+                        <div className="space-y-2">
+                          <div className="flex items-center space-x-2">
+                            <Separator className="flex-1" />
+                            <span className="text-xs text-muted-foreground px-2">Subcategories</span>
+                            <Separator className="flex-1" />
+                          </div>
+                          <div className="grid grid-cols-1 gap-2">
+                            {category.subcategories.map((sub) => (
+                              <div key={sub.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
+                                <span className="text-sm font-medium break-words flex-1">{sub.name}</span>
+                                <Button 
+                                  variant="ghost" 
+                                  size="sm" 
+                                  className="h-6 w-6 p-0 text-red-500 hover:text-red-700 flex-shrink-0 ml-2"
+                                  onClick={() => setDeleteConfirm({
+                                    show: true,
+                                    type: 'subcategory',
+                                    id: sub.id,
+                                    name: sub.name
+                                  })}
+                                >
+                                  <Trash2 className="h-3 w-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
                     </div>
-                    
-                    {/* Subcategories */}
-                    {category.subcategories.length > 0 && (
-                      <div className="space-y-2">
-                        <div className="flex items-center space-x-2">
-                          <Separator className="flex-1" />
-                          <span className="text-xs text-muted-foreground px-2">Subcategories</span>
-                          <Separator className="flex-1" />
-                        </div>
-                        <div className="grid grid-cols-1 gap-2">
-                          {category.subcategories.map((sub) => (
-                            <div key={sub.id} className="flex items-center justify-between p-2 bg-muted/30 rounded">
-                              <span className="text-sm font-medium break-words flex-1">{sub.name}</span>
-                              <Button 
-                                variant="ghost" 
-                                size="sm" 
-                                className="h-6 w-6 p-0 text-red-500 hover:text-red-700 flex-shrink-0 ml-2"
-                                onClick={() => setDeleteConfirm({
-                                  show: true,
-                                  type: 'subcategory',
-                                  id: sub.id,
-                                  name: sub.name
-                                })}
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
+                  ))}
+                </div>
+              )}
+
+              {/* Table View */}
+              {categoryView === 'table' && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-3 px-4 font-semibold">Category Name</th>
+                        <th className="text-left py-3 px-4 font-semibold">Type</th>
+                        <th className="text-center py-3 px-4 font-semibold">Transactions</th>
+                        <th className="text-left py-3 px-4 font-semibold">Subcategories</th>
+                        <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {categories.map((category) => (
+                        <tr key={category.id} className="border-b hover:bg-muted/50">
+                          <td className="py-3 px-4">
+                            <div className="flex items-center space-x-3">
+                              <div className={`w-3 h-3 rounded-full ${
+                                category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <span className="font-medium">{category.name}</span>
                             </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
+                          </td>
+                          <td className="py-3 px-4">
+                            <Badge variant={category.type === 'INCOME' ? 'default' : 'secondary'} className="text-xs">
+                              {category.type === 'INCOME' ? '💰 Income' : '💸 Expense'}
+                            </Badge>
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <span className="text-sm text-muted-foreground">
+                              {category._count.transactions}
+                            </span>
+                          </td>
+                          <td className="py-3 px-4">
+                            {category.subcategories.length > 0 ? (
+                              <div className="flex flex-wrap gap-1">
+                                {category.subcategories.slice(0, 3).map((sub) => (
+                                  <Badge key={sub.id} variant="outline" className="text-xs">
+                                    {sub.name}
+                                  </Badge>
+                                ))}
+                                {category.subcategories.length > 3 && (
+                                  <Badge variant="outline" className="text-xs">
+                                    +{category.subcategories.length - 3} more
+                                  </Badge>
+                                )}
+                              </div>
+                            ) : (
+                              <span className="text-sm text-muted-foreground">None</span>
+                            )}
+                          </td>
+                          <td className="py-3 px-4 text-center">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" size="sm">
+                                  <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setEditingCategory(category)}>
+                                  <Edit2 className="h-4 w-4 mr-2" />
+                                  Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem 
+                                  className="text-red-600"
+                                  onClick={() => setDeleteConfirm({
+                                    show: true,
+                                    type: 'category',
+                                    id: category.id,
+                                    name: category.name
+                                  })}
+                                >
+                                  <Trash2 className="h-4 w-4 mr-2" />
+                                  Delete
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
