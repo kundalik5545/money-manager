@@ -709,6 +709,14 @@ class FinanceAPITester:
         self.test_import_transactions()
         self.test_account_balance_update()
         
+        # Test export functionality
+        print("\n📤 Testing Export Functionality")
+        print("-" * 40)
+        self.test_export_csv()
+        self.test_export_excel()
+        self.test_export_default_format()
+        self.test_export_data_integrity()
+        
         # Summary
         print("\n" + "=" * 80)
         print("📊 TEST SUMMARY")
