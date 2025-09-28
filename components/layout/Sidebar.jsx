@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
-import { UserButton } from "@clerk/nextjs";
+// import { UserButton } from "@clerk/nextjs"; // Temporarily disabled
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { 
