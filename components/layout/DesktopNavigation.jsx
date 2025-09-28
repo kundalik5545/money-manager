@@ -15,7 +15,9 @@ import {
   Search,
   Moon,
   Sun,
-  Menu
+  Menu,
+  Target,
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 
