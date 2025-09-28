@@ -55,6 +55,11 @@ function DashboardContent() {
             accountsTotal: data.accountsTotal || 0,
             monthlyGrowth: 2.5 // Calculate this properly later
           });
+          
+          // Generate monthly data from transactions
+          if (data.monthlyTransactions) {
+            generateMonthlyData(data.monthlyTransactions);
+          }
         } else {
           console.error('Analytics API error:', analyticsData.error);
         }
