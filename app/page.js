@@ -589,26 +589,64 @@ export default function App() {
             </DialogContent>
           </Dialog>
           
-          <Button variant="outline" className="w-full sm:w-auto" onClick={() => {
-            // Export transactions to CSV
-            const csvContent = "data:text/csv;charset=utf-8," + 
-              "Date,Description,Amount,Category,Account\n" +
-              transactions.map(t => 
-                `${t.date},${t.description},${t.amount},${t.category.name},${t.account.name}`
-              ).join("\n");
-            
-            const encodedUri = encodeURI(csvContent);
-            const link = document.createElement("a");
-            link.setAttribute("href", encodedUri);
-            link.setAttribute("download", `transactions_${new Date().toISOString().split('T')[0]}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            toast.success('Transactions exported successfully');
-          }}>
-            <Upload className="w-4 h-4 mr-2 rotate-180" />
-            Export Data
-          </Button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" className="w-full sm:w-auto">
+                <Upload className="w-4 h-4 mr-2 rotate-180" />
+                Export Data
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={async () => {
+                try {
+                  const response = await fetch('/api/export?format=csv')
+                  if (response.ok) {
+                    const blob = await response.blob()
+                    const url = window.URL.createObjectURL(blob)
+                    const link = document.createElement('a')
+                    link.href = url
+                    link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                    window.URL.revokeObjectURL(url)
+                    toast.success('CSV file downloaded successfully')
+                  } else {
+                    toast.error('Failed to export CSV')
+                  }
+                } catch (error) {
+                  toast.error('Failed to export CSV')
+                  console.error('Export error:', error)
+                }
+              }}>
+                📄 Export as CSV
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={async () => {
+                try {
+                  const response = await fetch('/api/export?format=xlsx')
+                  if (response.ok) {
+                    const blob = await response.blob()
+                    const url = window.URL.createObjectURL(blob)
+                    const link = document.createElement('a')
+                    link.href = url
+                    link.download = `transactions_${new Date().toISOString().split('T')[0]}.xlsx`
+                    document.body.appendChild(link)
+                    link.click()
+                    document.body.removeChild(link)
+                    window.URL.revokeObjectURL(url)
+                    toast.success('Excel file downloaded successfully')
+                  } else {
+                    toast.error('Failed to export Excel')
+                  }
+                } catch (error) {
+                  toast.error('Failed to export Excel')
+                  console.error('Export error:', error)
+                }
+              }}>
+                📊 Export as Excel
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
       
