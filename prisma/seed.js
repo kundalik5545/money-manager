@@ -95,36 +95,32 @@ async function main() {
     }
   })
 
-  // Create subcategories for the demo user
+  // Create subcategories
   await prisma.subcategory.create({
     data: {
       name: 'Restaurants',
-      categoryId: foodCategory.id,
-      userId: demoUser.id
+      categoryId: foodCategory.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Groceries',
-      categoryId: foodCategory.id,
-      userId: demoUser.id
+      categoryId: foodCategory.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Gas',
-      categoryId: transportCategory.id,
-      userId: demoUser.id
+      categoryId: transportCategory.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Public Transport',
-      categoryId: transportCategory.id,
-      userId: demoUser.id
+      categoryId: transportCategory.id
     }
   })
 
