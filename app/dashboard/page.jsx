@@ -128,12 +128,7 @@ function DashboardContent() {
     }).format(Math.abs(amount));
   };
 
-  const monthlyData = [
-    { month: 'Oct', income: 4500, expense: 2200 },
-    { month: 'Nov', income: 4800, expense: 1950 },
-    { month: 'Dec', income: 5100, expense: 2100 },
-    { month: 'Jan', income: 5300, expense: 1477 },
-  ];
+  // Monthly data will be set from state
 
   if (loading) {
     return (
