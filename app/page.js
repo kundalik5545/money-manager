@@ -1103,8 +1103,97 @@ export default function App() {
                             </span>
                           </div>
                         </div>
-                      ))}
-                    </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Table View */}
+                    {transactionView === 'table' && (
+                      <div className="overflow-x-auto">
+                        <table className="w-full">
+                          <thead>
+                            <tr className="border-b">
+                              <th className="text-left py-3 px-4 font-semibold">Description</th>
+                              <th className="text-left py-3 px-4 font-semibold">Account</th>
+                              <th className="text-left py-3 px-4 font-semibold">Category</th>
+                              <th className="text-right py-3 px-4 font-semibold">Amount</th>
+                              <th className="text-center py-3 px-4 font-semibold">Date</th>
+                              <th className="text-center py-3 px-4 font-semibold">Actions</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {transactions.map((transaction) => (
+                              <tr key={transaction.id} className="border-b hover:bg-muted/50">
+                                <td className="py-3 px-4">
+                                  <div className="flex items-center space-x-2">
+                                    <div className={`w-2 h-2 rounded-full ${
+                                      transaction.category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                                    }`} />
+                                    <span className="font-medium">{transaction.description}</span>
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <span className="text-sm">{transaction.account.name}</span>
+                                </td>
+                                <td className="py-3 px-4">
+                                  <div className="flex flex-col">
+                                    <span className="text-sm">{transaction.category.name}</span>
+                                    {transaction.subcategory && (
+                                      <span className="text-xs text-muted-foreground">→ {transaction.subcategory.name}</span>
+                                    )}
+                                  </div>
+                                </td>
+                                <td className="py-3 px-4 text-right">
+                                  <span className={`font-bold ${
+                                    transaction.category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                                  }`}>
+                                    {transaction.category.type === 'INCOME' ? '+' : ''}{formatCurrency(transaction.amount)}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <span className="text-sm text-muted-foreground">
+                                    {new Date(transaction.date).toLocaleDateString()}
+                                  </span>
+                                </td>
+                                <td className="py-3 px-4 text-center">
+                                  <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                      <Button variant="ghost" size="sm">
+                                        <MoreHorizontal className="h-4 w-4" />
+                                      </Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent align="end">
+                                      <DropdownMenuItem onClick={() => {
+                                        setEditingTransaction({
+                                          ...transaction,
+                                          date: transaction.date.split('T')[0],
+                                          subcategoryId: transaction.subcategory?.id || ''
+                                        })
+                                      }}>
+                                        <Edit2 className="h-4 w-4 mr-2" />
+                                        Edit
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem 
+                                        className="text-red-600"
+                                        onClick={() => setDeleteConfirm({
+                                          show: true,
+                                          type: 'transaction',
+                                          id: transaction.id,
+                                          name: transaction.description
+                                        })}
+                                      >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        Delete
+                                      </DropdownMenuItem>
+                                    </DropdownMenuContent>
+                                  </DropdownMenu>
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    )}
                     
                     {/* Pagination */}
                     {totalPages > 1 && (
