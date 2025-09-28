@@ -99,16 +99,34 @@ function CategoriesContent() {
     }).format(Math.abs(amount));
   };
 
-  // Separate income and expense categories
-  const incomeCategories = categories.filter(cat => cat.type === 'INCOME');
-  const expenseCategories = categories.filter(cat => cat.type === 'EXPENSE');
+  // Filter categories based on search query
+  const filteredCategories = categories.filter(category =>
+    category.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
-  // Chart data for spending by category
-  const chartData = expenseCategories.map(cat => ({
-    name: cat.name,
-    amount: cat.totalAmount,
-    transactions: cat.transactionCount
-  })).sort((a, b) => b.amount - a.amount);
+  // Separate income and expense categories
+  const incomeCategories = filteredCategories.filter(cat => cat.type === 'INCOME');
+  const expenseCategories = filteredCategories.filter(cat => cat.type === 'EXPENSE');
+
+  // Pagination logic for categories
+  const totalPages = Math.ceil(filteredCategories.length / categoriesPerPage);
+  const startIndex = (currentPage - 1) * categoriesPerPage;
+  const paginatedCategories = filteredCategories.slice(startIndex, startIndex + categoriesPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
+  // Chart data for spending by category (fixed to show actual data)
+  const chartData = expenseCategories
+    .filter(cat => cat.totalAmount > 0) // Only show categories with actual spending
+    .map(cat => ({
+      name: cat.name,
+      amount: cat.totalAmount,
+      transactions: cat.transactionCount
+    }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 10); // Show top 10 categories
 
   if (loading) {
     return (
