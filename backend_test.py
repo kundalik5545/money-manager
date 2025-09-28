@@ -1047,6 +1047,10 @@ class Phase3BackendTester:
         self.test_api_user_context_implementation()
         self.test_api_endpoints_without_auth()
         
+        # Test accounts API specifically
+        self.test_accounts_api_endpoints()
+        self.test_accounts_api_implementation_analysis()
+        
         # Test data integrity
         self.test_data_integrity_and_isolation()
         
