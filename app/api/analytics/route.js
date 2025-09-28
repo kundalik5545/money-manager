@@ -1,23 +1,18 @@
 import { NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
+// import { auth } from '@clerk/nextjs/server' // Temporarily disabled
 import { prisma } from '@/lib/prisma'
 
-// Helper function to get authenticated user
+// Temporary helper function without authentication
 async function getAuthenticatedUser() {
-  const { userId } = auth()
-  if (!userId) {
-    return null
-  }
-  
-  let user = await prisma.user.findUnique({
-    where: { clerkId: userId }
-  })
+  // For development, return the first user or create a demo user
+  let user = await prisma.user.findFirst()
   
   if (!user) {
+    // Create a demo user if none exists
     user = await prisma.user.create({
       data: {
-        clerkId: userId,
-        email: '',
+        clerkId: 'demo-user-001',
+        email: 'demo@example.com',
       }
     })
   }
@@ -26,99 +21,64 @@ async function getAuthenticatedUser() {
 }
 
 // GET /api/analytics
-export async function GET(request) {
+export async function GET() {
   try {
     const user = await getAuthenticatedUser()
     if (!user) {
-      return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 })
+      return NextResponse.json({ success: false, error: 'User not found' }, { status: 400 })
     }
 
-    const url = new URL(request.url)
-    const period = url.searchParams.get('period') || 'all'
-    
-    let dateFilter = {}
+    // Get current month dates
     const now = new Date()
-    
-    switch (period) {
-      case 'week':
-        const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
-        dateFilter = { gte: weekAgo }
-        break
-      case 'month':
-        const monthAgo = new Date(now.getFullYear(), now.getMonth(), 1)
-        dateFilter = { gte: monthAgo }
-        break
-      case 'year':
-        const yearAgo = new Date(now.getFullYear(), 0, 1)
-        dateFilter = { gte: yearAgo }
-        break
-    }
-    
-    const whereClause = { userId: user.id }
-    if (Object.keys(dateFilter).length > 0) {
-      whereClause.date = dateFilter
-    }
-    
-    // Get transactions and accounts
-    const [transactions, accounts] = await Promise.all([
-      prisma.transaction.findMany({
-        where: whereClause,
-        include: {
-          category: true,
-          account: true
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0)
+
+    // Get all transactions for current month
+    const transactions = await prisma.transaction.findMany({
+      where: {
+        userId: user.id,
+        date: {
+          gte: startOfMonth,
+          lte: endOfMonth
         }
-      }),
-      prisma.account.findMany({
-        where: { userId: user.id }
-      })
-    ])
-    
-    const totalIncome = transactions
-      .filter(t => t.category.type === 'INCOME')
-      .reduce((sum, t) => sum + t.amount, 0)
-    
-    const totalExpense = transactions
-      .filter(t => t.category.type === 'EXPENSE')
-      .reduce((sum, t) => sum + t.amount, 0)
-    
-    const netSavings = totalIncome - totalExpense
-    
-    const accountsTotal = accounts.reduce((sum, acc) => sum + acc.balance, 0)
-    
-    // Category breakdown
-    const categoryBreakdown = transactions.reduce((acc, t) => {
-      const key = t.category.name
-      if (!acc[key]) {
-        acc[key] = { name: key, value: 0, type: t.category.type }
+      },
+      include: {
+        category: true,
+        account: true
       }
-      acc[key].value += t.amount
-      return acc
-    }, {})
+    })
+
+    // Calculate analytics
+    let totalIncome = 0
+    let totalExpense = 0
     
-    // Monthly breakdown
-    const monthlyData = transactions.reduce((acc, t) => {
-      const month = t.date.toISOString().slice(0, 7) // YYYY-MM
-      if (!acc[month]) {
-        acc[month] = { month, income: 0, expense: 0 }
-      }
-      if (t.category.type === 'INCOME') {
-        acc[month].income += t.amount
+    transactions.forEach(transaction => {
+      if (transaction.category.type === 'INCOME') {
+        totalIncome += transaction.amount
       } else {
-        acc[month].expense += t.amount
+        totalExpense += transaction.amount
       }
-      return acc
-    }, {})
+    })
+
+    const netSavings = totalIncome - totalExpense
+    const transactionCount = transactions.length
+
+    // Get total account balances
+    const accounts = await prisma.account.findMany({
+      where: { userId: user.id }
+    })
     
+    const accountsTotal = accounts.reduce((sum, account) => sum + account.balance, 0)
+
     return NextResponse.json({
       success: true,
       data: {
         totalIncome,
         totalExpense,
         netSavings,
+        transactionCount,
         accountsTotal,
-        transactionCount: transactions.length,
-        categoryBreakdown: Object.values(categoryBreakdown),
-        monthlyData: Object.values(monthlyData)
+        monthlyTransactions: transactions
       }
     })
   } catch (error) {

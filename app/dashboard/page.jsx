@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs"; // Temporarily disabled
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +22,7 @@ import DashboardLayout from "@/components/layout/DashboardLayout";
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
 function DashboardContent() {
-  const { user } = useUser();
+  // const { user } = useUser(); // Temporarily disabled
   const [analytics, setAnalytics] = useState(null);
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
@@ -138,7 +138,9 @@ function DashboardContent() {
       {/* Welcome Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.firstName}!</h1>
+          {/* Temporarily use hardcoded name since Clerk is disabled */}
+          <h1 className="text-3xl font-bold tracking-tight">Welcome back, Demo User!</h1>
+          {/* Original with Clerk: <h1 className="text-3xl font-bold tracking-tight">Welcome back, {user?.firstName}!</h1> */}
           <p className="text-muted-foreground">Here's your financial overview for today</p>
         </div>
         
