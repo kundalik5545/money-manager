@@ -265,3 +265,11 @@ function CategoriesContent() {
     </div>
   );
 }
+
+export default function CategoriesPage() {
+  return (
+    <DashboardLayout>
+      <CategoriesContent />
+    </DashboardLayout>
+  );
+}
