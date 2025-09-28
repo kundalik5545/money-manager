@@ -1450,7 +1450,6 @@ export default function App() {
               {/* Table View */}
               {accountView === 'table' && (
                 <div className="overflow-x-auto">
-                <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
                       <tr className="border-b">
