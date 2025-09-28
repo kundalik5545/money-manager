@@ -106,7 +106,10 @@ function TransactionsContent() {
         </div>
         
         <div className="flex flex-wrap gap-3">
-          <Button className="flex items-center gap-2">
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setShowAddModal(true)}
+          >
             <Plus className="h-4 w-4" />
             Add Transaction
           </Button>
@@ -114,6 +117,26 @@ function TransactionsContent() {
             <Download className="h-4 w-4" />
             Export
           </Button>
+          
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={viewType === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("table")}
+              className="rounded-r-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewType === "card" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("card")}
+              className="rounded-l-none"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
