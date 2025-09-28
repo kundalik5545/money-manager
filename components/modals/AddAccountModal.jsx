@@ -81,8 +81,13 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, editData }
         balance: parseFloat(formData.balance) || 0
       };
 
+      // Add ID for edit mode
+      if (editData) {
+        submitData.id = editData.id;
+      }
+
       const response = await fetch('/api/accounts', {
-        method: 'POST',
+        method: editData ? 'PUT' : 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
