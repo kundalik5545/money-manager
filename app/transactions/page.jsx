@@ -79,6 +79,15 @@ function TransactionsContent() {
     transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // Pagination logic
+  const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
+  const startIndex = (currentPage - 1) * transactionsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(startIndex, startIndex + transactionsPerPage);
+
+  const handlePageChange = (page) => {
+    setCurrentPage(page);
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
