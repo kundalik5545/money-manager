@@ -84,39 +84,47 @@ export default function MobileNavigation() {
   return (
     <>
       {/* Mobile Top Navigation Bar */}
-      <nav className="bg-background border-b" role="navigation" aria-label="Mobile navigation">
+      <div className="sticky top-0 z-30 bg-background border-b">
         <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
+          {/* Logo */}
+          <Link href="/dashboard" className="flex items-center gap-3">
             <BarChart3 className="h-6 w-6 text-blue-600" />
             <span className="text-lg font-bold">FinanceHub</span>
-          </div>
+          </Link>
+          
+          {/* Hamburger Menu Button */}
           <Button
             variant="ghost"
             size="sm"
             onClick={() => setMobileOpen(true)}
             aria-label="Open navigation menu"
+            className="p-2"
           >
             <Menu className="h-5 w-5" />
           </Button>
         </div>
-      </nav>
+      </div>
 
-      {/* Mobile Slide-out Menu */}
+      {/* Mobile Slide-out Menu Sheet */}
       {mobileOpen && (
         <>
+          {/* Backdrop/Overlay */}
           <div 
-            className="fixed inset-0 bg-black bg-opacity-50 z-40"
+            className="fixed inset-0 bg-black/50 z-40 transition-opacity"
             onClick={() => setMobileOpen(false)}
             aria-hidden="true"
           />
-          <aside 
-            className="fixed inset-y-0 left-0 w-64 bg-background border-r z-50"
-            role="navigation"
-            aria-label="Main navigation"
+          
+          {/* Menu Sheet */}
+          <div 
+            className="fixed inset-y-0 right-0 z-50 w-80 max-w-[85vw] bg-background border-l shadow-xl transition-transform"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Mobile navigation menu"
           >
             <div className="flex h-full flex-col">
-              {/* Header */}
-              <div className="flex items-center justify-between p-4 border-b">
+              {/* Menu Header */}
+              <div className="flex items-center justify-between p-4 border-b bg-muted/20">
                 <div className="flex items-center gap-3">
                   <BarChart3 className="h-6 w-6 text-blue-600" />
                   <span className="text-lg font-bold">FinanceHub</span>
@@ -126,64 +134,108 @@ export default function MobileNavigation() {
                   size="sm"
                   onClick={() => setMobileOpen(false)}
                   aria-label="Close navigation menu"
+                  className="p-2"
                 >
                   <X className="h-5 w-5" />
                 </Button>
               </div>
 
               {/* Navigation Links */}
-              <nav className="flex-1 px-4 py-4 space-y-1">
-                {navigation.map((item) => {
-                  const Icon = item.icon;
-                  const isActive = pathname === item.href;
-                  
-                  return (
-                    <Link
-                      key={item.name}
-                      href={item.href}
-                      onClick={() => setMobileOpen(false)}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                        isActive
-                          ? "bg-primary text-primary-foreground"
-                          : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                      }`}
-                    >
-                      <Icon className="h-5 w-5 flex-shrink-0" />
-                      <span>{item.name}</span>
-                    </Link>
-                  );
-                })}
+              <nav className="flex-1 px-4 py-4">
+                <div className="space-y-2">
+                  {navigation.map((item) => {
+                    const Icon = item.icon;
+                    const isActive = pathname === item.href;
+                    
+                    return (
+                      <Link
+                        key={item.name}
+                        href={item.href}
+                        onClick={handleMenuItemClick}
+                        className={`flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 ${
+                          isActive
+                            ? "bg-primary text-primary-foreground shadow-sm"
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        }`}
+                      >
+                        <Icon className="h-5 w-5 flex-shrink-0" />
+                        <span>{item.name}</span>
+                      </Link>
+                    );
+                  })}
+                </div>
               </nav>
 
-              {/* Footer */}
-              <div className="p-4 border-t">
+              {/* Menu Footer */}
+              <div className="p-4 space-y-4 border-t bg-muted/10">
                 {/* Theme Toggle */}
-                <div className="flex items-center gap-3 mb-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground px-2">Appearance</p>
                   <Button
                     variant="ghost"
                     size="sm"
                     onClick={toggleDarkMode}
-                    className="w-full justify-start"
+                    className="w-full justify-start px-4 py-3 h-auto"
                   >
-                    {darkMode ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-                    <span className="ml-2">{darkMode ? "Light" : "Dark"} Mode</span>
+                    {darkMode ? (
+                      <>
+                        <Sun className="h-5 w-5 mr-3" />
+                        <span>Switch to Light Mode</span>
+                      </>
+                    ) : (
+                      <>
+                        <Moon className="h-5 w-5 mr-3" />
+                        <span>Switch to Dark Mode</span>
+                      </>
+                    )}
                   </Button>
                 </div>
 
-                {/* User Profile */}
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                    D
+                {/* User Profile & Auth */}
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-muted-foreground px-2">Account</p>
+                  
+                  {/* User Profile */}
+                  <div className="flex items-center gap-3 px-4 py-2 rounded-lg bg-muted/30">
+                    <div className="h-10 w-10 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+                      <User className="h-5 w-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">Demo User</p>
+                      <p className="text-xs text-muted-foreground truncate">demo@example.com</p>
+                    </div>
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-foreground truncate">
-                      Demo User
-                    </p>
+
+                  {/* Login/Logout Buttons */}
+                  <div className="space-y-1">
+                    {isLoggedIn ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLogout}
+                        className="w-full justify-start px-4 py-3 h-auto text-red-600 hover:text-red-700 hover:bg-red-50"
+                        disabled={true} // Will be enabled later
+                      >
+                        <LogOut className="h-5 w-5 mr-3" />
+                        <span>Sign Out (Coming Soon)</span>
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={handleLogin}
+                        className="w-full justify-start px-4 py-3 h-auto text-green-600 hover:text-green-700 hover:bg-green-50"
+                        disabled={true} // Will be enabled later
+                      >
+                        <LogIn className="h-5 w-5 mr-3" />
+                        <span>Sign In (Coming Soon)</span>
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
             </div>
-          </aside>
+          </div>
         </>
       )}
     </>
