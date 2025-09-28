@@ -347,6 +347,89 @@ async function getAnalytics(request) {
   }
 }
 
+// GET /api/export?format=csv|xlsx
+async function exportTransactions(request) {
+  try {
+    const url = new URL(request.url)
+    const format = url.searchParams.get('format') || 'csv'
+    
+    // Fetch all transactions with related data
+    const transactions = await prisma.transaction.findMany({
+      include: {
+        account: true,
+        category: true,
+        subcategory: true
+      },
+      orderBy: { date: 'desc' }
+    })
+    
+    // Prepare data for export
+    const exportData = transactions.map(t => ({
+      Date: new Date(t.date).toLocaleDateString(),
+      Description: t.description,
+      Amount: t.amount,
+      Category: t.category.name,
+      Subcategory: t.subcategory?.name || '',
+      Account: t.account.name,
+      Type: t.category.type
+    }))
+    
+    if (format === 'xlsx') {
+      // Create Excel file
+      const wb = XLSX.utils.book_new()
+      const ws = XLSX.utils.json_to_sheet(exportData)
+      
+      // Auto-size columns
+      const colWidths = []
+      const headers = Object.keys(exportData[0] || {})
+      headers.forEach((header, i) => {
+        const maxLength = Math.max(
+          header.length,
+          ...exportData.map(row => String(row[header]).length)
+        )
+        colWidths[i] = { wch: Math.min(maxLength + 2, 50) }
+      })
+      ws['!cols'] = colWidths
+      
+      XLSX.utils.book_append_sheet(wb, ws, 'Transactions')
+      
+      const buffer = XLSX.write(wb, { type: 'buffer', bookType: 'xlsx' })
+      
+      return new NextResponse(buffer, {
+        headers: {
+          'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+          'Content-Disposition': `attachment; filename="transactions_${new Date().toISOString().split('T')[0]}.xlsx"`
+        }
+      })
+    } else {
+      // Create CSV file
+      const headers = Object.keys(exportData[0] || {})
+      const csvRows = [
+        headers.join(','),
+        ...exportData.map(row => 
+          headers.map(header => {
+            const value = String(row[header] || '')
+            // Escape quotes and wrap in quotes if contains comma
+            return value.includes(',') ? `"${value.replace(/"/g, '""')}"` : value
+          }).join(',')
+        )
+      ]
+      
+      const csvContent = csvRows.join('\n')
+      
+      return new NextResponse(csvContent, {
+        headers: {
+          'Content-Type': 'text/csv',
+          'Content-Disposition': `attachment; filename="transactions_${new Date().toISOString().split('T')[0]}.csv"`
+        }
+      })
+    }
+  } catch (error) {
+    console.error('Error exporting transactions:', error)
+    return NextResponse.json({ success: false, error: error.message }, { status: 500 })
+  }
+}
+
 // Main handler
 export async function GET(request, { params }) {
   const path = params?.path?.join('/') || ''
