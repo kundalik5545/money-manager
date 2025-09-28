@@ -510,6 +510,13 @@ function DashboardContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Transaction Modal */}
+      <AddTransactionModal
+        isOpen={showAddTransactionModal}
+        onClose={() => setShowAddTransactionModal(false)}
+        onSuccess={handleTransactionSuccess}
+      />
     </div>
   );
 }
