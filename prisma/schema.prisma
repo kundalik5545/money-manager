@@ -27,6 +27,7 @@ model User {
   categories       Category[]
   transactions     Transaction[]
   budgets          Budget[]
+  investments      Investment[]
   defaultAccount   Account?      @relation("DefaultAccount", fields: [defaultAccountId], references: [id])
   
   @@map("users")
