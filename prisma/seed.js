@@ -5,12 +5,25 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Starting seed...')
 
-  // Create accounts
+  // Create a demo user
+  const demoUser = await prisma.user.create({
+    data: {
+      clerkId: 'demo_user_123',
+      email: 'demo@example.com',
+      firstName: 'Demo',
+      lastName: 'User'
+    }
+  })
+
+  console.log('Demo user created:', demoUser.id)
+
+  // Create accounts for the demo user
   const bankAccount = await prisma.account.create({
     data: {
       name: 'Chase Checking',
       type: 'BANK',
-      balance: 5000
+      balance: 5000,
+      userId: demoUser.id
     }
   })
 
@@ -18,7 +31,8 @@ async function main() {
     data: {
       name: 'Cash Wallet',
       type: 'WALLET',
-      balance: 200
+      balance: 200,
+      userId: demoUser.id
     }
   })
 
@@ -26,16 +40,18 @@ async function main() {
     data: {
       name: 'Visa Credit Card',
       type: 'CREDIT_CARD',
-      balance: -1200
+      balance: -1200,
+      userId: demoUser.id
     }
   })
 
-  // Create income categories
+  // Create income categories for the demo user
   const salaryCategory = await prisma.category.create({
     data: {
       name: 'Salary',
       type: 'INCOME',
-      color: '#10b981'
+      color: '#10b981',
+      userId: demoUser.id
     }
   })
 
@@ -43,16 +59,18 @@ async function main() {
     data: {
       name: 'Freelance',
       type: 'INCOME',
-      color: '#06b6d4'
+      color: '#06b6d4',
+      userId: demoUser.id
     }
   })
 
-  // Create expense categories
+  // Create expense categories for the demo user
   const foodCategory = await prisma.category.create({
     data: {
       name: 'Food & Dining',
       type: 'EXPENSE',
-      color: '#f59e0b'
+      color: '#f59e0b',
+      userId: demoUser.id
     }
   })
 
@@ -60,7 +78,8 @@ async function main() {
     data: {
       name: 'Transportation',
       type: 'EXPENSE',
-      color: '#ef4444'
+      color: '#ef4444',
+      userId: demoUser.id
     }
   })
 
@@ -68,7 +87,8 @@ async function main() {
     data: {
       name: 'Shopping',
       type: 'EXPENSE',
-      color: '#8b5cf6'
+      color: '#8b5cf6',
+      userId: demoUser.id
     }
   })
 
@@ -76,36 +96,41 @@ async function main() {
     data: {
       name: 'Utilities',
       type: 'EXPENSE',
-      color: '#6b7280'
+      color: '#6b7280',
+      userId: demoUser.id
     }
   })
 
-  // Create subcategories
+  // Create subcategories for the demo user
   await prisma.subcategory.create({
     data: {
       name: 'Restaurants',
-      categoryId: foodCategory.id
+      categoryId: foodCategory.id,
+      userId: demoUser.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Groceries',
-      categoryId: foodCategory.id
+      categoryId: foodCategory.id,
+      userId: demoUser.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Gas',
-      categoryId: transportCategory.id
+      categoryId: transportCategory.id,
+      userId: demoUser.id
     }
   })
 
   await prisma.subcategory.create({
     data: {
       name: 'Public Transport',
-      categoryId: transportCategory.id
+      categoryId: transportCategory.id,
+      userId: demoUser.id
     }
   })
 
