@@ -22,6 +22,7 @@ import {
 import Link from "next/link";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AddTransactionModal from "@/components/modals/AddTransactionModal";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8', '#82CA9D'];
 
