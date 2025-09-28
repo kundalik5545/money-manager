@@ -22,10 +22,13 @@ import {
   ChevronRight,
   RotateCcw,
   Eye,
-  EyeOff
+  EyeOff,
+  Star,
+  StarOff
 } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AddAccountModal from "@/components/modals/AddAccountModal";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
