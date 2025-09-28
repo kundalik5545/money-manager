@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
+import AddCategoryModal from "@/components/modals/AddCategoryModal";
 
 function CategoriesContent() {
   const [categories, setCategories] = useState([]);
