@@ -19,61 +19,32 @@ export default function TransactionsPage() {
 
   const fetchTransactions = async () => {
     try {
-      // Mock data - replace with actual API call
-      setTransactions([
-        {
-          id: 1,
-          description: "Grocery Shopping at Walmart",
-          amount: -89.50,
-          category: "Food & Dining",
-          subcategory: "Groceries",
-          account: "Credit Card",
-          date: "2024-01-15",
-          type: "EXPENSE"
-        },
-        {
-          id: 2,
-          description: "Monthly Salary",
-          amount: 3500.00,
-          category: "Salary",
-          subcategory: null,
-          account: "Bank Account",
-          date: "2024-01-15",
-          type: "INCOME"
-        },
-        {
-          id: 3,
-          description: "Electric Bill Payment",
-          amount: -125.00,
-          category: "Utilities",
-          subcategory: "Electricity",
-          account: "Bank Account",
-          date: "2024-01-14",
-          type: "EXPENSE"
-        },
-        {
-          id: 4,
-          description: "Coffee Shop",
-          amount: -4.50,
-          category: "Food & Dining",
-          subcategory: "Restaurants",
-          account: "Wallet",
-          date: "2024-01-14",
-          type: "EXPENSE"
-        },
-        {
-          id: 5,
-          description: "Freelance Project Payment",
-          amount: 800.00,
-          category: "Freelance",
-          subcategory: null,
-          account: "Bank Account",
-          date: "2024-01-13",
-          type: "INCOME"
+      const response = await fetch('/api/transactions');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const formattedTransactions = data.data.map(t => ({
+            id: t.id,
+            description: t.description,
+            amount: t.amount,
+            category: t.category.name,
+            subcategory: t.subcategory?.name || null,
+            account: t.account.name,
+            date: t.date,
+            type: t.category.type
+          }));
+          setTransactions(formattedTransactions);
+        } else {
+          console.error('API error:', data.error);
+          setTransactions([]);
         }
-      ]);
+      } else {
+        console.error('Failed to fetch transactions');
+        setTransactions([]);
+      }
     } catch (error) {
       console.error("Failed to fetch transactions:", error);
+      setTransactions([]);
     } finally {
       setLoading(false);
     }
