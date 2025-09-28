@@ -89,26 +89,6 @@ export default function AddCategoryModal({ isOpen, onClose, onSuccess }) {
                 </Select>
               </div>
 
-              <div>
-                <Label htmlFor="color">Color</Label>
-                <div className="flex items-center gap-3">
-                  <Input
-                    id="color"
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) => handleInputChange("color", e.target.value)}
-                    className="w-16 h-10 p-1"
-                  />
-                  <Input
-                    type="text"
-                    value={formData.color}
-                    onChange={(e) => handleInputChange("color", e.target.value)}
-                    placeholder="#FF8042"
-                    className="flex-1"
-                  />
-                </div>
-              </div>
-
               <div className="flex gap-3 pt-4">
                 <Button type="button" variant="outline" onClick={onClose} className="flex-1">
                   Cancel
