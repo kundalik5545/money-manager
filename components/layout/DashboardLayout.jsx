@@ -32,7 +32,7 @@ export default function DashboardLayout({ children }) {
       <Sidebar />
       
       {/* Main Content */}
-      <div className="lg:ml-64 transition-all duration-300">
+      <div className="lg:pl-64 transition-all duration-300">
         <main className="p-4 lg:p-8">
           {children}
         </main>
