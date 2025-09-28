@@ -178,17 +178,16 @@ export default function Sidebar() {
   );
 
   return (
-    <>
-      {/* Desktop Sidebar */}
-      <div className={`hidden lg:flex lg:flex-col lg:fixed lg:inset-y-0 ${
-        collapsed ? "lg:w-20" : "lg:w-64"
-      } bg-background border-r transition-all duration-300`}>
+    <div>
+      {/* Desktop Sidebar - Fixed Position */}
+      <aside className={`fixed top-0 left-0 z-40 h-screen transition-all duration-300 hidden lg:block ${
+        collapsed ? "w-20" : "w-64"
+      } bg-background border-r`}>
         <SidebarContent />
-      </div>
+      </aside>
 
-      {/* Mobile Sidebar */}
+      {/* Mobile Header - Shows only on mobile screens */}
       <div className="lg:hidden">
-        {/* Mobile Header - only show on mobile */}
         <div className="flex items-center justify-between p-4 border-b bg-background">
           <div className="flex items-center gap-3">
             <BarChart3 className="h-6 w-6 text-blue-600" />
@@ -203,14 +202,14 @@ export default function Sidebar() {
           </Button>
         </div>
 
-        {/* Mobile Overlay */}
+        {/* Mobile Sidebar Overlay */}
         {mobileOpen && (
           <>
             <div 
               className="fixed inset-0 bg-black bg-opacity-50 z-40"
               onClick={() => setMobileOpen(false)}
             />
-            <div className="fixed inset-y-0 left-0 w-64 bg-background border-r z-50">
+            <aside className="fixed inset-y-0 left-0 w-64 bg-background border-r z-50">
               <div className="flex items-center justify-between p-4 border-b">
                 <div className="flex items-center gap-3">
                   <BarChart3 className="h-6 w-6 text-blue-600" />
@@ -227,10 +226,10 @@ export default function Sidebar() {
               <div className="pt-4">
                 <SidebarContent />
               </div>
-            </div>
+            </aside>
           </>
         )}
       </div>
-    </>
+    </div>
   );
 }
