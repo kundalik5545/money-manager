@@ -38,6 +38,9 @@ export default function Sidebar() {
   const pathname = usePathname();
   const router = useRouter();
 
+  // Debug log to see how many times this component renders
+  console.log("Sidebar component rendered");
+
   // Initialize dark mode from localStorage
   useEffect(() => {
     if (typeof window !== "undefined") {
