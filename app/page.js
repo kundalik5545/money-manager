@@ -1450,10 +1450,7 @@ export default function App() {
 
               {/* Table View */}
               {accountView === 'table' && (
-                <div>
-
-              {/* Desktop/Tablet View - Table */}
-              <div className="hidden md:block">
+                <div className="overflow-x-auto">
                 <div className="overflow-x-auto">
                   <table className="w-full">
                     <thead>
