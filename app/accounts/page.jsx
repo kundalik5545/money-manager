@@ -97,6 +97,84 @@ function AccountsContent() {
     }
   };
 
+  const fetchAccountTransactions = async (accountId) => {
+    try {
+      const response = await fetch(`/api/transactions?accountId=${accountId}&page=${transactionsPage}&limit=${transactionsPerPage}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAccountTransactions(data.data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch account transactions:", error);
+    }
+  };
+
+  const fetchBalanceChartData = async () => {
+    try {
+      // For now, we'll generate sample data based on current accounts
+      // In a real app, this would come from a balance history API
+      const chartData = [];
+      const startDate = new Date(chartDateRange.startDate);
+      const endDate = new Date(chartDateRange.endDate);
+      
+      // Generate monthly data points
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const monthKey = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+        
+        // Simulate balance progression (this would be real historical data)
+        const variation = Math.random() * 0.1 + 0.95; // ±5% variation
+        const baseBalance = totalNetWorth * variation;
+        
+        chartData.push({
+          period: monthKey,
+          balance: baseBalance,
+          bank: accountTotals.bank * variation,
+          creditCard: Math.abs(accountTotals.creditCard * variation),
+          wallet: accountTotals.wallet * variation
+        });
+        
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+      
+      setBalanceChartData(chartData);
+    } catch (error) {
+      console.error("Failed to fetch balance chart data:", error);
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    try {
+      const response = await fetch(`/api/accounts?id=${accountId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        fetchAccounts(); // Refresh the accounts list
+        setShowDeleteModal(false);
+        setDeletingAccount(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+    }
+  };
+
+  const handleAccountSuccess = () => {
+    fetchAccounts(); // Refresh the accounts list
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setEditingAccount(null);
+  };
+
+  const toggleAccountDetails = (accountId) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
+    }));
+  };
+
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
