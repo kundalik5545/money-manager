@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 // import { useUser } from "@clerk/nextjs"; // Temporarily disabled
 // import { useRouter } from "next/navigation"; // Temporarily disabled
 import NavigationController from "./NavigationController";
