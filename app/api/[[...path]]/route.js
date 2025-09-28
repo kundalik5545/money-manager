@@ -1,6 +1,32 @@
 import { NextResponse } from 'next/server'
+import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import * as XLSX from 'xlsx'
+
+// Helper function to get authenticated user
+async function getAuthenticatedUser() {
+  const { userId } = auth()
+  if (!userId) {
+    return null
+  }
+  
+  // Find or create user in our database
+  let user = await prisma.user.findUnique({
+    where: { clerkId: userId }
+  })
+  
+  if (!user) {
+    // Create user if doesn't exist
+    user = await prisma.user.create({
+      data: {
+        clerkId: userId,
+        email: '', // Will be updated when user provides it
+      }
+    })
+  }
+  
+  return user
+}
 
 // GET /api/accounts
 async function getAccounts() {
