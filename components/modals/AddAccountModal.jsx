@@ -369,7 +369,7 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, editData }
                   Cancel
                 </Button>
                 <Button type="submit" disabled={loading} className="flex-1">
-                  {loading ? "Creating..." : "Create Account"}
+                  {loading ? (editData ? "Updating..." : "Creating...") : (editData ? "Update Account" : "Create Account")}
                 </Button>
               </div>
             </form>
