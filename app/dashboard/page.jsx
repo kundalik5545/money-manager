@@ -14,8 +14,12 @@ import {
   Upload,
   Download,
   AlertTriangle,
-  Target
+  Target,
+  List,
+  Grid3X3,
+  ExternalLink
 } from "lucide-react";
+import Link from "next/link";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, PieChart, Pie, Cell } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
