@@ -287,3 +287,11 @@ function AccountsContent() {
     </div>
   );
 }
+
+export default function AccountsPage() {
+  return (
+    <DashboardLayout>
+      <AccountsContent />
+    </DashboardLayout>
+  );
+}
