@@ -188,7 +188,7 @@ export default function Sidebar() {
 
       {/* Mobile Sidebar */}
       <div className="lg:hidden">
-        {/* Mobile Header */}
+        {/* Mobile Header - only show on mobile */}
         <div className="flex items-center justify-between p-4 border-b bg-background">
           <div className="flex items-center gap-3">
             <BarChart3 className="h-6 w-6 text-blue-600" />
