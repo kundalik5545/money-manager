@@ -15,7 +15,11 @@ import {
   ChevronLeft, 
   ChevronRight,
   Edit,
-  Trash2
+  Trash2,
+  TrendingUp,
+  TrendingDown,
+  Upload,
+  X
 } from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 import AddTransactionModal from "@/components/modals/AddTransactionModal";
