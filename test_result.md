@@ -101,3 +101,61 @@
 #====================================================================================================
 # Testing Data - Main Agent and testing sub agent both should log testing data below this section
 #====================================================================================================
+
+## user_problem_statement: Add export functionality for transaction data in Excel and CSV formats
+
+## backend:
+  - task: "Export API endpoint - CSV format"
+    implemented: true
+    working: false  # needs testing
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+        - agent: "main"
+        - comment: "Added /api/export endpoint with CSV format support - includes all transaction fields with proper CSV escaping"
+
+  - task: "Export API endpoint - Excel format"
+    implemented: true
+    working: false  # needs testing
+    file: "/app/app/api/[[...path]]/route.js"
+    stuck_count: 0
+    priority: "high"
+    needs_retesting: true
+    status_history:
+        - working: false
+        - agent: "main"
+        - comment: "Added /api/export endpoint with XLSX format support using xlsx library - includes auto-sized columns"
+
+## frontend:
+  - task: "Export button UI with dropdown"
+    implemented: true
+    working: false  # needs testing
+    file: "/app/app/page.js"
+    stuck_count: 0
+    priority: "medium"
+    needs_retesting: true
+    status_history:
+        - working: false
+        - agent: "main"
+        - comment: "Added Export Data dropdown button with CSV and Excel options in header section"
+
+## metadata:
+  created_by: "main_agent"
+  version: "1.0"
+  test_sequence: 1
+  run_ui: false
+
+## test_plan:
+  current_focus:
+    - "Export API endpoint - CSV format"
+    - "Export API endpoint - Excel format"
+  stuck_tasks: []
+  test_all: false
+  test_priority: "high_first"
+
+## agent_communication:
+    - agent: "main"
+    - message: "Implemented export functionality for transactions in both CSV and Excel formats. Added backend API endpoint /api/export?format=csv|xlsx and frontend dropdown UI. Ready for testing."
