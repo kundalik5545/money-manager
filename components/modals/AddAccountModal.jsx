@@ -30,7 +30,7 @@ export default function AddAccountModal({ isOpen, onClose, onSuccess, editData }
   });
 
   // Initialize form with edit data when modal opens
-  useState(() => {
+  useEffect(() => {
     if (editData && isOpen) {
       setFormData({
         name: editData.name || "",
