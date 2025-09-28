@@ -50,7 +50,6 @@ async function main() {
     data: {
       name: 'Salary',
       type: 'INCOME',
-      color: '#10b981',
       userId: demoUser.id
     }
   })
@@ -59,7 +58,6 @@ async function main() {
     data: {
       name: 'Freelance',
       type: 'INCOME',
-      color: '#06b6d4',
       userId: demoUser.id
     }
   })
@@ -69,7 +67,6 @@ async function main() {
     data: {
       name: 'Food & Dining',
       type: 'EXPENSE',
-      color: '#f59e0b',
       userId: demoUser.id
     }
   })
@@ -78,7 +75,6 @@ async function main() {
     data: {
       name: 'Transportation',
       type: 'EXPENSE',
-      color: '#ef4444',
       userId: demoUser.id
     }
   })
@@ -87,7 +83,6 @@ async function main() {
     data: {
       name: 'Shopping',
       type: 'EXPENSE',
-      color: '#8b5cf6',
       userId: demoUser.id
     }
   })
@@ -96,7 +91,6 @@ async function main() {
     data: {
       name: 'Utilities',
       type: 'EXPENSE',
-      color: '#6b7280',
       userId: demoUser.id
     }
   })
