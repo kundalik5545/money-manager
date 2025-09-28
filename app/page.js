@@ -47,6 +47,11 @@ export default function App() {
   const [editingCategory, setEditingCategory] = useState(null)
   const [deleteConfirm, setDeleteConfirm] = useState({ show: false, type: '', id: '', name: '' })
   
+  // View toggle states
+  const [transactionView, setTransactionView] = useState('card') // 'card' or 'table'
+  const [accountView, setAccountView] = useState('card') // 'card' or 'table'  
+  const [categoryView, setCategoryView] = useState('card') // 'card' or 'table'
+  
   // Filter states
   const [filters, setFilters] = useState({
     search: '',
