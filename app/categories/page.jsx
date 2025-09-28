@@ -548,6 +548,13 @@ function CategoriesContent() {
           </div>
         </CardContent>
       </Card>
+
+      {/* Add Category Modal */}
+      <AddCategoryModal
+        isOpen={showAddCategoryModal}
+        onClose={() => setShowAddCategoryModal(false)}
+        onSuccess={handleCategorySuccess}
+      />
     </div>
   );
 }
