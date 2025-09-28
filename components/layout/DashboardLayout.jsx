@@ -1,59 +1,48 @@
 "use client";
 
 import { useState } from "react";
-// import { useUser } from "@clerk/nextjs"; // Temporarily disabled
-// import { useRouter } from "next/navigation"; // Temporarily disabled
-import NavigationController from "./NavigationController";
+import NavigationController from "./NavigationController"; 
+import { useIsMobile } from "../../hooks/use-mobile";
 
 export default function DashboardLayout({ children }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isLoaded, setIsLoaded] = useState(false);
-
-  // Original auth logic (commented out)
-  // const { isSignedIn, isLoaded } = useUser(); // Temporarily disabled
-  // const router = useRouter(); // Temporarily disabled
-  // useEffect(() => {
-  //   if (isLoaded && !isSignedIn) {
-  //     router.push("/sign-in");
-  //   }
-  // }, [isSignedIn, isLoaded, router]);
+  // const { isMobile, isLoaded } = useScreenSize(); // single source of truth
+const {isMobile} = useIsMobile();
 
   const handleCollapseChange = (collapsed) => {
     setSidebarCollapsed(collapsed);
   };
 
-  const handleScreenSizeChange = (mobile, loaded) => {
-    setIsMobile(mobile);
-    setIsLoaded(loaded);
-  };
+  console.log("Render DesktopNavigation");
 
   return (
     <div className="min-h-screen bg-background">
-      <NavigationController 
+      {/* pass screen-size values down as props */}
+      <NavigationController
+        isMobile={isMobile}
+        // isLoaded={isLoaded}
         onCollapseChange={handleCollapseChange}
-        onScreenSizeChange={handleScreenSizeChange}
       />
-      
+
       {/* Main Content - responsive to screen size and sidebar state */}
-      <div className={`transition-all duration-300 ${
-        isMobile 
-          ? "pt-16" // Space for mobile top nav
-          : sidebarCollapsed 
-            ? "md:pl-20" 
-            : "md:pl-64"
-      }`}>
-        <main className={`p-4 lg:p-8 ${
-          isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
-        }`}>
-          {/* Show loading state until NavigationController is ready */}
-          {!isLoaded ? (
+      <div
+        className={`transition-all duration-300 ${
+          isMobile ? "pt-16" : sidebarCollapsed ? "md:pl-20" : "md:pl-64"
+        }`}
+      >
+        <main
+          className={`p-4 lg:p-8 ${
+            isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
+          }`}
+        >{children}
+          {/* Show loading state until screen size is determined */}
+          {/* {!isLoaded ? (
             <div className="flex items-center justify-center h-64">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
             </div>
           ) : (
             children
-          )}
+          )} */}
         </main>
       </div>
     </div>
