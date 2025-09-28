@@ -1364,7 +1364,6 @@ export default function App() {
                     </div>
                   </div>
                 ))}
-              </div>
                 
                 {/* Mobile-only totals for card view */}
                 {accounts.length > 0 && (
