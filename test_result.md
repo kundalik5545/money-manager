@@ -303,9 +303,9 @@
 
 ## test_plan:
   current_focus:
-    - "Landing Page with Authentication"
-    - "Dashboard Layout with Sidebar"
-  stuck_tasks: []
+    - "Accounts Page with Balance Display"
+  stuck_tasks: 
+    - "Accounts Page with Balance Display"
   test_all: false
   test_priority: "high_first"
 
