@@ -175,12 +175,12 @@ export default function AddBudgetModal({ isOpen, onClose, onSuccess, categories,
 
                   <div>
                     <Label>Category (Optional)</Label>
-                    <Select value={formData.categoryId} onValueChange={(value) => handleInputChange("categoryId", value)}>
+                    <Select value={formData.categoryId || "all"} onValueChange={(value) => handleInputChange("categoryId", value === "all" ? "" : value)}>
                       <SelectTrigger>
                         <SelectValue placeholder="All categories" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="">All Categories</SelectItem>
+                        <SelectItem value="all">All Categories</SelectItem>
                         {categories?.filter(cat => cat.type === 'EXPENSE').map((category) => (
                           <SelectItem key={category.id} value={category.id}>
                             {category.name}
