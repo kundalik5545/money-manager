@@ -26,6 +26,8 @@ const navigation = [
   { name: "Transactions", href: "/transactions", icon: Receipt },
   { name: "Accounts", href: "/accounts", icon: CreditCard },
   { name: "Categories", href: "/categories", icon: FolderOpen },
+  { name: "Budgets", href: "/budgets", icon: Target },
+  { name: "Investments", href: "/investments", icon: TrendingUp },
   { name: "Reports", href: "/reports", icon: FileText },
   { name: "Settings", href: "/settings", icon: Settings },
 ];
