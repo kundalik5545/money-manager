@@ -27,6 +27,9 @@ function DashboardContent() {
   const [recentTransactions, setRecentTransactions] = useState([]);
   const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showAddTransactionModal, setShowAddTransactionModal] = useState(false);
+  const [recentTransactionsViewType, setRecentTransactionsViewType] = useState("card"); // "card" or "table"
+  const [monthlyData, setMonthlyData] = useState([]);
 
   useEffect(() => {
     fetchDashboardData();
