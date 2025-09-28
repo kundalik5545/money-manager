@@ -145,15 +145,42 @@ function CategoriesContent() {
           <p className="text-muted-foreground">Organize and track your income and expense categories</p>
         </div>
         
-        <div className="flex gap-3">
-          <Button className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-3">
+          <Button 
+            className="flex items-center gap-2"
+            onClick={() => setShowAddCategoryModal(true)}
+          >
             <Plus className="h-4 w-4" />
             Add Category
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setShowAddSubcategoryModal(true)}
+          >
             <Plus className="h-4 w-4" />
-            Add Subcategory
+            Add Subcategory  
           </Button>
+          
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={viewType === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("table")}
+              className="rounded-r-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewType === "card" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setViewType("card")}
+              className="rounded-l-none"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+          </div>
         </div>
       </div>
 
