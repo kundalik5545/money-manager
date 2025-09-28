@@ -138,8 +138,23 @@ export default function Sidebar() {
           </Button>
         </div>
 
-        {/* User Profile */}
+        {/* User Profile - Temporarily disabled Clerk */}
         <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+          {/* Temporary user avatar replacement */}
+          <div className="h-8 w-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
+            D
+          </div>
+          {!collapsed && (
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-foreground truncate">
+                Demo User
+              </p>
+            </div>
+          )}
+        </div>
+        
+        {/* Original UserButton (commented out) */}
+        {/* <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
           <UserButton 
             appearance={{
               elements: {
@@ -154,7 +169,7 @@ export default function Sidebar() {
               </p>
             </div>
           )}
-        </div>
+        </div> */
 
         {/* Collapse Toggle */}
         <div className="mt-4 hidden lg:block">
