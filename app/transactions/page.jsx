@@ -27,6 +27,13 @@ function TransactionsContent() {
   const [currentPage, setCurrentPage] = useState(1);
   const [viewType, setViewType] = useState("table"); // "table" or "card"
   const [showAddModal, setShowAddModal] = useState(false);
+  const [showAddIncomeModal, setShowAddIncomeModal] = useState(false);
+  const [showAddExpenseModal, setShowAddExpenseModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [filterType, setFilterType] = useState("ALL"); // "ALL", "INCOME", "EXPENSE"
+  const [selectedCategory, setSelectedCategory] = useState("");
+  const [selectedAccount, setSelectedAccount] = useState("");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
   const transactionsPerPage = 10;
 
   useEffect(() => {
