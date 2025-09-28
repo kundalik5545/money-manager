@@ -665,7 +665,8 @@ class Phase3BackendTester:
         self.test_data_integrity_and_isolation()
         
         # Generate summary
-        self.generate_summary()
+        passed, failed, critical = self.generate_summary()
+        return passed, failed, critical
     
     def generate_summary(self):
         """Generate comprehensive test summary"""
