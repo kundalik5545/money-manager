@@ -359,7 +359,7 @@ function AccountsContent() {
                   
                   return (
                     <div key={account.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <div className={`p-2 rounded-full ${colorClass}`}>
                           <Icon className="h-5 w-5" />
                         </div>
@@ -384,11 +384,52 @@ function AccountsContent() {
                         </div>
                       </div>
                       
-                      <div className="text-right">
-                        <div className={`font-bold text-xl ${
-                          account.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {account.balance < 0 && '-'}{formatCurrency(account.balance)}
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className={`font-bold text-xl ${
+                            account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {account.balance < 0 && '-'}{formatCurrency(account.balance)}
+                          </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSetDefault(account.id)}
+                            disabled={account.isDefault}
+                            title={account.isDefault ? "Already default" : "Set as default"}
+                          >
+                            {account.isDefault ? 
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" /> : 
+                              <StarOff className="h-4 w-4" />
+                            }
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingAccount(account);
+                              setShowEditModal(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setDeletingAccount(account);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
