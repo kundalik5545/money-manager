@@ -518,10 +518,22 @@ function TransactionsContent() {
         </CardContent>
       </Card>
 
-      {/* Add Transaction Modal */}
+      {/* Modals */}
       <AddTransactionModal
         isOpen={showAddModal}
         onClose={() => setShowAddModal(false)}
+        onSuccess={handleTransactionSuccess}
+      />
+      
+      <AddIncomeModal
+        isOpen={showAddIncomeModal}
+        onClose={() => setShowAddIncomeModal(false)}
+        onSuccess={handleTransactionSuccess}
+      />
+      
+      <AddExpenseModal
+        isOpen={showAddExpenseModal}
+        onClose={() => setShowAddExpenseModal(false)}
         onSuccess={handleTransactionSuccess}
       />
     </div>
