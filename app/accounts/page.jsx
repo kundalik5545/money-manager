@@ -171,6 +171,42 @@ function AccountsContent() {
     setEditingAccount(null);
   };
 
+  const handleEditAccount = async (accountData) => {
+    try {
+      const response = await fetch('/api/accounts', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+      
+      if (response.ok) {
+        handleAccountSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to update account:', error);
+    }
+  };
+
+  const handleSetDefault = async (accountId) => {
+    try {
+      const response = await fetch('/api/accounts/default', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ accountId }),
+      });
+      
+      if (response.ok) {
+        fetchAccounts();
+      }
+    } catch (error) {
+      console.error('Failed to set default account:', error);
+    }
+  };
+
   const toggleAccountDetails = (accountId) => {
     setShowDetails(prev => ({
       ...prev,
