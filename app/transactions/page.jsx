@@ -5,7 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Search, Filter, Download } from "lucide-react";
+import { 
+  Plus, 
+  Search, 
+  Filter, 
+  Download, 
+  Grid3X3, 
+  List, 
+  ChevronLeft, 
+  ChevronRight,
+  Edit,
+  Trash2
+} from "lucide-react";
 import DashboardLayout from "@/components/layout/DashboardLayout";
 
 function TransactionsContent() {
