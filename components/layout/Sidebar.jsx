@@ -77,15 +77,29 @@ export default function Sidebar() {
 
   const SidebarContent = () => (
     <div className="flex h-full flex-col">
-      {/* Header */}
-      <div className={`flex items-center gap-3 p-6 ${collapsed ? "justify-center" : ""}`}>
-        <BarChart3 className="h-8 w-8 text-blue-600 flex-shrink-0" />
-        {!collapsed && <span className="text-xl font-bold text-foreground">FinanceHub</span>}
+      {/* Header with Collapse Button */}
+      <div className="flex items-center justify-between p-6 border-b">
+        <div className={`flex items-center gap-3 ${collapsed ? "justify-center" : ""}`}>
+          <BarChart3 className="h-8 w-8 text-blue-600 flex-shrink-0" />
+          {!collapsed && <span className="text-xl font-bold text-foreground">FinanceHub</span>}
+        </div>
+        
+        {/* Collapse Toggle - moved to top */}
+        <div className="hidden lg:block">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setCollapsed(!collapsed)}
+            className="p-2"
+          >
+            <Menu className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
       {!collapsed && (
-        <div className="px-4 pb-4">
+        <div className="px-4 py-4">
           <form onSubmit={handleSearch}>
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -151,19 +165,6 @@ export default function Sidebar() {
               </p>
             </div>
           )}
-        </div>
-
-        {/* Collapse Toggle */}
-        <div className="mt-4 hidden lg:block">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setCollapsed(!collapsed)}
-            className="w-full"
-          >
-            <Menu className="h-4 w-4" />
-            {!collapsed && <span className="ml-2">Collapse</span>}
-          </Button>
         </div>
       </div>
     </div>
