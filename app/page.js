@@ -12,7 +12,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
-import { AlertCircle, Plus, Upload, DollarSign, TrendingUp, TrendingDown, Wallet, Edit2, Trash2, MoreHorizontal } from 'lucide-react'
+import { AlertCircle, Plus, Upload, DollarSign, TrendingUp, TrendingDown, Wallet, Edit2, Trash2, MoreHorizontal, LayoutGrid, List } from 'lucide-react'
 import { toast } from 'sonner'
 import { Bar, BarChart, Pie, PieChart, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 
