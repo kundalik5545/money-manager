@@ -6,8 +6,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Plus, Search, Filter, Download } from "lucide-react";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
-export default function TransactionsPage() {
+function TransactionsContent() {
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
