@@ -123,6 +123,59 @@ function TransactionsContent() {
     fetchTransactions(); // Refresh the transactions list
   };
 
+  const handleExport = () => {
+    // Convert transactions to CSV format
+    const csvContent = [
+      // Header row
+      ['Date', 'Description', 'Category', 'Account', 'Type', 'Amount'].join(','),
+      // Data rows
+      ...filteredTransactions.map(t => [
+        new Date(t.date).toLocaleDateString(),
+        `"${t.description}"`,
+        t.category,
+        t.account,
+        t.type,
+        t.amount
+      ].join(','))
+    ].join('\n');
+
+    // Create and download file
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', `transactions_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+  const handleResetFilters = () => {
+    setSearchQuery("");
+    setFilterType("ALL");
+    setSelectedCategory("");
+    setSelectedAccount("");
+    setDateRange({ start: "", end: "" });
+    setCurrentPage(1);
+  };
+
+  const handleDeleteTransaction = async (transactionId) => {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
+      try {
+        const response = await fetch(`/api/transactions?id=${transactionId}`, {
+          method: 'DELETE',
+        });
+        
+        if (response.ok) {
+          fetchTransactions(); // Refresh the list
+        }
+      } catch (error) {
+        console.error('Failed to delete transaction:', error);
+      }
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
