@@ -156,8 +156,7 @@
 
 ## test_plan:
   current_focus:
-    - "Export API endpoint - CSV format"
-    - "Export API endpoint - Excel format"
+    - "Export button UI with dropdown"
   stuck_tasks: []
   test_all: false
   test_priority: "high_first"
@@ -165,3 +164,5 @@
 ## agent_communication:
     - agent: "main"
     - message: "Implemented export functionality for transactions in both CSV and Excel formats. Added backend API endpoint /api/export?format=csv|xlsx and frontend dropdown UI. Ready for testing."
+    - agent: "testing"
+    - message: "Backend export functionality testing COMPLETED - All export API tests PASSED (4/4). CSV export: ✅ Working with proper headers, Content-Type, and file download. Excel export: ✅ Working with valid XLSX format, proper worksheet structure. Default format: ✅ Correctly defaults to CSV. Data integrity: ✅ All required fields present, complete transaction data exported. Both formats successfully exported 21 transactions with all expected fields (Date, Description, Amount, Category, Subcategory, Account, Type). Backend export implementation is fully functional."
