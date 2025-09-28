@@ -575,6 +575,127 @@ export default function ReportsPage() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Category-wise Spending Table */}
+      <Card>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
+          <CardTitle className="flex items-center gap-2">
+            <FileText className="h-5 w-5" />
+            Category-wise Financial Analysis
+          </CardTitle>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setCategoryTableVisible(!categoryTableVisible)}
+            className="flex items-center gap-2"
+          >
+            {categoryTableVisible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {categoryTableVisible ? 'Hide' : 'Show'} Table
+          </Button>
+        </CardHeader>
+        {categoryTableVisible && (
+          <CardContent>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-3 px-2 font-medium">Category</th>
+                    <th className="text-center py-3 px-2 font-medium">Type</th>
+                    <th className="text-right py-3 px-2 font-medium">Total Amount</th>
+                    <th className="text-right py-3 px-2 font-medium">Transactions</th>
+                    <th className="text-right py-3 px-2 font-medium">Avg per Transaction</th>
+                    <th className="text-right py-3 px-2 font-medium">% of Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.categoryWiseTable?.map((category) => (
+                    <tr key={category.id} className="border-b hover:bg-muted/50 transition-colors">
+                      <td className="py-3 px-2">
+                        <div className="flex items-center gap-2">
+                          <div className={`w-3 h-3 rounded-full ${
+                            category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                          }`} />
+                          <span className="font-medium">{category.name}</span>
+                        </div>
+                      </td>
+                      <td className="py-3 px-2 text-center">
+                        <Badge 
+                          variant={category.type === 'INCOME' ? 'default' : 'secondary'}
+                          className="text-xs"
+                        >
+                          {category.type}
+                        </Badge>
+                      </td>
+                      <td className={`py-3 px-2 text-right font-bold ${
+                        category.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                      }`}>
+                        {formatCurrency(category.totalAmount)}
+                      </td>
+                      <td className="py-3 px-2 text-right text-muted-foreground">
+                        {category.transactionCount}
+                      </td>
+                      <td className="py-3 px-2 text-right text-muted-foreground">
+                        {formatCurrency(category.avgAmount)}
+                      </td>
+                      <td className="py-3 px-2 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <span className="text-sm font-medium">
+                            {category.percentage.toFixed(1)}%
+                          </span>
+                          <div className="w-12 bg-muted rounded-full h-2">
+                            <div 
+                              className={`h-2 rounded-full ${
+                                category.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                              }`}
+                              style={{ width: `${Math.min(category.percentage, 100)}%` }}
+                            />
+                          </div>
+                        </div>
+                      </td>
+                    </tr>
+                  )) || (
+                    <tr>
+                      <td colSpan="6" className="py-8 text-center text-muted-foreground">
+                        No category data available for the selected date range
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+            
+            {/* Category Table Summary */}
+            {data.categoryWiseTable && data.categoryWiseTable.length > 0 && (
+              <div className="mt-6 p-4 bg-muted/20 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                  <div>
+                    <p className="text-sm text-muted-foreground">Total Categories</p>
+                    <p className="text-2xl font-bold">{data.categoryWiseTable.length}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Highest Spending</p>
+                    <p className="text-lg font-bold text-red-600">
+                      {data.categoryWiseTable.length > 0 ? formatCurrency(Math.max(...data.categoryWiseTable.map(c => c.totalAmount))) : '₹0'}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Most Transactions</p>
+                    <p className="text-lg font-bold text-purple-600">
+                      {data.categoryWiseTable.length > 0 ? Math.max(...data.categoryWiseTable.map(c => c.transactionCount)) : 0}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground">Avg per Category</p>
+                    <p className="text-lg font-bold text-blue-600">
+                      {data.categoryWiseTable.length > 0 ? formatCurrency(data.categoryWiseTable.reduce((sum, c) => sum + c.totalAmount, 0) / data.categoryWiseTable.length) : '₹0'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </CardContent>
+        )}
+      </Card>
     </div>
     </DashboardLayout>
   );
