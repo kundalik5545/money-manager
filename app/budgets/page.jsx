@@ -294,7 +294,7 @@ function BudgetsContent() {
                                   <Mail className="h-3 w-3 text-muted-foreground" />
                                 )}
                                 {!budget.emailNotifications && (
-                                  <MailOff className="h-3 w-3 text-muted-foreground" />
+                                  <X className="h-3 w-3 text-muted-foreground" />
                                 )}
                               </div>
                               <p className="text-sm text-muted-foreground">
