@@ -118,6 +118,10 @@ function CategoriesContent() {
     setCurrentPage(page);
   };
 
+  const handleCategorySuccess = () => {
+    fetchCategories(); // Refresh the categories list
+  };
+
   // Chart data for spending by category (fixed to show actual data)
   const chartData = expenseCategories
     .filter(cat => cat.totalAmount > 0) // Only show categories with actual spending
