@@ -14,7 +14,7 @@ from datetime import datetime, timedelta
 import uuid
 
 # Get base URL from environment
-BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://prismafinance.preview.emergentagent.com')
+BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://cashflow-182.preview.emergentagent.com')
 API_BASE = f"{BASE_URL}/api"
 
 class Phase3BackendTester:
