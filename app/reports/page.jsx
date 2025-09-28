@@ -244,13 +244,17 @@ export default function ReportsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="daily">Daily</SelectItem>
-              <SelectItem value="weekly">Weekly</SelectItem>
               <SelectItem value="monthly">Monthly</SelectItem>
               <SelectItem value="yearly">Yearly</SelectItem>
             </SelectContent>
           </Select>
           
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button onClick={handleRefreshData} variant="outline" className="flex items-center gap-2">
+            <RefreshCw className="h-4 w-4" />
+            Refresh
+          </Button>
+          
+          <Button onClick={handleExportReport} variant="outline" className="flex items-center gap-2">
             <Download className="h-4 w-4" />
             Export Report
           </Button>
