@@ -12,9 +12,10 @@ export default clerkMiddleware((auth, req) => {
   const { userId } = auth();
   const isPublic = isPublicRoute(req);
 
-  // Protect private routes - let Clerk handle the redirect
+  // Protect private routes
   if (!userId && !isPublic) {
-    return auth().redirectToSignIn();
+    const signInUrl = new URL("/sign-in", req.nextUrl.origin);
+    return NextResponse.redirect(signInUrl);
   }
 
   // Redirect authenticated users from root to dashboard
