@@ -1002,8 +1002,26 @@ export default function App() {
           
           {/* Transactions Table */}
           <Card>
-            <CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
               <CardTitle>Recent Transactions</CardTitle>
+              <div className="flex items-center space-x-1 bg-muted rounded-lg p-1">
+                <Button
+                  variant={transactionView === 'card' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTransactionView('card')}
+                  className="h-8 px-2"
+                >
+                  <LayoutGrid className="h-4 w-4" />
+                </Button>
+                <Button
+                  variant={transactionView === 'table' ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setTransactionView('table')}
+                  className="h-8 px-2"
+                >
+                  <List className="h-4 w-4" />
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               <div className="space-y-4">
