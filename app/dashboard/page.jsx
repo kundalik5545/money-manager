@@ -396,39 +396,116 @@ function DashboardContent() {
 
       {/* Recent Transactions */}
       <Card>
-        <CardHeader>
+        <CardHeader className="flex flex-row items-center justify-between space-y-0">
           <CardTitle>Recent Transactions</CardTitle>
+          
+          {/* View Toggle */}
+          <div className="flex items-center border rounded-lg">
+            <Button
+              variant={recentTransactionsViewType === "card" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setRecentTransactionsViewType("card")}
+              className="rounded-r-none"
+            >
+              <Grid3X3 className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={recentTransactionsViewType === "table" ? "default" : "ghost"}
+              size="sm"
+              onClick={() => setRecentTransactionsViewType("table")}
+              className="rounded-l-none"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-4">
-            {recentTransactions.map((transaction) => (
-              <div key={transaction.id} className="flex items-center justify-between p-4 border rounded-lg">
-                <div className="flex items-center gap-4">
-                  <div className={`w-2 h-2 rounded-full ${
-                    transaction.amount > 0 ? 'bg-green-500' : 'bg-red-500'
-                  }`} />
-                  <div>
-                    <p className="font-medium">{transaction.description}</p>
-                    <div className="flex gap-4 text-sm text-muted-foreground">
-                      <span>{transaction.category}</span>
-                      <span>•</span>
-                      <span>{transaction.account}</span>
-                      <span>•</span>
-                      <span>{new Date(transaction.date).toLocaleDateString()}</span>
-                    </div>
-                  </div>
+          {recentTransactions.length === 0 ? (
+            <div className="text-center py-8">
+              <p className="text-muted-foreground">No recent transactions</p>
+            </div>
+          ) : (
+            <>
+              {/* Card View */}
+              {recentTransactionsViewType === "card" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {recentTransactions.map((transaction) => (
+                    <Card key={transaction.id} className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className={`w-3 h-3 rounded-full ${
+                          transaction.amount > 0 ? 'bg-green-500' : 'bg-red-500'
+                        }`} />
+                        <div className={`font-bold text-lg ${
+                          transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction.amount > 0 ? '+' : ''}{formatCurrency(transaction.amount)}
+                        </div>
+                      </div>
+                      <h3 className="font-medium mb-2">{transaction.description}</h3>
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <p>{transaction.category}</p>
+                        <p>{transaction.account}</p>
+                        <p>{new Date(transaction.date).toLocaleDateString()}</p>
+                      </div>
+                    </Card>
+                  ))}
                 </div>
-                <div className={`font-bold text-lg ${
-                  transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
-                }`}>
-                  {transaction.amount > 0 ? '+' : ''}{formatCurrency(transaction.amount)}
+              )}
+
+              {/* Table View */}
+              {recentTransactionsViewType === "table" && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b text-left">
+                        <th className="py-2 px-2 font-medium">Description</th>
+                        <th className="py-2 px-2 font-medium">Category</th>
+                        <th className="py-2 px-2 font-medium">Account</th>
+                        <th className="py-2 px-2 font-medium">Date</th>
+                        <th className="py-2 px-2 font-medium text-right">Amount</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentTransactions.map((transaction) => (
+                        <tr key={transaction.id} className="border-b hover:bg-muted/50">
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full ${
+                                transaction.amount > 0 ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <span className="font-medium">{transaction.description}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-muted-foreground">
+                            {transaction.category}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-muted-foreground">
+                            {transaction.account}
+                          </td>
+                          <td className="py-3 px-2 text-sm text-muted-foreground">
+                            {new Date(transaction.date).toLocaleDateString()}
+                          </td>
+                          <td className={`py-3 px-2 text-right font-bold ${
+                            transaction.amount > 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.amount > 0 ? '+' : ''}{formatCurrency(transaction.amount)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
-              </div>
-            ))}
-          </div>
+              )}
+            </>
+          )}
           
           <div className="mt-6 text-center">
-            <Button variant="outline">View All Transactions</Button>
+            <Link href="/transactions">
+              <Button variant="outline" className="flex items-center gap-2">
+                View All Transactions
+                <ExternalLink className="h-4 w-4" />
+              </Button>
+            </Link>
           </div>
         </CardContent>
       </Card>
