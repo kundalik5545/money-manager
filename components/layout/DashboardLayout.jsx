@@ -24,12 +24,9 @@ export default function DashboardLayout({ children }) {
   };
 
   const handleScreenSizeChange = (mobile, loaded) => {
-    console.log('Screen size changed:', { mobile, loaded }); // Debug log
     setIsMobile(mobile);
     setIsLoaded(loaded);
   };
-
-  console.log('DashboardLayout render:', { isMobile, isLoaded }); // Debug log
 
   return (
     <div className="min-h-screen bg-background">
