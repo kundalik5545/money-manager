@@ -17,7 +17,9 @@ import {
   Moon,
   LogIn,
   LogOut,
-  User
+  User,
+  Target,
+  TrendingUp
 } from "lucide-react";
 import Link from "next/link";
 
