@@ -137,16 +137,39 @@ function TransactionsContent() {
         </div>
         
         <div className="flex flex-wrap gap-3">
+          {/* Separate Income/Expense Buttons */}
           <Button 
-            className="flex items-center gap-2"
-            onClick={() => setShowAddModal(true)}
+            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            onClick={() => setShowAddIncomeModal(true)}
           >
-            <Plus className="h-4 w-4" />
-            Add Transaction
+            <TrendingUp className="h-4 w-4" />
+            Add Income
           </Button>
-          <Button variant="outline" className="flex items-center gap-2">
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2 border-red-500 text-red-600 hover:bg-red-50"
+            onClick={() => setShowAddExpenseModal(true)}
+          >
+            <TrendingDown className="h-4 w-4" />
+            Add Expense
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={handleExport}
+          >
             <Download className="h-4 w-4" />
             Export
+          </Button>
+          
+          <Button 
+            variant="outline" 
+            className="flex items-center gap-2"
+            onClick={() => setShowImportModal(true)}
+          >
+            <Plus className="h-4 w-4" />
+            Import
           </Button>
           
           {/* View Toggle */}
