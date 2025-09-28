@@ -19,47 +19,31 @@ export default function AccountsPage() {
 
   const fetchAccounts = async () => {
     try {
-      // Mock data - replace with actual API call
-      setAccounts([
-        {
-          id: 1,
-          name: "Chase Checking",
-          type: "BANK",
-          balance: 5420.50,
-          isDefault: true,
-          transactionCount: 45,
-          lastTransaction: "2024-01-15"
-        },
-        {
-          id: 2,
-          name: "Savings Account",
-          type: "BANK",
-          balance: 15678.30,
-          isDefault: false,
-          transactionCount: 12,
-          lastTransaction: "2024-01-10"
-        },
-        {
-          id: 3,
-          name: "Chase Freedom",
-          type: "CREDIT_CARD",
-          balance: -1250.75,
-          isDefault: false,
-          transactionCount: 28,
-          lastTransaction: "2024-01-14"
-        },
-        {
-          id: 4,
-          name: "Cash Wallet",
-          type: "WALLET",
-          balance: 145.20,
-          isDefault: false,
-          transactionCount: 8,
-          lastTransaction: "2024-01-12"
+      const response = await fetch('/api/accounts');
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          const formattedAccounts = data.data.map(acc => ({
+            id: acc.id,
+            name: acc.name,
+            type: acc.type,
+            balance: acc.balance,
+            isDefault: acc.isDefault,
+            transactionCount: acc._count?.transactions || 0,
+            lastTransaction: acc.updatedAt || acc.createdAt
+          }));
+          setAccounts(formattedAccounts);
+        } else {
+          console.error('API error:', data.error);
+          setAccounts([]);
         }
-      ]);
+      } else {
+        console.error('Failed to fetch accounts');
+        setAccounts([]);
+      }
     } catch (error) {
       console.error("Failed to fetch accounts:", error);
+      setAccounts([]);
     } finally {
       setLoading(false);
     }
