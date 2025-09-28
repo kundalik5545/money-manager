@@ -1,6 +1,4 @@
-
-
-// app/dashboard/not-found.jsx
+"use client";
 import Link from "next/link";
 import { ArrowLeft, Bug } from "lucide-react";
 import { Button } from "@/components/ui/button";
