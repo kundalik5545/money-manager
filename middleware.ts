@@ -19,7 +19,8 @@ export default clerkMiddleware((auth, req) => {
   // Redirect unauthenticated users to sign-in for protected routes
   if (!userId && !isPublic) {
     const signInUrl = new URL("/sign-in", req.nextUrl.origin);
-    signInUrl.searchParams.set("redirect_url", req.url);
+    const redirectUrl = new URL(req.nextUrl.pathname + req.nextUrl.search, req.nextUrl.origin);
+    signInUrl.searchParams.set("redirect_url", redirectUrl.toString());
     return NextResponse.redirect(signInUrl);
   }
 
