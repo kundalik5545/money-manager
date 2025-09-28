@@ -152,15 +152,18 @@
 
   - task: "Transaction CRUD API with User Context"
     implemented: false
-    working: "NA"
+    working: false
     file: "/app/app/api/[[...path]]/route.js"
-    stuck_count: 0
+    stuck_count: 1
     priority: "high"
     needs_retesting: true
     status_history:
         - working: "NA"
         - agent: "main"
         - comment: "Need to update existing API endpoints to include user authentication and filter by userId"
+        - working: false
+        - agent: "testing"
+        - comment: "CRITICAL SECURITY ISSUE: API routes have NO user authentication implemented. Missing Clerk imports, no auth() usage, no userId filtering in database queries. All data accessible without authentication. This is a major security vulnerability that must be fixed immediately."
 
   - task: "Export API endpoint - CSV format"
     implemented: true
