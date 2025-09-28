@@ -33,44 +33,43 @@ export default function DashboardPage() {
 
   const fetchDashboardData = async () => {
     try {
-      // Since we don't have the API implemented yet, we'll use mock data
-      // In a real implementation, these would be API calls
-      setAnalytics({
-        totalIncome: 5300.00,
-        totalExpense: 1477.50,
-        netSavings: 3822.50,
-        transactionCount: 17,
-        accountsTotal: 12345.67,
-        monthlyGrowth: 2.5
-      });
-
-      setRecentTransactions([
-        {
-          id: 1,
-          description: "Grocery Shopping",
-          amount: -89.50,
-          category: "Food & Dining",
-          date: "2024-01-15",
-          account: "Credit Card"
-        },
-        {
-          id: 2,
-          description: "Salary Deposit",
-          amount: 3500.00,
-          category: "Salary",
-          date: "2024-01-15",
-          account: "Bank Account"
-        },
-        {
-          id: 3,
-          description: "Electric Bill",
-          amount: -125.00,
-          category: "Utilities",
-          date: "2024-01-14",
-          account: "Bank Account"
+      // Fetch analytics data
+      const analyticsResponse = await fetch('/api/analytics');
+      if (analyticsResponse.ok) {
+        const analyticsData = await analyticsResponse.json();
+        if (analyticsData.success) {
+          const data = analyticsData.data;
+          setAnalytics({
+            totalIncome: data.totalIncome || 0,
+            totalExpense: data.totalExpense || 0,
+            netSavings: data.netSavings || 0,
+            transactionCount: data.transactionCount || 0,
+            accountsTotal: data.accountsTotal || 0,
+            monthlyGrowth: 2.5 // Calculate this properly later
+          });
+        } else {
+          console.error('Analytics API error:', analyticsData.error);
         }
-      ]);
+      }
 
+      // Fetch recent transactions (limit to 5)
+      const transactionsResponse = await fetch('/api/transactions');
+      if (transactionsResponse.ok) {
+        const transactionsData = await transactionsResponse.json();
+        if (transactionsData.success) {
+          const transactions = transactionsData.data.slice(0, 5).map(t => ({
+            id: t.id,
+            description: t.description,
+            amount: t.category.type === 'INCOME' ? t.amount : -t.amount,
+            category: t.category.name,
+            date: t.date,
+            account: t.account.name
+          }));
+          setRecentTransactions(transactions);
+        }
+      }
+
+      // For now, keep budget data as mock since we haven't implemented budgets yet
       setBudgets([
         {
           id: 1,
@@ -96,6 +95,16 @@ export default function DashboardPage() {
       ]);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
+      // If API calls fail, set default values
+      setAnalytics({
+        totalIncome: 0,
+        totalExpense: 0,
+        netSavings: 0,
+        transactionCount: 0,
+        accountsTotal: 0,
+        monthlyGrowth: 0
+      });
+      setRecentTransactions([]);
     } finally {
       setLoading(false);
     }
