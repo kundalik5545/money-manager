@@ -17,729 +17,755 @@ import uuid
 BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://finance-wizard-30.preview.emergentagent.com')
 API_BASE = f"{BASE_URL}/api"
 
-class FinanceAPITester:
+class Phase3BackendTester:
     def __init__(self):
-        self.session = requests.Session()
         self.test_results = []
-        self.created_resources = {
-            'accounts': [],
-            'categories': [],
-            'transactions': []
-        }
-    
-    def log_result(self, test_name, success, message, details=None):
-        """Log test result"""
+        self.session = requests.Session()
+        self.critical_issues = []
+        
+    def log_test(self, test_name, success, message, details=None, critical=False):
+        """Log test results"""
         result = {
             'test': test_name,
             'success': success,
             'message': message,
-            'details': details or {}
+            'details': details,
+            'timestamp': datetime.now().isoformat(),
+            'critical': critical
         }
         self.test_results.append(result)
+        
+        if critical and not success:
+            self.critical_issues.append(result)
+            
         status = "✅ PASS" if success else "❌ FAIL"
-        print(f"{status}: {test_name} - {message}")
+        priority = " [CRITICAL]" if critical else ""
+        print(f"{status}{priority}: {test_name} - {message}")
         if details and not success:
             print(f"   Details: {details}")
     
-    def test_get_accounts(self):
-        """Test GET /api/accounts endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/accounts")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    accounts = data['data']
-                    self.log_result(
-                        "GET /api/accounts", 
-                        True, 
-                        f"Retrieved {len(accounts)} accounts successfully",
-                        {'account_count': len(accounts), 'sample_account': accounts[0] if accounts else None}
-                    )
-                    return accounts
-                else:
-                    self.log_result("GET /api/accounts", False, "Invalid response format", data)
-            else:
-                self.log_result("GET /api/accounts", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/accounts", False, f"Request failed: {str(e)}")
-        return []
-    
-    def test_create_account(self):
-        """Test POST /api/accounts endpoint"""
-        try:
-            test_account = {
-                "name": f"Test Savings Account {uuid.uuid4().hex[:8]}",
-                "type": "BANK",
-                "balance": 1500.50
-            }
-            
-            response = self.session.post(
-                f"{API_BASE}/accounts",
-                json=test_account,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    account = data['data']
-                    self.created_resources['accounts'].append(account['id'])
-                    self.log_result(
-                        "POST /api/accounts", 
-                        True, 
-                        f"Created account '{account['name']}'",
-                        {'account_id': account['id'], 'balance': account['balance']}
-                    )
-                    return account
-                else:
-                    self.log_result("POST /api/accounts", False, "Invalid response format", data)
-            else:
-                self.log_result("POST /api/accounts", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("POST /api/accounts", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_get_categories(self):
-        """Test GET /api/categories endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/categories")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    categories = data['data']
-                    self.log_result(
-                        "GET /api/categories", 
-                        True, 
-                        f"Retrieved {len(categories)} categories successfully",
-                        {'category_count': len(categories), 'sample_category': categories[0] if categories else None}
-                    )
-                    return categories
-                else:
-                    self.log_result("GET /api/categories", False, "Invalid response format", data)
-            else:
-                self.log_result("GET /api/categories", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/categories", False, f"Request failed: {str(e)}")
-        return []
-    
-    def test_create_category(self):
-        """Test POST /api/categories endpoint"""
-        try:
-            test_category = {
-                "name": f"Test Entertainment {uuid.uuid4().hex[:8]}",
-                "type": "EXPENSE",
-                "color": "#ff6b6b"
-            }
-            
-            response = self.session.post(
-                f"{API_BASE}/categories",
-                json=test_category,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    category = data['data']
-                    self.created_resources['categories'].append(category['id'])
-                    self.log_result(
-                        "POST /api/categories", 
-                        True, 
-                        f"Created category '{category['name']}'",
-                        {'category_id': category['id'], 'type': category['type']}
-                    )
-                    return category
-                else:
-                    self.log_result("POST /api/categories", False, "Invalid response format", data)
-            else:
-                self.log_result("POST /api/categories", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("POST /api/categories", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_get_transactions(self):
-        """Test GET /api/transactions endpoint with various filters"""
-        try:
-            # Test basic transaction retrieval
-            response = self.session.get(f"{API_BASE}/transactions")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    transactions_data = data['data']
-                    transactions = transactions_data.get('transactions', [])
-                    total = transactions_data.get('total', 0)
-                    
-                    self.log_result(
-                        "GET /api/transactions", 
-                        True, 
-                        f"Retrieved {len(transactions)} transactions (total: {total})",
-                        {'transaction_count': len(transactions), 'total': total}
-                    )
-                    
-                    # Test with pagination
-                    response_page2 = self.session.get(f"{API_BASE}/transactions?page=2&limit=5")
-                    if response_page2.status_code == 200:
-                        page2_data = response_page2.json()
-                        if page2_data.get('success'):
-                            self.log_result(
-                                "GET /api/transactions (pagination)", 
-                                True, 
-                                "Pagination working correctly"
-                            )
-                    
-                    # Test with search filter
-                    response_search = self.session.get(f"{API_BASE}/transactions?search=salary")
-                    if response_search.status_code == 200:
-                        search_data = response_search.json()
-                        if search_data.get('success'):
-                            search_results = search_data['data']['transactions']
-                            self.log_result(
-                                "GET /api/transactions (search)", 
-                                True, 
-                                f"Search returned {len(search_results)} results"
-                            )
-                    
-                    return transactions
-                else:
-                    self.log_result("GET /api/transactions", False, "Invalid response format", data)
-            else:
-                self.log_result("GET /api/transactions", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/transactions", False, f"Request failed: {str(e)}")
-        return []
-    
-    def test_create_transaction(self, account_id=None, category_id=None):
-        """Test POST /api/transactions endpoint"""
-        try:
-            # Use provided IDs or get from existing data
-            if not account_id:
-                accounts = self.test_get_accounts()
-                if not accounts:
-                    self.log_result("POST /api/transactions", False, "No accounts available for testing")
-                    return None
-                account_id = accounts[0]['id']
-            
-            if not category_id:
-                categories = self.test_get_categories()
-                if not categories:
-                    self.log_result("POST /api/transactions", False, "No categories available for testing")
-                    return None
-                category_id = categories[0]['id']
-            
-            test_transaction = {
-                "amount": 75.25,
-                "description": f"Test Transaction {uuid.uuid4().hex[:8]}",
-                "date": datetime.now().isoformat(),
-                "accountId": account_id,
-                "categoryId": category_id
-            }
-            
-            response = self.session.post(
-                f"{API_BASE}/transactions",
-                json=test_transaction,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    transaction = data['data']
-                    self.created_resources['transactions'].append(transaction['id'])
-                    self.log_result(
-                        "POST /api/transactions", 
-                        True, 
-                        f"Created transaction '{transaction['description']}'",
-                        {'transaction_id': transaction['id'], 'amount': transaction['amount']}
-                    )
-                    return transaction
-                else:
-                    self.log_result("POST /api/transactions", False, "Invalid response format", data)
-            else:
-                self.log_result("POST /api/transactions", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("POST /api/transactions", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_analytics(self):
-        """Test GET /api/analytics endpoint"""
-        try:
-            response = self.session.get(f"{API_BASE}/analytics")
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    analytics = data['data']
-                    required_fields = ['totalIncome', 'totalExpense', 'netSavings', 'transactionCount']
-                    
-                    missing_fields = [field for field in required_fields if field not in analytics]
-                    if not missing_fields:
-                        self.log_result(
-                            "GET /api/analytics", 
-                            True, 
-                            f"Analytics retrieved successfully",
-                            {
-                                'total_income': analytics['totalIncome'],
-                                'total_expense': analytics['totalExpense'],
-                                'net_savings': analytics['netSavings'],
-                                'transaction_count': analytics['transactionCount']
-                            }
-                        )
-                        
-                        # Test with date filters
-                        start_date = (datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d')
-                        end_date = datetime.now().strftime('%Y-%m-%d')
-                        
-                        response_filtered = self.session.get(
-                            f"{API_BASE}/analytics?startDate={start_date}&endDate={end_date}"
-                        )
-                        
-                        if response_filtered.status_code == 200:
-                            filtered_data = response_filtered.json()
-                            if filtered_data.get('success'):
-                                self.log_result(
-                                    "GET /api/analytics (date filter)", 
-                                    True, 
-                                    "Date filtering working correctly"
-                                )
-                        
-                        return analytics
-                    else:
-                        self.log_result("GET /api/analytics", False, f"Missing fields: {missing_fields}", analytics)
-                else:
-                    self.log_result("GET /api/analytics", False, "Invalid response format", data)
-            else:
-                self.log_result("GET /api/analytics", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("GET /api/analytics", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_upload_endpoint(self):
-        """Test POST /api/upload endpoint"""
-        try:
-            # Create a simple CSV content for testing
-            csv_content = """Date,Description,Amount
-2024-06-01,Test Income,1000
-2024-06-02,Test Expense,-50
-2024-06-03,Another Transaction,200"""
-            
-            # Create a temporary file-like object
-            files = {
-                'file': ('test_transactions.csv', csv_content, 'text/csv')
-            }
-            
-            response = self.session.post(f"{API_BASE}/upload", files=files)
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    upload_data = data['data']
-                    required_fields = ['preview', 'columns', 'totalRows']
-                    
-                    missing_fields = [field for field in required_fields if field not in upload_data]
-                    if not missing_fields:
-                        self.log_result(
-                            "POST /api/upload", 
-                            True, 
-                            f"File uploaded and parsed successfully",
-                            {
-                                'total_rows': upload_data['totalRows'],
-                                'columns': upload_data['columns']
-                            }
-                        )
-                        return upload_data
-                    else:
-                        self.log_result("POST /api/upload", False, f"Missing fields: {missing_fields}", upload_data)
-                else:
-                    self.log_result("POST /api/upload", False, "Invalid response format", data)
-            else:
-                self.log_result("POST /api/upload", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("POST /api/upload", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_import_transactions(self):
-        """Test POST /api/import endpoint"""
-        try:
-            # First get accounts and categories for import
-            accounts = self.test_get_accounts()
-            categories = self.test_get_categories()
-            
-            if not accounts or not categories:
-                self.log_result("POST /api/import", False, "No accounts or categories available for import testing")
-                return None
-            
-            # Sample import data
-            import_data = {
-                "data": [
-                    {"Date": "2024-06-01", "Description": "Import Test 1", "Amount": "100"},
-                    {"Date": "2024-06-02", "Description": "Import Test 2", "Amount": "-50"}
-                ],
-                "mapping": {
-                    "date": "Date",
-                    "description": "Description",
-                    "amount": "Amount"
-                },
-                "defaultAccountId": accounts[0]['id'],
-                "defaultCategoryId": categories[0]['id']
-            }
-            
-            response = self.session.post(
-                f"{API_BASE}/import",
-                json=import_data,
-                headers={'Content-Type': 'application/json'}
-            )
-            
-            if response.status_code == 200:
-                data = response.json()
-                if data.get('success') and 'data' in data:
-                    import_result = data['data']
-                    self.log_result(
-                        "POST /api/import", 
-                        True, 
-                        f"Imported {import_result.get('imported', 0)} transactions",
-                        import_result
-                    )
-                    return import_result
-                else:
-                    self.log_result("POST /api/import", False, "Invalid response format", data)
-            else:
-                self.log_result("POST /api/import", False, f"HTTP {response.status_code}", response.text)
-        except Exception as e:
-            self.log_result("POST /api/import", False, f"Request failed: {str(e)}")
-        return None
-    
-    def test_account_balance_update(self):
-        """Test that account balance updates correctly when transactions are created"""
-        try:
-            # Create a test account
-            test_account = self.test_create_account()
-            if not test_account:
-                self.log_result("Account Balance Update", False, "Could not create test account")
-                return
-            
-            initial_balance = test_account['balance']
-            
-            # Get a category for the transaction
-            categories = self.test_get_categories()
-            if not categories:
-                self.log_result("Account Balance Update", False, "No categories available")
-                return
-            
-            # Find an expense category
-            expense_category = next((cat for cat in categories if cat['type'] == 'EXPENSE'), categories[0])
-            
-            # Create a transaction
-            transaction_amount = 100.0
-            transaction = self.test_create_transaction(test_account['id'], expense_category['id'])
-            
-            if transaction:
-                # Check if account balance was updated
-                updated_accounts = self.test_get_accounts()
-                updated_account = next((acc for acc in updated_accounts if acc['id'] == test_account['id']), None)
+    def test_environment_configuration(self):
+        """Test that all required environment variables are configured"""
+        print("\n=== Testing Environment Configuration ===")
+        
+        required_vars = [
+            ('NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY', '.env.local', True),
+            ('CLERK_SECRET_KEY', '.env.local', True),
+            ('DATABASE_URL', '.env.local', True),
+            ('DIRECT_URL', '.env.local', True),
+            ('RESEND_API_KEY', '.env.local', False)
+        ]
+        
+        for var_name, file_name, is_critical in required_vars:
+            try:
+                with open(f'/app/{file_name}', 'r') as f:
+                    content = f.read()
                 
-                if updated_account:
-                    expected_balance = initial_balance - transaction_amount  # Expense reduces balance
-                    actual_balance = updated_account['balance']
+                # Check if variable exists and has a value
+                if f'{var_name}=' in content:
+                    var_line = [line for line in content.split('\n') if line.startswith(f'{var_name}=')][0]
+                    var_value = var_line.split('=', 1)[1].strip().strip('"\'')
                     
-                    if abs(actual_balance - expected_balance) < 0.01:  # Allow for floating point precision
-                        self.log_result(
-                            "Account Balance Update", 
-                            True, 
-                            f"Balance updated correctly: {initial_balance} -> {actual_balance}",
-                            {
-                                'initial_balance': initial_balance,
-                                'transaction_amount': transaction_amount,
-                                'expected_balance': expected_balance,
-                                'actual_balance': actual_balance
-                            }
+                    if var_value and var_value != 'your_key_here':
+                        self.log_test(
+                            f"Environment Config - {var_name}",
+                            True,
+                            f"Environment variable configured in {file_name}",
+                            f"Value length: {len(var_value)} characters",
+                            critical=is_critical
                         )
                     else:
-                        self.log_result(
-                            "Account Balance Update", 
-                            False, 
-                            f"Balance not updated correctly. Expected: {expected_balance}, Actual: {actual_balance}"
+                        self.log_test(
+                            f"Environment Config - {var_name}",
+                            False,
+                            f"Environment variable empty or placeholder in {file_name}",
+                            f"Current value: '{var_value}'",
+                            critical=is_critical
                         )
                 else:
-                    self.log_result("Account Balance Update", False, "Could not find updated account")
-            else:
-                self.log_result("Account Balance Update", False, "Could not create test transaction")
-        except Exception as e:
-            self.log_result("Account Balance Update", False, f"Test failed: {str(e)}")
+                    self.log_test(
+                        f"Environment Config - {var_name}",
+                        False,
+                        f"Environment variable missing from {file_name}",
+                        "Variable not found in file",
+                        critical=is_critical
+                    )
+                    
+            except Exception as e:
+                self.log_test(
+                    f"Environment Config - {var_name}",
+                    False,
+                    f"Failed to check {file_name}",
+                    str(e),
+                    critical=is_critical
+                )
     
-    def test_export_csv(self):
-        """Test CSV export functionality - GET /api/export?format=csv"""
+    def test_database_connection(self):
+        """Test Neon PostgreSQL database connection via Prisma"""
+        print("\n=== Testing Neon PostgreSQL Database Connection ===")
+        
         try:
-            response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
+            # Test database connection by running prisma db push
+            result = subprocess.run(
+                ["npx", "prisma", "db", "push", "--accept-data-loss"],
+                cwd="/app",
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
             
-            if response.status_code == 200:
-                # Verify Content-Type
-                expected_content_type = "text/csv"
-                actual_content_type = response.headers.get('Content-Type', '')
+            if result.returncode == 0:
+                self.log_test(
+                    "Database Connection - Prisma Push",
+                    True,
+                    "Successfully connected to Neon PostgreSQL and synced schema",
+                    f"Output: {result.stdout.strip()}",
+                    critical=True
+                )
                 
-                if expected_content_type in actual_content_type:
-                    # Verify Content-Disposition header
-                    content_disposition = response.headers.get('Content-Disposition', '')
-                    if 'attachment' in content_disposition and '.csv' in content_disposition:
-                        # Verify CSV content structure
-                        csv_content = response.text
-                        lines = csv_content.strip().split('\n')
-                        
-                        if len(lines) > 0:
-                            headers = lines[0].split(',')
-                            expected_headers = ['Date', 'Description', 'Amount', 'Category', 'Subcategory', 'Account', 'Type']
+                # Test prisma client connection
+                client_test = subprocess.run(
+                    ["node", "-e", "const { PrismaClient } = require('@prisma/client'); const prisma = new PrismaClient(); prisma.$connect().then(() => { console.log('Connected'); prisma.$disconnect(); }).catch(e => { console.error('Error:', e.message); process.exit(1); })"],
+                    cwd="/app",
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                
+                if client_test.returncode == 0:
+                    self.log_test(
+                        "Database Connection - Prisma Client",
+                        True,
+                        "Prisma client successfully connected to database",
+                        f"Output: {client_test.stdout.strip()}",
+                        critical=True
+                    )
+                else:
+                    self.log_test(
+                        "Database Connection - Prisma Client",
+                        False,
+                        "Prisma client failed to connect",
+                        f"Error: {client_test.stderr.strip()}",
+                        critical=True
+                    )
+            else:
+                self.log_test(
+                    "Database Connection - Prisma Push",
+                    False,
+                    "Failed to connect to Neon PostgreSQL or sync schema",
+                    f"Error: {result.stderr.strip()}",
+                    critical=True
+                )
+                
+        except subprocess.TimeoutExpired:
+            self.log_test(
+                "Database Connection",
+                False,
+                "Database connection test timed out",
+                "Connection attempt exceeded timeout",
+                critical=True
+            )
+        except Exception as e:
+            self.log_test(
+                "Database Connection",
+                False,
+                "Database connection test failed",
+                str(e),
+                critical=True
+            )
+    
+    def test_database_seeding(self):
+        """Test database seeding with demo data"""
+        print("\n=== Testing Database Migration and Seeding ===")
+        
+        try:
+            # Run the seed script
+            result = subprocess.run(
+                ["node", "prisma/seed.js"],
+                cwd="/app",
+                capture_output=True,
+                text=True,
+                timeout=60
+            )
+            
+            if result.returncode == 0:
+                self.log_test(
+                    "Database Seeding",
+                    True,
+                    "Database seeded successfully with demo data",
+                    f"Output: {result.stdout.strip()}",
+                    critical=True
+                )
+                
+                # Verify seeded data exists
+                verify_result = subprocess.run(
+                    ["node", "-e", """
+                    const { PrismaClient } = require('@prisma/client');
+                    const prisma = new PrismaClient();
+                    
+                    async function verify() {
+                        try {
+                            const users = await prisma.user.count();
+                            const accounts = await prisma.account.count();
+                            const categories = await prisma.category.count();
+                            const transactions = await prisma.transaction.count();
                             
-                            # Check if all expected headers are present
-                            headers_match = all(header in headers for header in expected_headers)
-                            if headers_match:
-                                # Test CSV parsing
-                                try:
-                                    import csv
-                                    from io import StringIO
-                                    csv_reader = csv.DictReader(StringIO(csv_content))
-                                    rows = list(csv_reader)
-                                    
-                                    self.log_result(
-                                        "GET /api/export (CSV)", 
-                                        True, 
-                                        f"CSV export successful with {len(rows)} rows",
-                                        {
-                                            'headers': headers,
-                                            'row_count': len(rows),
-                                            'content_type': actual_content_type,
-                                            'content_disposition': content_disposition
-                                        }
-                                    )
-                                    return True
-                                except Exception as parse_error:
-                                    self.log_result("GET /api/export (CSV)", False, f"CSV parsing error: {parse_error}")
-                            else:
-                                self.log_result("GET /api/export (CSV)", False, f"CSV headers mismatch. Expected: {expected_headers}, Got: {headers}")
+                            console.log(JSON.stringify({
+                                users, accounts, categories, transactions
+                            }));
+                            
+                            await prisma.$disconnect();
+                        } catch (e) {
+                            console.error('Error:', e.message);
+                            process.exit(1);
+                        }
+                    }
+                    
+                    verify();
+                    """],
+                    cwd="/app",
+                    capture_output=True,
+                    text=True,
+                    timeout=30
+                )
+                
+                if verify_result.returncode == 0:
+                    try:
+                        counts = json.loads(verify_result.stdout.strip())
+                        self.log_test(
+                            "Database Seeding - Data Verification",
+                            True,
+                            f"Verified seeded data: {counts['users']} users, {counts['accounts']} accounts, {counts['categories']} categories, {counts['transactions']} transactions",
+                            counts,
+                            critical=True
+                        )
+                    except json.JSONDecodeError:
+                        self.log_test(
+                            "Database Seeding - Data Verification",
+                            False,
+                            "Could not parse verification output",
+                            verify_result.stdout,
+                            critical=True
+                        )
+                else:
+                    self.log_test(
+                        "Database Seeding - Data Verification",
+                        False,
+                        "Failed to verify seeded data",
+                        verify_result.stderr.strip(),
+                        critical=True
+                    )
+                    
+            else:
+                self.log_test(
+                    "Database Seeding",
+                    False,
+                    "Database seeding failed",
+                    f"Error: {result.stderr.strip()}",
+                    critical=True
+                )
+                
+        except subprocess.TimeoutExpired:
+            self.log_test(
+                "Database Seeding",
+                False,
+                "Database seeding timed out",
+                "Seeding process exceeded timeout",
+                critical=True
+            )
+        except Exception as e:
+            self.log_test(
+                "Database Seeding",
+                False,
+                "Database seeding failed",
+                str(e),
+                critical=True
+            )
+    
+    def test_clerk_middleware(self):
+        """Test Clerk middleware functionality"""
+        print("\n=== Testing Clerk Authentication Middleware ===")
+        
+        # Test public routes (should be accessible)
+        public_routes = [
+            ("/", "Root page"),
+            ("/sign-in", "Sign-in page"),
+            ("/sign-up", "Sign-up page")
+        ]
+        
+        for route, description in public_routes:
+            try:
+                url = f"{BASE_URL}{route}"
+                response = self.session.get(url, timeout=15, allow_redirects=False)
+                
+                if response.status_code in [200, 302]:
+                    self.log_test(
+                        f"Clerk Middleware - Public Route {route}",
+                        True,
+                        f"{description} accessible (Status: {response.status_code})",
+                        f"Response size: {len(response.content)} bytes",
+                        critical=True
+                    )
+                else:
+                    self.log_test(
+                        f"Clerk Middleware - Public Route {route}",
+                        False,
+                        f"{description} not accessible (Status: {response.status_code})",
+                        response.text[:200],
+                        critical=True
+                    )
+                    
+            except requests.exceptions.RequestException as e:
+                self.log_test(
+                    f"Clerk Middleware - Public Route {route}",
+                    False,
+                    f"{description} request failed",
+                    str(e),
+                    critical=True
+                )
+        
+        # Test protected routes (should redirect to sign-in)
+        protected_routes = [
+            ("/dashboard", "Dashboard page"),
+            ("/transactions", "Transactions page"),
+            ("/accounts", "Accounts page")
+        ]
+        
+        for route, description in protected_routes:
+            try:
+                url = f"{BASE_URL}{route}"
+                response = self.session.get(url, timeout=15, allow_redirects=False)
+                
+                if response.status_code == 302:
+                    location = response.headers.get('location', '')
+                    if '/sign-in' in location:
+                        self.log_test(
+                            f"Clerk Middleware - Protected Route {route}",
+                            True,
+                            f"{description} correctly redirects to sign-in",
+                            f"Redirect location: {location}",
+                            critical=True
+                        )
+                    else:
+                        self.log_test(
+                            f"Clerk Middleware - Protected Route {route}",
+                            False,
+                            f"{description} redirects but not to sign-in",
+                            f"Redirect location: {location}",
+                            critical=True
+                        )
+                elif response.status_code == 200:
+                    self.log_test(
+                        f"Clerk Middleware - Protected Route {route}",
+                        False,
+                        f"{description} accessible without authentication (SECURITY ISSUE)",
+                        "This is a critical security vulnerability",
+                        critical=True
+                    )
+                else:
+                    self.log_test(
+                        f"Clerk Middleware - Protected Route {route}",
+                        False,
+                        f"{description} unexpected response (Status: {response.status_code})",
+                        response.text[:200],
+                        critical=True
+                    )
+                    
+            except requests.exceptions.RequestException as e:
+                self.log_test(
+                    f"Clerk Middleware - Protected Route {route}",
+                    False,
+                    f"{description} request failed",
+                    str(e),
+                    critical=True
+                )
+    
+    def test_api_user_context_implementation(self):
+        """Test if API routes properly implement user context and authentication"""
+        print("\n=== Testing API User Context Implementation ===")
+        
+        # Read the API route file to check for user context implementation
+        try:
+            with open('/app/app/api/[[...path]]/route.js', 'r') as f:
+                api_content = f.read()
+            
+            # Check for Clerk auth imports
+            has_clerk_import = '@clerk/nextjs' in api_content or 'clerk' in api_content.lower()
+            has_auth_usage = 'auth()' in api_content or 'currentUser' in api_content or 'getAuth' in api_content
+            has_user_filtering = 'userId' in api_content and 'where:' in api_content
+            has_user_id_in_queries = api_content.count('userId') > 5  # Should appear in multiple queries
+            
+            self.log_test(
+                "API User Context - Clerk Import",
+                has_clerk_import,
+                "API routes import Clerk authentication" if has_clerk_import else "API routes missing Clerk authentication import",
+                f"Found clerk references: {has_clerk_import}",
+                critical=True
+            )
+            
+            self.log_test(
+                "API User Context - Auth Usage",
+                has_auth_usage,
+                "API routes use authentication functions" if has_auth_usage else "API routes do not use authentication functions",
+                f"Found auth usage: {has_auth_usage}",
+                critical=True
+            )
+            
+            self.log_test(
+                "API User Context - User Filtering",
+                has_user_filtering,
+                "API routes implement user-specific data filtering" if has_user_filtering else "API routes missing user-specific data filtering",
+                f"Found userId filtering: {has_user_filtering}",
+                critical=True
+            )
+            
+            self.log_test(
+                "API User Context - Comprehensive User ID Usage",
+                has_user_id_in_queries,
+                "API routes consistently use userId in database queries" if has_user_id_in_queries else "API routes do not consistently filter by userId (SECURITY ISSUE)",
+                f"userId appears {api_content.count('userId')} times in code",
+                critical=True
+            )
+                
+        except Exception as e:
+            self.log_test(
+                "API User Context - Code Analysis",
+                False,
+                "Failed to analyze API route implementation",
+                str(e),
+                critical=True
+            )
+    
+    def test_api_endpoints_without_auth(self):
+        """Test API endpoints without authentication (should require auth or return filtered data)"""
+        print("\n=== Testing API Endpoints Authentication Requirements ===")
+        
+        endpoints = [
+            ("GET", "/accounts", "Get Accounts"),
+            ("GET", "/categories", "Get Categories"), 
+            ("GET", "/transactions", "Get Transactions"),
+            ("GET", "/analytics", "Get Analytics"),
+            ("GET", "/export?format=csv", "Export CSV")
+        ]
+        
+        for method, endpoint, name in endpoints:
+            try:
+                url = f"{API_BASE}{endpoint}"
+                response = self.session.request(method, url, timeout=15)
+                
+                # Check response
+                if response.status_code == 401:
+                    self.log_test(
+                        f"API Auth Check - {name}",
+                        True,
+                        "Correctly requires authentication",
+                        f"Status: {response.status_code}",
+                        critical=True
+                    )
+                elif response.status_code == 200:
+                    try:
+                        data = response.json()
+                        if data.get('success') and data.get('data'):
+                            # This could be a problem - API should require auth or return empty data for unauthenticated users
+                            self.log_test(
+                                f"API Auth Check - {name}",
+                                False,
+                                "API returns data without authentication (POTENTIAL SECURITY ISSUE)",
+                                f"Status: {response.status_code}, Data returned: {len(str(data.get('data', [])))} chars",
+                                critical=True
+                            )
                         else:
-                            self.log_result("GET /api/export (CSV)", False, "CSV content is empty")
-                    else:
-                        self.log_result("GET /api/export (CSV)", False, f"Invalid Content-Disposition header: {content_disposition}")
-                else:
-                    self.log_result("GET /api/export (CSV)", False, f"Invalid Content-Type. Expected: {expected_content_type}, Got: {actual_content_type}")
-            else:
-                self.log_result("GET /api/export (CSV)", False, f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            self.log_result("GET /api/export (CSV)", False, f"Request failed: {str(e)}")
-        return False
-    
-    def test_export_excel(self):
-        """Test Excel export functionality - GET /api/export?format=xlsx"""
-        try:
-            response = self.session.get(f"{API_BASE}/export?format=xlsx", timeout=30)
-            
-            if response.status_code == 200:
-                # Verify Content-Type
-                expected_content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-                actual_content_type = response.headers.get('Content-Type', '')
-                
-                if expected_content_type in actual_content_type:
-                    # Verify Content-Disposition header
-                    content_disposition = response.headers.get('Content-Disposition', '')
-                    if 'attachment' in content_disposition and '.xlsx' in content_disposition:
-                        # Verify Excel file format
-                        try:
-                            from io import BytesIO
-                            import openpyxl
-                            
-                            excel_data = BytesIO(response.content)
-                            workbook = openpyxl.load_workbook(excel_data)
-                            
-                            if 'Transactions' in workbook.sheetnames:
-                                worksheet = workbook['Transactions']
-                                
-                                # Get headers from first row
-                                headers = []
-                                for cell in worksheet[1]:
-                                    if cell.value:
-                                        headers.append(cell.value)
-                                
-                                expected_headers = ['Date', 'Description', 'Amount', 'Category', 'Subcategory', 'Account', 'Type']
-                                headers_match = all(header in headers for header in expected_headers)
-                                
-                                if headers_match:
-                                    data_rows = worksheet.max_row - 1  # Subtract header row
-                                    
-                                    self.log_result(
-                                        "GET /api/export (Excel)", 
-                                        True, 
-                                        f"Excel export successful with {data_rows} rows",
-                                        {
-                                            'headers': headers,
-                                            'row_count': data_rows,
-                                            'content_type': actual_content_type,
-                                            'content_disposition': content_disposition,
-                                            'worksheets': workbook.sheetnames
-                                        }
-                                    )
-                                    workbook.close()
-                                    return True
-                                else:
-                                    self.log_result("GET /api/export (Excel)", False, f"Excel headers mismatch. Expected: {expected_headers}, Got: {headers}")
-                            else:
-                                self.log_result("GET /api/export (Excel)", False, "'Transactions' worksheet not found")
-                            
-                            workbook.close()
-                        except Exception as excel_error:
-                            self.log_result("GET /api/export (Excel)", False, f"Excel file validation error: {excel_error}")
-                    else:
-                        self.log_result("GET /api/export (Excel)", False, f"Invalid Content-Disposition header: {content_disposition}")
-                else:
-                    self.log_result("GET /api/export (Excel)", False, f"Invalid Content-Type. Expected: {expected_content_type}, Got: {actual_content_type}")
-            else:
-                self.log_result("GET /api/export (Excel)", False, f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            self.log_result("GET /api/export (Excel)", False, f"Request failed: {str(e)}")
-        return False
-    
-    def test_export_default_format(self):
-        """Test default export format (should be CSV) - GET /api/export"""
-        try:
-            response = self.session.get(f"{API_BASE}/export", timeout=30)
-            
-            if response.status_code == 200:
-                # Should default to CSV
-                expected_content_type = "text/csv"
-                actual_content_type = response.headers.get('Content-Type', '')
-                
-                if expected_content_type in actual_content_type:
-                    # Verify it's the same as explicit CSV format
-                    csv_response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
-                    if csv_response.status_code == 200:
-                        if response.text == csv_response.text:
-                            self.log_result(
-                                "GET /api/export (Default Format)", 
-                                True, 
-                                "Default format correctly defaults to CSV",
-                                {'content_type': actual_content_type}
+                            self.log_test(
+                                f"API Auth Check - {name}",
+                                True,
+                                "API accessible but returns no data without authentication",
+                                f"Status: {response.status_code}, Response: {data}",
+                                critical=False
                             )
-                            return True
-                        else:
-                            self.log_result("GET /api/export (Default Format)", False, "Default format differs from explicit CSV format")
-                    else:
-                        self.log_result("GET /api/export (Default Format)", False, "Could not compare with explicit CSV format")
+                    except json.JSONDecodeError:
+                        self.log_test(
+                            f"API Auth Check - {name}",
+                            False,
+                            "API returned non-JSON response",
+                            response.text[:200],
+                            critical=False
+                        )
                 else:
-                    self.log_result("GET /api/export (Default Format)", False, f"Default format not CSV. Got: {actual_content_type}")
-            else:
-                self.log_result("GET /api/export (Default Format)", False, f"HTTP {response.status_code}: {response.text}")
-        except Exception as e:
-            self.log_result("GET /api/export (Default Format)", False, f"Request failed: {str(e)}")
-        return False
+                    self.log_test(
+                        f"API Auth Check - {name}",
+                        False,
+                        f"Unexpected response status: {response.status_code}",
+                        response.text[:200],
+                        critical=False
+                    )
+                    
+            except requests.exceptions.RequestException as e:
+                self.log_test(
+                    f"API Auth Check - {name}",
+                    False,
+                    "Request failed",
+                    str(e),
+                    critical=False
+                )
     
-    def test_export_data_integrity(self):
-        """Test that export includes all expected transaction data"""
+    def test_data_integrity_and_isolation(self):
+        """Test that seeded data is structured correctly and user isolation would work"""
+        print("\n=== Testing Data Integrity and User Isolation ===")
+        
         try:
-            # First, get transactions via the regular API to compare
-            transactions_response = self.session.get(f"{API_BASE}/transactions?limit=1000", timeout=30)
-            
-            if transactions_response.status_code != 200:
-                self.log_result("Export Data Integrity", False, "Could not fetch transactions for comparison")
-                return False
+            # Test data structure and relationships
+            verify_result = subprocess.run(
+                ["node", "-e", """
+                const { PrismaClient } = require('@prisma/client');
+                const prisma = new PrismaClient();
                 
-            transactions_data = transactions_response.json()
-            if not transactions_data.get('success'):
-                self.log_result("Export Data Integrity", False, "Transactions API returned unsuccessful response")
-                return False
-                
-            api_transactions = transactions_data.get('data', {}).get('transactions', [])
-            
-            # Get CSV export for comparison
-            csv_response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
-            
-            if csv_response.status_code == 200:
-                csv_content = csv_response.text
-                csv_lines = csv_content.strip().split('\n')
-                csv_data_rows = len(csv_lines) - 1  # Subtract header
-                
-                # The export should include all transactions (not paginated)
-                if csv_data_rows >= len(api_transactions):
-                    # Check if CSV contains the expected fields
-                    if len(csv_lines) > 1:
-                        import csv
-                        from io import StringIO
-                        csv_reader = csv.DictReader(StringIO(csv_content))
-                        first_csv_row = next(csv_reader)
-                        
-                        # Check if key fields are present
-                        required_fields = ['Date', 'Description', 'Amount', 'Category', 'Account', 'Type']
-                        missing_fields = [field for field in required_fields if not first_csv_row.get(field)]
-                        
-                        if not missing_fields:
-                            self.log_result(
-                                "Export Data Integrity", 
-                                True, 
-                                f"Export contains all required fields and {csv_data_rows} rows",
-                                {
-                                    'api_transactions': len(api_transactions),
-                                    'export_rows': csv_data_rows,
-                                    'required_fields': required_fields
+                async function testDataIntegrity() {
+                    try {
+                        // Get demo user
+                        const demoUser = await prisma.user.findUnique({
+                            where: { clerkId: 'demo_user_123' },
+                            include: {
+                                accounts: true,
+                                categories: true,
+                                transactions: {
+                                    include: {
+                                        account: true,
+                                        category: true,
+                                        subcategory: true
+                                    }
                                 }
+                            }
+                        });
+                        
+                        if (!demoUser) {
+                            console.error('Demo user not found');
+                            process.exit(1);
+                        }
+                        
+                        // Check data relationships
+                        const results = {
+                            user_id: demoUser.id,
+                            accounts_count: demoUser.accounts.length,
+                            categories_count: demoUser.categories.length,
+                            transactions_count: demoUser.transactions.length,
+                            transactions_with_accounts: demoUser.transactions.filter(t => t.account).length,
+                            transactions_with_categories: demoUser.transactions.filter(t => t.category).length,
+                            account_types: [...new Set(demoUser.accounts.map(a => a.type))],
+                            category_types: [...new Set(demoUser.categories.map(c => c.type))],
+                            total_balance: demoUser.accounts.reduce((sum, acc) => sum + acc.balance, 0)
+                        };
+                        
+                        console.log(JSON.stringify(results));
+                        await prisma.$disconnect();
+                    } catch (e) {
+                        console.error('Error:', e.message);
+                        process.exit(1);
+                    }
+                }
+                
+                testDataIntegrity();
+                """],
+                cwd="/app",
+                capture_output=True,
+                text=True,
+                timeout=30
+            )
+            
+            if verify_result.returncode == 0:
+                try:
+                    data = json.loads(verify_result.stdout.strip())
+                    
+                    # Validate data integrity
+                    integrity_checks = [
+                        (data['accounts_count'] > 0, "Demo user has accounts"),
+                        (data['categories_count'] > 0, "Demo user has categories"),
+                        (data['transactions_count'] > 0, "Demo user has transactions"),
+                        (data['transactions_with_accounts'] == data['transactions_count'], "All transactions linked to accounts"),
+                        (data['transactions_with_categories'] == data['transactions_count'], "All transactions linked to categories"),
+                        ('BANK' in data['account_types'], "Bank account type exists"),
+                        ('INCOME' in data['category_types'] and 'EXPENSE' in data['category_types'], "Both income and expense categories exist")
+                    ]
+                    
+                    all_checks_passed = True
+                    for check_passed, description in integrity_checks:
+                        if check_passed:
+                            self.log_test(
+                                f"Data Integrity - {description}",
+                                True,
+                                description,
+                                None,
+                                critical=True
                             )
-                            return True
                         else:
-                            self.log_result("Export Data Integrity", False, f"Missing fields in export: {missing_fields}")
-                    else:
-                        self.log_result("Export Data Integrity", False, "Export has no data rows")
-                else:
-                    self.log_result("Export Data Integrity", False, f"Export has fewer rows ({csv_data_rows}) than API transactions ({len(api_transactions)})")
+                            self.log_test(
+                                f"Data Integrity - {description}",
+                                False,
+                                f"Failed: {description}",
+                                data,
+                                critical=True
+                            )
+                            all_checks_passed = False
+                    
+                    if all_checks_passed:
+                        self.log_test(
+                            "Data Integrity - Overall",
+                            True,
+                            f"All data integrity checks passed. Demo user has {data['transactions_count']} transactions across {data['accounts_count']} accounts",
+                            data,
+                            critical=True
+                        )
+                    
+                except json.JSONDecodeError:
+                    self.log_test(
+                        "Data Integrity",
+                        False,
+                        "Could not parse data integrity verification output",
+                        verify_result.stdout,
+                        critical=True
+                    )
             else:
-                self.log_result("Export Data Integrity", False, f"Could not get CSV export: {csv_response.status_code}")
+                self.log_test(
+                    "Data Integrity",
+                    False,
+                    "Failed to verify data integrity",
+                    verify_result.stderr.strip(),
+                    critical=True
+                )
+                
         except Exception as e:
-            self.log_result("Export Data Integrity", False, f"Test failed: {str(e)}")
-        return False
+            self.log_test(
+                "Data Integrity",
+                False,
+                "Data integrity test failed",
+                str(e),
+                critical=True
+            )
     
     def run_all_tests(self):
-        """Run all backend API tests"""
-        print(f"\n🚀 Starting Personal Finance Dashboard Backend API Tests")
-        print(f"📍 Base URL: {API_BASE}")
+        """Run all Phase 3 backend tests"""
+        print("🚀 Starting Finance Wizard Backend Testing Suite - Phase 3")
+        print("🎯 Focus: Clerk Authentication, Neon PostgreSQL, User Context")
         print("=" * 80)
         
-        # Test all endpoints
-        self.test_get_accounts()
-        self.test_create_account()
-        self.test_get_categories()
-        self.test_create_category()
-        self.test_get_transactions()
-        self.test_create_transaction()
-        self.test_analytics()
-        self.test_upload_endpoint()
-        self.test_import_transactions()
-        self.test_account_balance_update()
+        # Test environment configuration first
+        self.test_environment_configuration()
         
-        # Test export functionality
-        print("\n📤 Testing Export Functionality")
-        print("-" * 40)
-        self.test_export_csv()
-        self.test_export_excel()
-        self.test_export_default_format()
-        self.test_export_data_integrity()
+        # Test database connection and setup
+        self.test_database_connection()
+        self.test_database_seeding()
         
-        # Summary
+        # Test authentication and middleware
+        self.test_clerk_middleware()
+        
+        # Test API implementation
+        self.test_api_user_context_implementation()
+        self.test_api_endpoints_without_auth()
+        
+        # Test data integrity
+        self.test_data_integrity_and_isolation()
+        
+        # Generate summary
+        self.generate_summary()
+    
+    def generate_summary(self):
+        """Generate comprehensive test summary"""
         print("\n" + "=" * 80)
-        print("📊 TEST SUMMARY")
+        print("🏁 PHASE 3 BACKEND TESTING SUMMARY")
         print("=" * 80)
         
-        passed = sum(1 for result in self.test_results if result['success'])
-        failed = len(self.test_results) - passed
+        total_tests = len(self.test_results)
+        passed_tests = len([r for r in self.test_results if r['success']])
+        failed_tests = total_tests - passed_tests
+        critical_failed = len(self.critical_issues)
         
-        print(f"✅ Passed: {passed}")
-        print(f"❌ Failed: {failed}")
-        print(f"📈 Success Rate: {(passed/len(self.test_results)*100):.1f}%")
+        print(f"📊 Total Tests: {total_tests}")
+        print(f"✅ Passed: {passed_tests}")
+        print(f"❌ Failed: {failed_tests}")
+        print(f"🚨 Critical Issues: {critical_failed}")
+        print(f"📈 Success Rate: {(passed_tests/total_tests)*100:.1f}%")
         
-        if failed > 0:
-            print("\n🔍 FAILED TESTS:")
-            for result in self.test_results:
-                if not result['success']:
-                    print(f"   ❌ {result['test']}: {result['message']}")
+        # Categorize results
+        categories = {
+            'Environment': [],
+            'Database': [],
+            'Authentication': [],
+            'API': [],
+            'Data Integrity': []
+        }
         
-        print("\n" + "=" * 80)
-        return passed, failed
+        for result in self.test_results:
+            test_name = result['test']
+            if 'Environment' in test_name:
+                categories['Environment'].append(result)
+            elif 'Database' in test_name:
+                categories['Database'].append(result)
+            elif 'Clerk' in test_name or 'Auth' in test_name:
+                categories['Authentication'].append(result)
+            elif 'API' in test_name:
+                categories['API'].append(result)
+            elif 'Data' in test_name:
+                categories['Data Integrity'].append(result)
+        
+        # Print category summaries
+        for category, results in categories.items():
+            if results:
+                passed = len([r for r in results if r['success']])
+                total = len(results)
+                print(f"\n📋 {category}: {passed}/{total} passed")
+                
+                for result in results:
+                    if not result['success']:
+                        status = "🚨" if result.get('critical') else "⚠️"
+                        print(f"   {status} {result['test']}: {result['message']}")
+        
+        # Critical issues summary
+        if self.critical_issues:
+            print(f"\n🚨 CRITICAL ISSUES REQUIRING IMMEDIATE ATTENTION:")
+            for issue in self.critical_issues:
+                print(f"   🔴 {issue['test']}")
+                print(f"      Problem: {issue['message']}")
+                if issue['details']:
+                    print(f"      Details: {issue['details']}")
+                print()
+        
+        # Recommendations
+        print(f"\n💡 RECOMMENDATIONS:")
+        
+        if critical_failed == 0:
+            print("   🎉 No critical issues found! Phase 3 backend is ready.")
+        else:
+            print("   🔧 Fix critical issues before proceeding:")
+            
+            # Specific recommendations based on failed tests
+            failed_categories = set()
+            for issue in self.critical_issues:
+                if 'Environment' in issue['test']:
+                    failed_categories.add('env')
+                elif 'Database' in issue['test']:
+                    failed_categories.add('db')
+                elif 'Clerk' in issue['test'] or 'Auth' in issue['test']:
+                    failed_categories.add('auth')
+                elif 'API' in issue['test']:
+                    failed_categories.add('api')
+            
+            if 'env' in failed_categories:
+                print("      - Verify all API keys are correctly configured in .env.local")
+            if 'db' in failed_categories:
+                print("      - Check Neon PostgreSQL connection and run migrations")
+            if 'auth' in failed_categories:
+                print("      - Verify Clerk middleware configuration and API keys")
+            if 'api' in failed_categories:
+                print("      - Update API routes to include user authentication and filtering")
+        
+        print(f"\n📝 Next Steps:")
+        if critical_failed == 0:
+            print("   ✅ Backend authentication and database integration working")
+            print("   ➡️  Ready to test frontend integration")
+        else:
+            print("   🔧 Fix critical backend issues first")
+            print("   🔄 Re-run tests after fixes")
+        
+        return passed_tests, failed_tests, critical_failed
 
 if __name__ == "__main__":
     tester = FinanceAPITester()
