@@ -281,7 +281,7 @@ function AccountsContent() {
           <p className="text-muted-foreground">Manage your financial accounts and track balances</p>
         </div>
         
-        <Button className="flex items-center gap-2">
+        <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Account
         </Button>
