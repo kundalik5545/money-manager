@@ -1523,7 +1523,7 @@ export default function App() {
                   </table>
                 </div>
 
-                {/* Account Totals by Type */}
+                  {/* Account Totals by Type */}
                 {accounts.length > 0 && (
                   <div className="mt-6 pt-4 border-t">
                     <h4 className="font-semibold mb-4 text-sm text-muted-foreground uppercase tracking-wide">Account Totals</h4>
