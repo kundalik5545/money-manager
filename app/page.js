@@ -1033,8 +1033,10 @@ export default function App() {
                   </div>
                 ) : (
                   <>
-                    <div className="space-y-2">
-                      {transactions.map((transaction) => (
+                    {/* Card View */}
+                    {transactionView === 'card' && (
+                      <div className="space-y-2">
+                        {transactions.map((transaction) => (
                         <div key={transaction.id} className="border rounded-lg p-4 space-y-3">
                           {/* Mobile-first layout */}
                           <div className="flex items-start justify-between">
