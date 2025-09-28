@@ -77,13 +77,12 @@ export async function POST(request) {
     }
 
     const body = await request.json()
-    const { name, type, color } = body
+    const { name, type } = body
     
     const category = await prisma.category.create({
       data: { 
         name, 
         type,
-        color: color || '#3B82F6',
         userId: user.id
       }
     })
