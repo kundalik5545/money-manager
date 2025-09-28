@@ -16,7 +16,7 @@ import {
   Calendar,
   DollarSign,
   Mail,
-  MailOff
+  X
 } from "lucide-react";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip } from "recharts";
 import DashboardLayout from "@/components/layout/DashboardLayout";
