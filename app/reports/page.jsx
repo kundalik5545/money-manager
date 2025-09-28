@@ -107,7 +107,8 @@ export default function ReportsPage() {
   const data = reportData.overview;
 
   return (
-    <div className="space-y-6">
+    <DashboardLayout>
+      <div className="space-y-6">
       {/* Header */}
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         <div>
