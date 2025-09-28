@@ -5,17 +5,24 @@ const prisma = new PrismaClient()
 async function main() {
   console.log('Starting seed...')
 
-  // Create a demo user
-  const demoUser = await prisma.user.create({
-    data: {
-      clerkId: 'demo_user_123',
-      email: 'demo@example.com',
-      firstName: 'Demo',
-      lastName: 'User'
-    }
+  // Create or find a demo user
+  let demoUser = await prisma.user.findUnique({
+    where: { clerkId: 'demo_user_123' }
   })
 
-  console.log('Demo user created:', demoUser.id)
+  if (!demoUser) {
+    demoUser = await prisma.user.create({
+      data: {
+        clerkId: 'demo_user_123',
+        email: 'demo@example.com',
+        firstName: 'Demo',
+        lastName: 'User'
+      }
+    })
+    console.log('Demo user created:', demoUser.id)
+  } else {
+    console.log('Demo user already exists:', demoUser.id)
+  }
 
   // Create accounts for the demo user
   const bankAccount = await prisma.account.create({
