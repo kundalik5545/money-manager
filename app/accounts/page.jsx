@@ -6,10 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Plus, CreditCard, Wallet, Building } from "lucide-react";
 import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import DashboardLayout from "@/components/layout/DashboardLayout";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-export default function AccountsPage() {
+function AccountsContent() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
 
