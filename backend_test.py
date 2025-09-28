@@ -466,6 +466,231 @@ class FinanceAPITester:
         except Exception as e:
             self.log_result("Account Balance Update", False, f"Test failed: {str(e)}")
     
+    def test_export_csv(self):
+        """Test CSV export functionality - GET /api/export?format=csv"""
+        try:
+            response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
+            
+            if response.status_code == 200:
+                # Verify Content-Type
+                expected_content_type = "text/csv"
+                actual_content_type = response.headers.get('Content-Type', '')
+                
+                if expected_content_type in actual_content_type:
+                    # Verify Content-Disposition header
+                    content_disposition = response.headers.get('Content-Disposition', '')
+                    if 'attachment' in content_disposition and '.csv' in content_disposition:
+                        # Verify CSV content structure
+                        csv_content = response.text
+                        lines = csv_content.strip().split('\n')
+                        
+                        if len(lines) > 0:
+                            headers = lines[0].split(',')
+                            expected_headers = ['Date', 'Description', 'Amount', 'Category', 'Subcategory', 'Account', 'Type']
+                            
+                            # Check if all expected headers are present
+                            headers_match = all(header in headers for header in expected_headers)
+                            if headers_match:
+                                # Test CSV parsing
+                                try:
+                                    import csv
+                                    from io import StringIO
+                                    csv_reader = csv.DictReader(StringIO(csv_content))
+                                    rows = list(csv_reader)
+                                    
+                                    self.log_result(
+                                        "GET /api/export (CSV)", 
+                                        True, 
+                                        f"CSV export successful with {len(rows)} rows",
+                                        {
+                                            'headers': headers,
+                                            'row_count': len(rows),
+                                            'content_type': actual_content_type,
+                                            'content_disposition': content_disposition
+                                        }
+                                    )
+                                    return True
+                                except Exception as parse_error:
+                                    self.log_result("GET /api/export (CSV)", False, f"CSV parsing error: {parse_error}")
+                            else:
+                                self.log_result("GET /api/export (CSV)", False, f"CSV headers mismatch. Expected: {expected_headers}, Got: {headers}")
+                        else:
+                            self.log_result("GET /api/export (CSV)", False, "CSV content is empty")
+                    else:
+                        self.log_result("GET /api/export (CSV)", False, f"Invalid Content-Disposition header: {content_disposition}")
+                else:
+                    self.log_result("GET /api/export (CSV)", False, f"Invalid Content-Type. Expected: {expected_content_type}, Got: {actual_content_type}")
+            else:
+                self.log_result("GET /api/export (CSV)", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("GET /api/export (CSV)", False, f"Request failed: {str(e)}")
+        return False
+    
+    def test_export_excel(self):
+        """Test Excel export functionality - GET /api/export?format=xlsx"""
+        try:
+            response = self.session.get(f"{API_BASE}/export?format=xlsx", timeout=30)
+            
+            if response.status_code == 200:
+                # Verify Content-Type
+                expected_content_type = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                actual_content_type = response.headers.get('Content-Type', '')
+                
+                if expected_content_type in actual_content_type:
+                    # Verify Content-Disposition header
+                    content_disposition = response.headers.get('Content-Disposition', '')
+                    if 'attachment' in content_disposition and '.xlsx' in content_disposition:
+                        # Verify Excel file format
+                        try:
+                            from io import BytesIO
+                            import openpyxl
+                            
+                            excel_data = BytesIO(response.content)
+                            workbook = openpyxl.load_workbook(excel_data)
+                            
+                            if 'Transactions' in workbook.sheetnames:
+                                worksheet = workbook['Transactions']
+                                
+                                # Get headers from first row
+                                headers = []
+                                for cell in worksheet[1]:
+                                    if cell.value:
+                                        headers.append(cell.value)
+                                
+                                expected_headers = ['Date', 'Description', 'Amount', 'Category', 'Subcategory', 'Account', 'Type']
+                                headers_match = all(header in headers for header in expected_headers)
+                                
+                                if headers_match:
+                                    data_rows = worksheet.max_row - 1  # Subtract header row
+                                    
+                                    self.log_result(
+                                        "GET /api/export (Excel)", 
+                                        True, 
+                                        f"Excel export successful with {data_rows} rows",
+                                        {
+                                            'headers': headers,
+                                            'row_count': data_rows,
+                                            'content_type': actual_content_type,
+                                            'content_disposition': content_disposition,
+                                            'worksheets': workbook.sheetnames
+                                        }
+                                    )
+                                    workbook.close()
+                                    return True
+                                else:
+                                    self.log_result("GET /api/export (Excel)", False, f"Excel headers mismatch. Expected: {expected_headers}, Got: {headers}")
+                            else:
+                                self.log_result("GET /api/export (Excel)", False, "'Transactions' worksheet not found")
+                            
+                            workbook.close()
+                        except Exception as excel_error:
+                            self.log_result("GET /api/export (Excel)", False, f"Excel file validation error: {excel_error}")
+                    else:
+                        self.log_result("GET /api/export (Excel)", False, f"Invalid Content-Disposition header: {content_disposition}")
+                else:
+                    self.log_result("GET /api/export (Excel)", False, f"Invalid Content-Type. Expected: {expected_content_type}, Got: {actual_content_type}")
+            else:
+                self.log_result("GET /api/export (Excel)", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("GET /api/export (Excel)", False, f"Request failed: {str(e)}")
+        return False
+    
+    def test_export_default_format(self):
+        """Test default export format (should be CSV) - GET /api/export"""
+        try:
+            response = self.session.get(f"{API_BASE}/export", timeout=30)
+            
+            if response.status_code == 200:
+                # Should default to CSV
+                expected_content_type = "text/csv"
+                actual_content_type = response.headers.get('Content-Type', '')
+                
+                if expected_content_type in actual_content_type:
+                    # Verify it's the same as explicit CSV format
+                    csv_response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
+                    if csv_response.status_code == 200:
+                        if response.text == csv_response.text:
+                            self.log_result(
+                                "GET /api/export (Default Format)", 
+                                True, 
+                                "Default format correctly defaults to CSV",
+                                {'content_type': actual_content_type}
+                            )
+                            return True
+                        else:
+                            self.log_result("GET /api/export (Default Format)", False, "Default format differs from explicit CSV format")
+                    else:
+                        self.log_result("GET /api/export (Default Format)", False, "Could not compare with explicit CSV format")
+                else:
+                    self.log_result("GET /api/export (Default Format)", False, f"Default format not CSV. Got: {actual_content_type}")
+            else:
+                self.log_result("GET /api/export (Default Format)", False, f"HTTP {response.status_code}: {response.text}")
+        except Exception as e:
+            self.log_result("GET /api/export (Default Format)", False, f"Request failed: {str(e)}")
+        return False
+    
+    def test_export_data_integrity(self):
+        """Test that export includes all expected transaction data"""
+        try:
+            # First, get transactions via the regular API to compare
+            transactions_response = self.session.get(f"{API_BASE}/transactions?limit=1000", timeout=30)
+            
+            if transactions_response.status_code != 200:
+                self.log_result("Export Data Integrity", False, "Could not fetch transactions for comparison")
+                return False
+                
+            transactions_data = transactions_response.json()
+            if not transactions_data.get('success'):
+                self.log_result("Export Data Integrity", False, "Transactions API returned unsuccessful response")
+                return False
+                
+            api_transactions = transactions_data.get('data', {}).get('transactions', [])
+            
+            # Get CSV export for comparison
+            csv_response = self.session.get(f"{API_BASE}/export?format=csv", timeout=30)
+            
+            if csv_response.status_code == 200:
+                csv_content = csv_response.text
+                csv_lines = csv_content.strip().split('\n')
+                csv_data_rows = len(csv_lines) - 1  # Subtract header
+                
+                # The export should include all transactions (not paginated)
+                if csv_data_rows >= len(api_transactions):
+                    # Check if CSV contains the expected fields
+                    if len(csv_lines) > 1:
+                        import csv
+                        from io import StringIO
+                        csv_reader = csv.DictReader(StringIO(csv_content))
+                        first_csv_row = next(csv_reader)
+                        
+                        # Check if key fields are present
+                        required_fields = ['Date', 'Description', 'Amount', 'Category', 'Account', 'Type']
+                        missing_fields = [field for field in required_fields if not first_csv_row.get(field)]
+                        
+                        if not missing_fields:
+                            self.log_result(
+                                "Export Data Integrity", 
+                                True, 
+                                f"Export contains all required fields and {csv_data_rows} rows",
+                                {
+                                    'api_transactions': len(api_transactions),
+                                    'export_rows': csv_data_rows,
+                                    'required_fields': required_fields
+                                }
+                            )
+                            return True
+                        else:
+                            self.log_result("Export Data Integrity", False, f"Missing fields in export: {missing_fields}")
+                    else:
+                        self.log_result("Export Data Integrity", False, "Export has no data rows")
+                else:
+                    self.log_result("Export Data Integrity", False, f"Export has fewer rows ({csv_data_rows}) than API transactions ({len(api_transactions)})")
+            else:
+                self.log_result("Export Data Integrity", False, f"Could not get CSV export: {csv_response.status_code}")
+        except Exception as e:
+            self.log_result("Export Data Integrity", False, f"Test failed: {str(e)}")
+        return False
+    
     def run_all_tests(self):
         """Run all backend API tests"""
         print(f"\n🚀 Starting Personal Finance Dashboard Backend API Tests")
