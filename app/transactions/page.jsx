@@ -177,51 +177,169 @@ function TransactionsContent() {
               <p className="text-muted-foreground">No transactions found</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {filteredTransactions.map((transaction) => (
-                <div 
-                  key={transaction.id} 
-                  className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <div className={`w-3 h-3 rounded-full flex-shrink-0 ${
-                      transaction.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
-                    }`} />
-                    
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground break-words">
-                        {transaction.description}
-                      </p>
-                      <div className="flex flex-wrap items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">
-                          {transaction.category}
-                        </Badge>
-                        {transaction.subcategory && (
-                          <Badge variant="secondary" className="text-xs">
-                            {transaction.subcategory}
-                          </Badge>
-                        )}
-                        <span className="text-xs text-muted-foreground">
-                          {transaction.account}
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          •
-                        </span>
-                        <span className="text-xs text-muted-foreground">
-                          {new Date(transaction.date).toLocaleDateString()}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
+            <>
+              {/* Table View */}
+              {viewType === "table" && (
+                <div className="overflow-x-auto">
+                  <table className="w-full">
+                    <thead>
+                      <tr className="border-b">
+                        <th className="text-left py-2 px-2 font-medium">Date</th>
+                        <th className="text-left py-2 px-2 font-medium">Description</th>
+                        <th className="text-left py-2 px-2 font-medium">Category</th>
+                        <th className="text-left py-2 px-2 font-medium">Account</th>
+                        <th className="text-right py-2 px-2 font-medium">Amount</th>
+                        <th className="text-center py-2 px-2 font-medium">Actions</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {paginatedTransactions.map((transaction) => (
+                        <tr key={transaction.id} className="border-b hover:bg-muted/50 transition-colors">
+                          <td className="py-3 px-2 text-sm text-muted-foreground">
+                            {new Date(transaction.date).toLocaleDateString()}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center gap-2">
+                              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${
+                                transaction.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                              }`} />
+                              <span className="font-medium">{transaction.description}</span>
+                            </div>
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex flex-col gap-1">
+                              <Badge variant="outline" className="w-fit text-xs">
+                                {transaction.category}
+                              </Badge>
+                              {transaction.subcategory && (
+                                <Badge variant="secondary" className="w-fit text-xs">
+                                  {transaction.subcategory}
+                                </Badge>
+                              )}
+                            </div>
+                          </td>
+                          <td className="py-3 px-2 text-sm text-muted-foreground">
+                            {transaction.account}
+                          </td>
+                          <td className={`py-3 px-2 text-right font-bold ${
+                            transaction.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                          </td>
+                          <td className="py-3 px-2">
+                            <div className="flex items-center justify-center gap-1">
+                              <Button variant="ghost" size="sm">
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                              <Button variant="ghost" size="sm">
+                                <Trash2 className="h-4 w-4 text-red-500" />
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+
+              {/* Card View */}
+              {viewType === "card" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {paginatedTransactions.map((transaction) => (
+                    <Card key={transaction.id} className="hover:shadow-md transition-shadow">
+                      <CardContent className="p-4">
+                        <div className="flex items-center justify-between mb-3">
+                          <div className={`w-3 h-3 rounded-full ${
+                            transaction.type === 'INCOME' ? 'bg-green-500' : 'bg-red-500'
+                          }`} />
+                          <div className="flex gap-1">
+                            <Button variant="ghost" size="sm">
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="sm">
+                              <Trash2 className="h-4 w-4 text-red-500" />
+                            </Button>
+                          </div>
+                        </div>
+                        
+                        <h3 className="font-medium text-foreground mb-2 break-words">
+                          {transaction.description}
+                        </h3>
+                        
+                        <div className="space-y-2 mb-3">
+                          <div className="flex gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {transaction.category}
+                            </Badge>
+                            {transaction.subcategory && (
+                              <Badge variant="secondary" className="text-xs">
+                                {transaction.subcategory}
+                              </Badge>
+                            )}
+                          </div>
+                          
+                          <p className="text-xs text-muted-foreground">
+                            {transaction.account} • {new Date(transaction.date).toLocaleDateString()}
+                          </p>
+                        </div>
+                        
+                        <div className={`text-xl font-bold ${
+                          transaction.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
+                        }`}>
+                          {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+
+              {/* Pagination */}
+              {totalPages > 1 && (
+                <div className="flex items-center justify-between mt-6 pt-4 border-t">
+                  <p className="text-sm text-muted-foreground">
+                    Showing {startIndex + 1} to {Math.min(startIndex + transactionsPerPage, filteredTransactions.length)} of {filteredTransactions.length} transactions
+                  </p>
                   
-                  <div className={`font-bold text-xl text-right ${
-                    transaction.type === 'INCOME' ? 'text-green-600' : 'text-red-600'
-                  }`}>
-                    {transaction.type === 'INCOME' ? '+' : '-'}{formatCurrency(transaction.amount)}
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage - 1)}
+                      disabled={currentPage === 1}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                      Previous
+                    </Button>
+                    
+                    <div className="flex items-center gap-1">
+                      {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                        <Button
+                          key={page}
+                          variant={currentPage === page ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => handlePageChange(page)}
+                          className="w-8 h-8 p-0"
+                        >
+                          {page}
+                        </Button>
+                      ))}
+                    </div>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handlePageChange(currentPage + 1)}
+                      disabled={currentPage === totalPages}
+                    >
+                      Next
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
