@@ -89,7 +89,14 @@ export default function Sidebar() {
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setCollapsed(!collapsed)}
+            onClick={() => {
+              const newCollapsed = !collapsed;
+              setCollapsed(newCollapsed);
+              // Emit event for DashboardLayout
+              window.dispatchEvent(new CustomEvent('sidebarToggle', { 
+                detail: { collapsed: newCollapsed } 
+              }));
+            }}
             className="p-2"
           >
             <Menu className="h-4 w-4" />
