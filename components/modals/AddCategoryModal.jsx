@@ -12,8 +12,7 @@ export default function AddCategoryModal({ isOpen, onClose, onSuccess }) {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
-    type: "EXPENSE", // Default to EXPENSE
-    color: "#FF8042"
+    type: "EXPENSE" // Default to EXPENSE
   });
 
   const handleSubmit = async (e) => {
