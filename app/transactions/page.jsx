@@ -82,10 +82,29 @@ function TransactionsContent() {
     }).format(Math.abs(amount));
   };
 
-  const filteredTransactions = transactions.filter(transaction =>
-    transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    transaction.category.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Advanced filtering logic
+  const filteredTransactions = transactions.filter(transaction => {
+    // Text search
+    const matchesSearch = !searchQuery || 
+      transaction.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      transaction.account.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Type filter
+    const matchesType = filterType === "ALL" || transaction.type === filterType;
+
+    // Category filter
+    const matchesCategory = !selectedCategory || transaction.category === selectedCategory;
+
+    // Account filter
+    const matchesAccount = !selectedAccount || transaction.account === selectedAccount;
+
+    // Date range filter
+    const matchesDateRange = (!dateRange.start || new Date(transaction.date) >= new Date(dateRange.start)) &&
+                            (!dateRange.end || new Date(transaction.date) <= new Date(dateRange.end));
+
+    return matchesSearch && matchesType && matchesCategory && matchesAccount && matchesDateRange;
+  });
 
   // Pagination logic
   const totalPages = Math.ceil(filteredTransactions.length / transactionsPerPage);
