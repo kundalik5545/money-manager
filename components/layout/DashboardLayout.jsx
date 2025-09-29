@@ -1,40 +1,48 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
-import { useRouter } from "next/navigation";
-import { useEffect } from "react";
-import Sidebar from "./Sidebar";
+import { useState } from "react";
+import NavigationController from "./NavigationController"; 
+import { useIsMobile } from "../../hooks/use-mobile";
 
 export default function DashboardLayout({ children }) {
-  const { isSignedIn, isLoaded } = useUser();
-  const router = useRouter();
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // const { isMobile, isLoaded } = useScreenSize(); // single source of truth
+const {isMobile} = useIsMobile();
 
-  useEffect(() => {
-    if (isLoaded && !isSignedIn) {
-      router.push("/sign-in");
-    }
-  }, [isSignedIn, isLoaded, router]);
+  const handleCollapseChange = (collapsed) => {
+    setSidebarCollapsed(collapsed);
+  };
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
-
-  if (!isSignedIn) {
-    return null;
-  }
+  console.log("Render DesktopNavigation");
 
   return (
     <div className="min-h-screen bg-background">
-      <Sidebar />
-      
-      {/* Main Content */}
-      <div className="lg:pl-64 transition-all duration-300">
-        <main className="p-4 lg:p-8">
-          {children}
+      {/* pass screen-size values down as props */}
+      <NavigationController
+        isMobile={isMobile}
+        // isLoaded={isLoaded}
+        onCollapseChange={handleCollapseChange}
+      />
+
+      {/* Main Content - responsive to screen size and sidebar state */}
+      <div
+        className={`transition-all duration-300 ${
+          isMobile ? "pt-16" : sidebarCollapsed ? "md:pl-20" : "md:pl-64"
+        }`}
+      >
+        <main
+          className={`p-4 lg:p-8 ${
+            isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
+          }`}
+        >{children}
+          {/* Show loading state until screen size is determined */}
+          {/* {!isLoaded ? (
+            <div className="flex items-center justify-center h-64">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary" />
+            </div>
+          ) : (
+            children
+          )} */}
         </main>
       </div>
     </div>

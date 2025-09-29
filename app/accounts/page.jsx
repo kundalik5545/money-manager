@@ -4,18 +4,69 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Plus, CreditCard, Wallet, Building } from "lucide-react";
-import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip } from "recharts";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { 
+  Plus, 
+  CreditCard, 
+  Wallet, 
+  Building, 
+  Edit, 
+  Trash2, 
+  List, 
+  Grid3X3,
+  Filter,
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  RotateCcw,
+  Eye,
+  EyeOff,
+  Star,
+  StarOff
+} from "lucide-react";
+import { ResponsiveContainer, PieChart, Pie, Cell, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
+import DashboardLayout from "@/components/layout/DashboardLayout";
+import AddAccountModal from "@/components/modals/AddAccountModal";
 
 const CHART_COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8'];
 
-export default function AccountsPage() {
+function AccountsContent() {
   const [accounts, setAccounts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [viewType, setViewType] = useState("cards"); // "cards", "table", "creditCard"
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingAccount, setEditingAccount] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(null);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [accountTransactions, setAccountTransactions] = useState([]);
+  const [transactionsPage, setTransactionsPage] = useState(1);
+  const [balanceChartData, setBalanceChartData] = useState([]);
+  const [chartDateRange, setChartDateRange] = useState({
+    startDate: new Date(new Date().getFullYear(), new Date().getMonth() - 5, 1).toISOString().split('T')[0],
+    endDate: new Date().toISOString().split('T')[0]
+  });
+  const [chartFilter, setChartFilter] = useState("monthly");
+  const [showDetails, setShowDetails] = useState({});
+  const transactionsPerPage = 5;
 
   useEffect(() => {
     fetchAccounts();
+    fetchBalanceChartData();
   }, []);
+
+  useEffect(() => {
+    fetchBalanceChartData();
+  }, [chartDateRange, chartFilter]);
+
+  useEffect(() => {
+    if (selectedAccount) {
+      fetchAccountTransactions(selectedAccount.id);
+    }
+  }, [selectedAccount, transactionsPage]);
 
   const fetchAccounts = async () => {
     try {
@@ -49,10 +100,126 @@ export default function AccountsPage() {
     }
   };
 
+  const fetchAccountTransactions = async (accountId) => {
+    try {
+      const response = await fetch(`/api/transactions?accountId=${accountId}&page=${transactionsPage}&limit=${transactionsPerPage}`);
+      if (response.ok) {
+        const data = await response.json();
+        if (data.success) {
+          setAccountTransactions(data.data);
+        }
+      }
+    } catch (error) {
+      console.error("Failed to fetch account transactions:", error);
+    }
+  };
+
+  const fetchBalanceChartData = async () => {
+    try {
+      // For now, we'll generate sample data based on current accounts
+      // In a real app, this would come from a balance history API
+      const chartData = [];
+      const startDate = new Date(chartDateRange.startDate);
+      const endDate = new Date(chartDateRange.endDate);
+      
+      // Generate monthly data points
+      const currentDate = new Date(startDate);
+      while (currentDate <= endDate) {
+        const monthKey = currentDate.toLocaleString('default', { month: 'short', year: 'numeric' });
+        
+        // Simulate balance progression (this would be real historical data)
+        const variation = Math.random() * 0.1 + 0.95; // ±5% variation
+        const baseBalance = totalNetWorth * variation;
+        
+        chartData.push({
+          period: monthKey,
+          balance: baseBalance,
+          bank: accountTotals.bank * variation,
+          creditCard: Math.abs(accountTotals.creditCard * variation),
+          wallet: accountTotals.wallet * variation
+        });
+        
+        currentDate.setMonth(currentDate.getMonth() + 1);
+      }
+      
+      setBalanceChartData(chartData);
+    } catch (error) {
+      console.error("Failed to fetch balance chart data:", error);
+    }
+  };
+
+  const handleDeleteAccount = async (accountId) => {
+    try {
+      const response = await fetch(`/api/accounts?id=${accountId}`, {
+        method: 'DELETE',
+      });
+      
+      if (response.ok) {
+        fetchAccounts(); // Refresh the accounts list
+        setShowDeleteModal(false);
+        setDeletingAccount(null);
+      }
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+    }
+  };
+
+  const handleAccountSuccess = () => {
+    fetchAccounts(); // Refresh the accounts list
+    setShowAddModal(false);
+    setShowEditModal(false);
+    setEditingAccount(null);
+  };
+
+  const handleEditAccount = async (accountData) => {
+    try {
+      const response = await fetch('/api/accounts', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(accountData),
+      });
+      
+      if (response.ok) {
+        handleAccountSuccess();
+      }
+    } catch (error) {
+      console.error('Failed to update account:', error);
+    }
+  };
+
+  const handleSetDefault = async (accountId) => {
+    try {
+      const response = await fetch('/api/accounts/default', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ accountId }),
+      });
+      
+      if (response.ok) {
+        fetchAccounts();
+      }
+    } catch (error) {
+      console.error('Failed to set default account:', error);
+    }
+  };
+
+  const toggleAccountDetails = (accountId) => {
+    setShowDetails(prev => ({
+      ...prev,
+      [accountId]: !prev[accountId]
+    }));
+  };
+
   const formatCurrency = (amount) => {
-    return new Intl.NumberFormat('en-US', {
+    return new Intl.NumberFormat('en-IN', {
       style: 'currency',
-      currency: 'USD'
+      currency: 'INR',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2
     }).format(Math.abs(amount));
   };
 
@@ -114,7 +281,7 @@ export default function AccountsPage() {
           <p className="text-muted-foreground">Manage your financial accounts and track balances</p>
         </div>
         
-        <Button className="flex items-center gap-2">
+        <Button onClick={() => setShowAddModal(true)} className="flex items-center gap-2">
           <Plus className="h-4 w-4" />
           Add Account
         </Button>
@@ -192,7 +359,7 @@ export default function AccountsPage() {
                   
                   return (
                     <div key={account.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-muted/50 transition-colors">
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-4 flex-1">
                         <div className={`p-2 rounded-full ${colorClass}`}>
                           <Icon className="h-5 w-5" />
                         </div>
@@ -217,11 +384,52 @@ export default function AccountsPage() {
                         </div>
                       </div>
                       
-                      <div className="text-right">
-                        <div className={`font-bold text-xl ${
-                          account.balance >= 0 ? 'text-green-600' : 'text-red-600'
-                        }`}>
-                          {account.balance < 0 && '-'}{formatCurrency(account.balance)}
+                      <div className="flex items-center gap-4">
+                        <div className="text-right">
+                          <div className={`font-bold text-xl ${
+                            account.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                          }`}>
+                            {account.balance < 0 && '-'}{formatCurrency(account.balance)}
+                          </div>
+                        </div>
+                        
+                        {/* Action Buttons */}
+                        <div className="flex items-center gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleSetDefault(account.id)}
+                            disabled={account.isDefault}
+                            title={account.isDefault ? "Already default" : "Set as default"}
+                          >
+                            {account.isDefault ? 
+                              <Star className="h-4 w-4 text-yellow-500 fill-yellow-500" /> : 
+                              <StarOff className="h-4 w-4" />
+                            }
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setEditingAccount(account);
+                              setShowEditModal(true);
+                            }}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              setDeletingAccount(account);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </div>
                       </div>
                     </div>
@@ -283,6 +491,67 @@ export default function AccountsPage() {
           </Card>
         </div>
       </div>
+
+      {/* Modals */}
+      <AddAccountModal
+        isOpen={showAddModal}
+        onClose={() => setShowAddModal(false)}
+        onSuccess={handleAccountSuccess}
+      />
+
+      <AddAccountModal
+        isOpen={showEditModal}
+        onClose={() => {
+          setShowEditModal(false);
+          setEditingAccount(null);
+        }}
+        onSuccess={handleAccountSuccess}
+        editData={editingAccount}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <Card className="max-w-md w-full mx-4">
+            <CardHeader>
+              <CardTitle>Delete Account</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-muted-foreground mb-4">
+                Are you sure you want to delete "{deletingAccount?.name}"? This action cannot be undone.
+                All transactions associated with this account will also be deleted.
+              </p>
+              <div className="flex gap-3">
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setDeletingAccount(null);
+                  }}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="destructive"
+                  onClick={() => handleDeleteAccount(deletingAccount.id)}
+                  className="flex-1"
+                >
+                  Delete Account
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
+  );
+}
+
+export default function AccountsPage() {
+  return (
+    <DashboardLayout>
+      <AccountsContent />
+    </DashboardLayout>
   );
 }

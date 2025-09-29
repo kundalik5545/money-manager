@@ -12,7 +12,7 @@ import csv
 import openpyxl
 
 # Get base URL from environment
-BASE_URL = "https://finance-wizard-30.preview.emergentagent.com"
+BASE_URL = "https://cashflow-182.preview.emergentagent.com"
 API_BASE = f"{BASE_URL}/api"
 
 def test_export_functionality():

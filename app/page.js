@@ -1,6 +1,6 @@
 "use client";
 
-import { useUser } from "@clerk/nextjs";
+// import { useUser } from "@clerk/nextjs"; // Temporarily disabled
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,22 +9,29 @@ import { BarChart3, ArrowRight, Shield, TrendingUp, Users } from "lucide-react";
 import Link from "next/link";
 
 export default function HomePage() {
-  const { isSignedIn, isLoaded } = useUser();
+  // const { isSignedIn, isLoaded } = useUser(); // Temporarily disabled
   const router = useRouter();
 
+  // For development, auto-redirect to dashboard
   useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      router.push("/dashboard");
-    }
-  }, [isSignedIn, isLoaded, router]);
+    // Automatically redirect to dashboard since auth is disabled
+    router.push("/dashboard");
+  }, [router]);
 
-  if (!isLoaded) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-      </div>
-    );
-  }
+  // Original auth logic (commented out)
+  // useEffect(() => {
+  //   if (isLoaded && isSignedIn) {
+  //     router.push("/dashboard");
+  //   }
+  // }, [isSignedIn, isLoaded, router]);
+
+  // if (!isLoaded) {
+  //   return (
+  //     <div className="min-h-screen flex items-center justify-center">
+  //       <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-cyan-50">
@@ -37,12 +44,17 @@ export default function HomePage() {
               <span className="text-xl font-bold text-gray-900">FinanceHub</span>
             </div>
             <div className="flex items-center gap-4">
-              <Link href="/sign-in">
+              {/* Temporarily replaced auth links with dashboard link */}
+              <Link href="/dashboard">
+                <Button>Go to Dashboard</Button>
+              </Link>
+              {/* Original auth links (commented out) */}
+              {/* <Link href="/sign-in">
                 <Button variant="ghost">Sign In</Button>
               </Link>
               <Link href="/sign-up">
                 <Button>Get Started</Button>
-              </Link>
+              </Link> */}
             </div>
           </div>
         </div>
@@ -59,7 +71,14 @@ export default function HomePage() {
             Track expenses, set budgets, and achieve your financial goals with powerful insights and automation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/sign-up">
+            <Link href="/dashboard">
+              <Button size="lg" className="text-lg px-8 py-3">
+                Go to Dashboard
+                <ArrowRight className="ml-2 h-5 w-5" />
+              </Button>
+            </Link>
+            {/* Original auth buttons (commented out) */}
+            {/* <Link href="/sign-up">
               <Button size="lg" className="text-lg px-8 py-3">
                 Start Free Today
                 <ArrowRight className="ml-2 h-5 w-5" />
@@ -69,7 +88,7 @@ export default function HomePage() {
               <Button variant="outline" size="lg" className="text-lg px-8 py-3">
                 Sign In
               </Button>
-            </Link>
+            </Link> */}
           </div>
         </div>
       </section>
@@ -138,7 +157,7 @@ export default function HomePage() {
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
             Join thousands of users who are already managing their money smarter with FinanceHub.
           </p>
-          <Link href="/sign-up">
+          <Link href="/dashboard">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
               Get Started Free
               <ArrowRight className="ml-2 h-5 w-5" />

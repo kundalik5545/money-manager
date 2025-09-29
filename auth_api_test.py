@@ -11,7 +11,7 @@ import os
 from datetime import datetime
 
 # Get base URL from environment
-BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://finance-wizard-30.preview.emergentagent.com')
+BASE_URL = os.getenv('NEXT_PUBLIC_BASE_URL', 'https://cashflow-182.preview.emergentagent.com')
 API_BASE = f"{BASE_URL}/api"
 
 class ClerkAuthAPITester:
