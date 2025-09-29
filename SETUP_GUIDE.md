@@ -5,7 +5,8 @@ Welcome to your new multi-user personal finance dashboard! Follow this guide to 
 ## 📋 Prerequisites
 
 You mentioned you have:
-- ✅ Clerk account 
+
+- ✅ Clerk account
 - ✅ Neon database (or need to create one)
 - ✅ Free email service (we'll use Resend)
 
@@ -13,10 +14,12 @@ You mentioned you have:
 
 1. **Go to your Clerk Dashboard**: https://dashboard.clerk.com
 2. **Get your API keys** from your application settings:
+
    - Publishable Key (starts with `pk_test_` or `pk_live_`)
    - Secret Key (starts with `sk_test_` or `sk_live_`)
 
 3. **Update your `.env.local` file** with your Clerk keys:
+
 ```bash
 # Replace these with your actual Clerk keys
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_your_publishable_key_here
@@ -37,16 +40,19 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/dashboard
 ## 🐘 Step 2: Set Up Neon PostgreSQL Database
 
 ### If you don't have a Neon account:
+
 1. Go to https://neon.tech and sign up
 2. Create a new project
 3. Select a region close to you
 
 ### If you have a Neon account:
+
 1. Create a new database or use existing one
 2. Go to your project dashboard
 3. Copy the connection string from "Connection Details"
 
 ### Update your database configuration:
+
 ```bash
 # Add to .env.local - replace with your actual Neon connection string
 DATABASE_URL="postgresql://username:password@hostname/dbname?sslmode=require"
@@ -58,33 +64,48 @@ DIRECT_URL="postgresql://username:password@hostname/dbname?sslmode=require"
 1. **Sign up for Resend**: https://resend.com (free tier includes 3,000 emails/month)
 2. **Create an API key** in your Resend dashboard
 3. **Add to `.env.local`**:
+
 ```bash
 RESEND_API_KEY=re_your_api_key_here
 ```
 
-## 🗄️ Step 4: Initialize the Database
+## � Step 4: Install Dependencies
+
+First, make sure you have pnpm installed globally:
+
+```bash
+npm install -g pnpm
+```
+
+Then install all project dependencies:
+
+```bash
+pnpm install
+```
+
+## �🗄️ Step 5: Initialize the Database
 
 Run these commands to set up your database:
 
 ```bash
 # Generate Prisma client
-yarn prisma generate
+pnpm prisma generate
 
 # Push the schema to your database
-yarn prisma db push
+pnpm prisma db push
 
 # Optional: Seed with sample data
-yarn prisma db seed
+pnpm prisma db seed
 ```
 
-## 🔄 Step 5: Restart the Application
+## 🔄 Step 6: Restart the Application
 
 ```bash
 # Restart Next.js to pick up environment changes
 sudo supervisorctl restart nextjs
 ```
 
-## ✅ Step 6: Test Your Setup
+## ✅ Step 7: Test Your Setup
 
 1. **Visit your app**: http://localhost:3000
 2. **Click "Get Started"** to test sign-up
@@ -94,18 +115,21 @@ sudo supervisorctl restart nextjs
 ## 🎯 What You'll Have After Setup
 
 ### ✅ **Authentication Features**:
+
 - User registration and login
-- Secure session management  
+- Secure session management
 - User profiles with Clerk
 - Multi-user support (each user has isolated data)
 
 ### ✅ **Database Features**:
+
 - PostgreSQL with Prisma ORM
 - User-specific accounts, categories, transactions
 - Budget tracking with email notifications
 - Data relationships and constraints
 
 ### ✅ **Dashboard Features**:
+
 - Personal finance analytics
 - Transaction management
 - Budget tracking
@@ -117,17 +141,20 @@ sudo supervisorctl restart nextjs
 After basic setup is complete, we can implement:
 
 ### Phase 2: Enhanced UI Components
+
 - Sidebar navigation with dark mode
 - Separate routes for transactions, accounts, categories
 - Advanced filtering and search
 
-### Phase 3: Advanced Features  
+### Phase 3: Advanced Features
+
 - Monthly budget tracking with notifications
 - Enhanced charts and analytics
 - Default account functionality
 - Chart filters (daily, weekly, monthly, yearly)
 
 ### Phase 4: Final Polish
+
 - Email budget notifications
 - Mobile responsiveness
 - Performance optimizations
@@ -135,16 +162,19 @@ After basic setup is complete, we can implement:
 ## 🆘 Troubleshooting
 
 ### Authentication Issues:
+
 - Verify Clerk keys are correct in `.env.local`
 - Check Clerk dashboard for allowed domains
 - Ensure middleware.ts is working
 
 ### Database Issues:
+
 - Verify DATABASE_URL connection string
 - Check Neon dashboard for connection limits
-- Run `yarn prisma db push` to sync schema
+- Run `pnpm prisma db push` to sync schema
 
 ### Email Issues:
+
 - Verify Resend API key
 - Check Resend dashboard for sending limits
 - Test with a simple email first
