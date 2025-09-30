@@ -1,13 +1,14 @@
 "use client";
 
 import { useState } from "react";
-import NavigationController from "./NavigationController"; 
+import NavigationController from "./NavigationController";
 import { useIsMobile } from "../../hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
-export default function DashboardLayout({ children }) {
+export default function DashboardLayout({ children, bgColor }) {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   // const { isMobile, isLoaded } = useScreenSize(); // single source of truth
-const {isMobile} = useIsMobile();
+  const { isMobile } = useIsMobile();
 
   const handleCollapseChange = (collapsed) => {
     setSidebarCollapsed(collapsed);
@@ -16,7 +17,7 @@ const {isMobile} = useIsMobile();
   console.log("Render DesktopNavigation");
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={cn("min-h-screen", bgColor ? bgColor : "bg-background")}>
       {/* pass screen-size values down as props */}
       <NavigationController
         isMobile={isMobile}
@@ -34,7 +35,8 @@ const {isMobile} = useIsMobile();
           className={`p-4 lg:p-8 ${
             isMobile || sidebarCollapsed ? "max-w-none" : "max-w-7xl mx-auto"
           }`}
-        >{children}
+        >
+          {children}
           {/* Show loading state until screen size is determined */}
           {/* {!isLoaded ? (
             <div className="flex items-center justify-center h-64">

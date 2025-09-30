@@ -25,7 +25,14 @@ export default function NotFoundPage() {
                   strokeWidth="14"
                   strokeLinecap="round"
                 />
-                <rect x="176" y="176" width="160" height="40" rx="8" fill="#DBEAFE" />
+                <rect
+                  x="176"
+                  y="176"
+                  width="160"
+                  height="40"
+                  rx="8"
+                  fill="#DBEAFE"
+                />
                 <path
                   d="M192 200h128"
                   stroke="#93C5FD"
@@ -41,8 +48,9 @@ export default function NotFoundPage() {
             Page not found
           </h1>
           <p className="text-sm sm:text-base text-muted-foreground mb-6">
-            The page you’re looking for doesn’t exist, or you may not have access to it.
-            If you think this is a mistake, you can report it to the team.
+            The page you’re looking for doesn’t exist, or you may not have
+            access to it. If you think this is a mistake, you can report it to
+            the team.
           </p>
 
           {/* Actions */}
@@ -64,7 +72,11 @@ export default function NotFoundPage() {
 
           {/* Optional hint */}
           <p className="mt-6 text-xs text-muted-foreground">
-            Tip: check the URL for typos or visit the <Link href="/help" className="underline">help center</Link>.
+            Tip: check the URL for typos or visit the{" "}
+            <Link href="/help" className="underline">
+              help center
+            </Link>
+            .
           </p>
         </div>
       </div>
