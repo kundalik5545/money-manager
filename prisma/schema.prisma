@@ -5,85 +5,89 @@ generator client {
   provider = "prisma-client-js"
 }
 
+// datasource db {
+//   provider  = "postgresql"
+//   url       = env("DATABASE_URL")
+//   directUrl = env("DIRECT_URL")
+// }
 datasource db {
-  provider  = "postgresql"
-  url       = env("DATABASE_URL")
-  directUrl = env("DIRECT_URL")
+  provider = "sqlite"
+  url      = "file:./dev.db"
 }
 
 model User {
-  id               String        @id @default(cuid())
-  clerkId          String        @unique
-  email            String        @unique
+  id               String   @id @default(cuid())
+  clerkId          String   @unique
+  email            String   @unique
   firstName        String?
   lastName         String?
   imageUrl         String?
   defaultAccountId String?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
-  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   // Relations
-  accounts         Account[]
-  categories       Category[]
-  transactions     Transaction[]
-  budgets          Budget[]
-  investments      Investment[]
-  defaultAccount   Account?      @relation("DefaultAccount", fields: [defaultAccountId], references: [id])
-  
+  accounts       Account[]
+  categories     Category[]
+  transactions   Transaction[]
+  budgets        Budget[]
+  investments    Investment[]
+  defaultAccount Account?      @relation("DefaultAccount", fields: [defaultAccountId], references: [id])
+
   @@map("users")
 }
 
 model Account {
-  id           String        @id @default(cuid())
-  name         String
-  type         AccountType
-  balance      Float         @default(0)
-  isDefault    Boolean       @default(false)
-  userId       String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  
+  id        String      @id @default(cuid())
+  name      String
+  type      AccountType
+  balance   Float       @default(0)
+  isDefault Boolean     @default(false)
+  userId    String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
   // Relations
   user         User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions Transaction[]
   defaultUsers User[]        @relation("DefaultAccount")
-  
+
   @@map("accounts")
 }
 
 model Category {
-  id            String         @id @default(cuid())
-  name          String
-  type          CategoryType
-  userId        String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  
+  id        String       @id @default(cuid())
+  name      String
+  type      CategoryType
+  userId    String
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+
   // Relations
-  user          User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   transactions  Transaction[]
   subcategories Subcategory[]
   budgets       Budget[]
-  
+
   @@map("categories")
 }
 
 model Subcategory {
-  id           String        @id @default(cuid())
-  name         String
-  categoryId   String
-  createdAt    DateTime      @default(now())
-  updatedAt    DateTime      @updatedAt
-  
+  id         String   @id @default(cuid())
+  name       String
+  categoryId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   // Relations
   category     Category      @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   transactions Transaction[]
-  
+
   @@map("subcategories")
 }
 
 model Transaction {
-  id            String       @id @default(cuid())
+  id            String   @id @default(cuid())
   amount        Float
   description   String
   date          DateTime
@@ -91,15 +95,15 @@ model Transaction {
   categoryId    String
   subcategoryId String?
   userId        String
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
-  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
   // Relations
-  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  account       Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
-  category      Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
-  subcategory   Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
-  
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  account     Account      @relation(fields: [accountId], references: [id], onDelete: Cascade)
+  category    Category     @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  subcategory Subcategory? @relation(fields: [subcategoryId], references: [id], onDelete: SetNull)
+
   @@map("transactions")
 }
 
@@ -114,38 +118,38 @@ model Budget {
   startDate  DateTime
   endDate    DateTime
   isActive   Boolean      @default(true)
-  
+
   // Email notification settings
-  emailNotifications    Boolean @default(true)
-  warningThreshold     Float   @default(0.8) // 80%
+  emailNotifications   Boolean   @default(true)
+  warningThreshold     Float     @default(0.8) // 80%
   lastNotificationSent DateTime?
-  
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @updatedAt
-  
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
   // Relations
-  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
-  category   Category?    @relation(fields: [categoryId], references: [id], onDelete: SetNull)
-  
+  user     User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  category Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   @@map("budgets")
 }
 
 model Investment {
-  id               String          @id @default(cuid())
-  symbol           String          // Stock ticker symbol (e.g., AAPL, RELIANCE.NS)
-  name             String          // Investment name (e.g., Apple Inc.)
-  type             InvestmentType
-  quantity         Float           @default(0)
-  purchasePrice    Float           // Price when purchased
-  currentPrice     Float           // Current market price
-  investedAmount   Float           // Total amount invested
-  currentValue     Float           // Current total value
-  userId           String
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
+  id             String         @id @default(cuid())
+  symbol         String // Stock ticker symbol (e.g., AAPL, RELIANCE.NS)
+  name           String // Investment name (e.g., Apple Inc.)
+  type           InvestmentType
+  quantity       Float          @default(0)
+  purchasePrice  Float // Price when purchased
+  currentPrice   Float // Current market price
+  investedAmount Float // Total amount invested
+  currentValue   Float // Current total value
+  userId         String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
 
   // Relations
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("investments")
 }

@@ -13,10 +13,10 @@ export default function HomePage() {
   const router = useRouter();
 
   // For development, auto-redirect to dashboard
-  useEffect(() => {
-    // Automatically redirect to dashboard since auth is disabled
-    router.push("/dashboard");
-  }, [router]);
+  // useEffect(() => {
+  //   // Automatically redirect to dashboard since auth is disabled
+  //   router.push("/dashboard");
+  // }, [router]);
 
   // Original auth logic (commented out)
   // useEffect(() => {
@@ -41,7 +41,9 @@ export default function HomePage() {
           <div className="flex justify-between items-center py-4">
             <div className="flex items-center">
               <BarChart3 className="h-8 w-8 text-blue-600 mr-3" />
-              <span className="text-xl font-bold text-gray-900">FinanceHub</span>
+              <span className="text-xl font-bold text-gray-900">
+                FinanceHub
+              </span>
             </div>
             <div className="flex items-center gap-4">
               {/* Temporarily replaced auth links with dashboard link */}
@@ -67,8 +69,9 @@ export default function HomePage() {
             Master Your <span className="text-blue-600">Financial Future</span>
           </h1>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Take control of your finances with our comprehensive personal finance dashboard. 
-            Track expenses, set budgets, and achieve your financial goals with powerful insights and automation.
+            Take control of your finances with our comprehensive personal
+            finance dashboard. Track expenses, set budgets, and achieve your
+            financial goals with powerful insights and automation.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link href="/dashboard">
@@ -113,8 +116,9 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Get detailed insights into your spending patterns with interactive charts and reports. 
-                  Track your progress towards financial goals.
+                  Get detailed insights into your spending patterns with
+                  interactive charts and reports. Track your progress towards
+                  financial goals.
                 </p>
               </CardContent>
             </Card>
@@ -126,7 +130,7 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Your financial data is protected with bank-level encryption. 
+                  Your financial data is protected with bank-level encryption.
                   We never share your personal information with third parties.
                 </p>
               </CardContent>
@@ -139,8 +143,8 @@ export default function HomePage() {
               </CardHeader>
               <CardContent>
                 <p className="text-gray-600">
-                  Perfect for individuals, couples, and families. 
-                  Each user has their own secure dashboard and data.
+                  Perfect for individuals, couples, and families. Each user has
+                  their own secure dashboard and data.
                 </p>
               </CardContent>
             </Card>
@@ -155,7 +159,8 @@ export default function HomePage() {
             Ready to take control of your finances?
           </h2>
           <p className="text-xl text-blue-100 mb-8 max-w-2xl mx-auto">
-            Join thousands of users who are already managing their money smarter with FinanceHub.
+            Join thousands of users who are already managing their money smarter
+            with FinanceHub.
           </p>
           <Link href="/dashboard">
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
